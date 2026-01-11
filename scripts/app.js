@@ -81,9 +81,7 @@ const Notify = {
    ========================================================================== */
 function openLoginModal() {
   const modal = document.getElementById("login-modal");
-  if (modal) {
-    modal.classList.remove("hidden");
-  }
+  if (modal) modal.classList.remove("hidden");
 }
 
 function closeLoginModal() {
@@ -117,20 +115,23 @@ function openAccessDeniedModal() {
 }
 
 /* ==========================================================================
-   4. INICIALIZAÇÃO
+   4. INICIALIZAÇÃO E RELÓGIO
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   Notify.init();
   updateUI();
   checkUrlLogin();
 
-  const dateEl = document.getElementById("date-display");
-  if (dateEl) dateEl.innerText = new Date().toLocaleDateString("pt-BR");
+  // Inicia Relógio e Data
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
 
-  loadNews(); // Agora chama a versão nova que busca da API
-  setupNavigation();
+  // Carregamentos Assíncronos
+  loadNews();
   loadCommanders();
+  setupNavigation();
 
+  // Listeners de Formulário e Modal
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
 
@@ -139,6 +140,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === modal) closeLoginModal();
   });
 });
+
+// Função de Atualizar Data e Hora (Chamada a cada segundo)
+function updateDateTime() {
+  const now = new Date();
+
+  // Data
+  const dateEl = document.getElementById("date-display");
+  if (dateEl) dateEl.innerText = now.toLocaleDateString("pt-BR");
+
+  // Hora (Formato 00:00)
+  const timeEl = document.getElementById("time-display");
+  if (timeEl) {
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    timeEl.innerText = `${hours}:${minutes}`;
+  }
+}
 
 /* ==========================================================================
    5. NAVEGAÇÃO E LINKS
@@ -301,16 +319,12 @@ function updateFormAvatar() {
    7. DADOS E FORMULÁRIOS
    ========================================================================== */
 
-// --- FUNÇÃO DE NOTÍCIAS ATUALIZADA (API + NOVO VISUAL) ---
+// --- CARREGAR NOTÍCIAS (API) ---
 async function loadNews() {
   const grid = document.getElementById("news-grid");
   if (!grid) return;
 
-  // Estado de carregamento opcional
-  // grid.innerHTML = '<p style="color: #64748b;">Carregando...</p>';
-
   try {
-    // Agora chama a API, não o JSON local
     const req = await fetch("/api/get-news");
     if (!req.ok) throw new Error("Falha na API");
 
@@ -323,7 +337,6 @@ async function loadNews() {
     }
 
     data.forEach((news) => {
-      // Cria o card da notícia dinamicamente com o estilo "Capa de Jornal"
       grid.innerHTML += `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative;">
@@ -402,13 +415,13 @@ async function handleBOSubmit(e) {
     Notify.error("Erro ao enviar.");
   }
 }
-/* ==========================================================================
-   8. FUNÇÕES DO INDEX (ADICIONE ESTA NOVA SEÇÃO NO FINAL)
-   ========================================================================== */
 
+/* ==========================================================================
+   8. CARREGAR COMANDANTES (DINÂMICO)
+   ========================================================================== */
 async function loadCommanders() {
   const container = document.querySelector(".commanders-grid");
-  if (!container) return; // Se não estiver na home, sai
+  if (!container) return;
 
   try {
     const req = await fetch("/api/get-commanders");
@@ -416,30 +429,36 @@ async function loadCommanders() {
 
     if (!req.ok || !commanders || commanders.length < 3) {
       console.warn("Não foi possível carregar todos os comandantes.");
-      return; // Mantém o HTML original (fallback) se der erro
+
+      // Remove o ícone de loading se falhar
+      const loadingIcon = container.querySelector(".fa-spinner");
+      if (loadingIcon && loadingIcon.parentElement)
+        loadingIcon.parentElement.innerHTML =
+          "<p>Comando indisponível no momento.</p>";
+
+      return;
     }
 
-    // Títulos fixos baseados na ordem do .env
+    // Definição dos Cargos (Ordem fixa)
     const roles = [
       {
         title: "Comandante Geral",
-        desc: "Responsável Polícia",
+        desc: "Responsável pela estratégia global de segurança e diretrizes da corporação.",
       },
       {
         title: "Subcomandante Geral",
         desc: "Coordena a logística e o gerenciamento tático das tropas em campo.",
       },
       {
-        title: "Subcomandante Geral",
+        title: "Chefe de Operações",
         desc: "Líder das forças especiais e operações de alto risco na cidade.",
       },
     ];
 
-    container.innerHTML = ""; // Limpa os cards estáticos
+    container.innerHTML = ""; // Limpa o loading
 
     // Cria os cards dinâmicos
     commanders.forEach((cmd, index) => {
-      // Se houver mais IDs que cargos, usa um genérico, ou para no 3º
       if (index >= roles.length) return;
 
       container.innerHTML += `

@@ -135,58 +135,129 @@ body {
 }
 
 /* --- HERO SECTION (ALINHADO À ESQUERDA) --- */
+
 .hero {
-  height: 75vh; /* Mais alto para impacto */
+  position: relative;
+  height: 100vh; /* Ocupa a tela toda */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza verticalmente */
+  align-items: flex-start; /* Garante alinhamento à esquerda */
+  padding: 0 5%; /* Margem lateral */
+  color: white;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Barra Superior (Logo e Status) */
+.hero-top-bar {
+  position: absolute;
+  top: 40px;
+  left: 5%;
+  right: 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+}
+
+/* Título Principal com Gradiente */
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+
+  /* Efeito de Texto Metálico/Gradiente */
+  background: linear-gradient(to right, #ffffff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Sombra para destacar do vídeo */
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtítulo */
+.hero-content p {
+  font-size: 1.3rem;
+  color: #cbd5e1;
+  margin-top: 15px;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  font-weight: 300;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Container de Data e Hora (Glassmorphism) */
+.stats-glass {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6); /* Fundo escuro semi-transparente */
+  backdrop-filter: blur(12px); /* Desfoque do vídeo atrás */
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  gap: 20px;
+}
+
+/* Item Individual (Data / Hora) */
+.stat-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Alinha conteúdo à esquerda */
-  text-align: left;
-  padding-left: 3%; /* Alinhado com a navbar */
-  background: linear-gradient(
-      to right,
-      rgba(10, 14, 23, 0.95) 0%,
-      rgba(10, 14, 23, 0.8) 40%,
-      rgba(10, 14, 23, 0.2) 100%
-    ),
-    url("https://images.unsplash.com/photo-1548599726-53896dfa42f6?q=80&w=2070&auto=format&fit=crop");
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  border-bottom: 1px solid var(--glass-border);
-}
+  gap: 10px;
+  color: white;
+  font-family: "Courier New", monospace; /* Fonte técnica */
+  font-weight: bold;
+  font-size: 1.1rem;
 
-.hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 800px;
-}
-
-.hero h1 {
-  font-size: 4.5rem; /* Fonte maior */
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 15px;
-  line-height: 1.1;
-  text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-}
-
-.hero p {
-  font-size: 1.5rem;
-  color: #cbd5e1;
-  margin-bottom: 2rem;
-  max-width: 600px;
-}
-
-.stats {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.stat-item {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 20px;
-  border-radius: 8px;
+  /* Aderindo ao seu estilo de borda dourada */
   border-left: 3px solid var(--accent-gold);
+  padding-left: 15px;
+  height: 100%;
+}
+
+.stat-item i {
+  color: var(--accent-gold);
+}
+
+/* Divisor vertical entre data e hora */
+.stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsividade para Celulares */
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    top: 20px;
+  }
+
+  .stats-glass {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stat-divider {
+    display: none;
+  }
+
+  .stat-item {
+    width: 100%;
+    border-left: 3px solid var(--accent-gold);
+  }
 }
 
 /* --- NEWS GRID (ADAPTÁVEL) --- */

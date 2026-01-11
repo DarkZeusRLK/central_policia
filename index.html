@@ -40,14 +40,39 @@
     </div>
   </nav>
 
+  <div class="video-background">
+    <video autoplay muted loop playsinline id="myVideo">
+      <source src="assets/bg-video.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+  </div>
+
   <header class="hero">
+    <div class="hero-top-bar">
+      <div class="logo">
+        <img src="assets/logo-city.png" alt="Brasão Revoada">
+        <span>REVOADA RJ</span>
+      </div>
+
+      <div class="system-status">
+        <span class="pulsing-dot"></span>
+        <span class="status-text">SISTEMA ONLINE</span>
+      </div>
+    </div>
+
     <div class="hero-content">
-      <h1>Servir e Proteger</h1>
+      <h1 class="glitch-effect" data-text="SERVIR E PROTEGER">SERVIR E PROTEGER</h1>
       <p>Central de Polícia Oficial da Cidade Revoada RJ</p>
-      <div class="stats">
+
+      <div class="stats-glass">
         <div class="stat-item">
+          <i class="fa-regular fa-calendar-days"></i>
           <span id="date-display">--/--/----</span>
-          <small>Data Atual</small>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="fa-regular fa-clock"></i>
+          <span id="time-display">00:00</span>
         </div>
       </div>
     </div>
