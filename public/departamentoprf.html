@@ -5,19 +5,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PRF | Central de Polícia</title>
-  <link rel="shortcut icon" href="images/PRF_new.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../public/images/PRF_new.png" type="image/x-icon">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../style/main.css">
+
   <style>
-    /* Cores Temáticas PRF */
+    /* --- ESTILOS ESPECÍFICOS PRF (AMARELO/AZUL) --- */
     :root {
       --prf-yellow: #facc15;
-      /* Amarelo PRF */
       --prf-blue: #1e3a8a;
-      /* Azul PRF */
     }
 
-    /* Estilos Code Block */
     .discord-code {
       background-color: #2b2d31;
       color: #dcddd4;
@@ -28,6 +27,7 @@
       margin-bottom: 15px;
       border-left: 3px solid var(--prf-yellow);
       word-wrap: break-word;
+      user-select: text;
     }
 
     .discord-highlight {
@@ -49,13 +49,16 @@
     /* Nota de Atenção */
     .attention-note {
       background: rgba(250, 204, 21, 0.1);
-      /* Fundo amarelo suave */
       border-left: 3px solid var(--prf-yellow);
-      padding: 10px;
+      padding: 15px;
       margin-bottom: 15px;
-      font-size: 0.85rem;
+      border-radius: 0 5px 5px 0;
+      font-size: 0.9rem;
       color: #fde047;
       font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     /* --- GALERIA --- */
@@ -78,7 +81,7 @@
       position: relative;
       overflow: hidden;
       border-radius: 8px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(250, 204, 21, 0.3);
       aspect-ratio: 16/9;
       cursor: pointer;
     }
@@ -100,7 +103,7 @@
 
   <nav class="navbar">
     <div class="logo">
-      <i class="fa-solid fa-road"></i>
+      <i class="fa-solid fa-road" style="color: var(--prf-yellow);"></i>
       <span>PRF</span>
     </div>
     <ul class="nav-links">
@@ -111,7 +114,7 @@
 
   <header class="hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(15, 23, 42, 1)), url('https://s2-g1.glbimg.com/s6n7Sj0tQ8WvvfA-pX_YFqUgeRc=/0x0:1600x1066/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2021/A/9/8O00rBSa2XAg5lnv5oAA/whatsapp-image-2021-05-24-at-15.54.40.jpeg'); background-size: cover; background-position: center;">
     <div class="hero-content">
-      <h1>POLÍCIA RODOVIÁRIA FEDERAL</h1>
+      <h1 class="glitch-effect" data-text="POLÍCIA RODOVIÁRIA">POLÍCIA RODOVIÁRIA</h1>
       <p>Segurança com Cidadania.</p>
     </div>
   </header>
@@ -122,13 +125,12 @@
 
         <div style="text-align: center; margin-bottom: 30px;">
           <h2 style="color: white; text-transform: uppercase;">
-            <i class="fa-solid fa-car-on"></i> PRF <i class="fa-solid fa-car-on"></i>
+            <i class="fa-solid fa-car-on" style="color: var(--prf-yellow);"></i> PRF - Departamento Rodoviário
           </h2>
-          <p style="font-size: 0.9rem; color: #94a3b8;">POLÍCIA RODOVIÁRIA FEDERAL</p>
         </div>
 
-        <p style="margin-bottom: 20px; color: #e2e8f0;">
-          A Polícia Rodoviária Federal (PRF) é a principal responsável por manter a ordem na região das rodovias ao norte da cidade.
+        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
+          A Polícia Rodoviária Federal (PRF) é a autoridade máxima nas rodovias e fronteiras da cidade. Nossa missão é combater o tráfico, recuperar veículos roubados e garantir a livre circulação com segurança.
         </p>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
@@ -136,13 +138,13 @@
         <h3 style="color: var(--prf-yellow); margin-bottom: 10px;">Força Especial:</h3>
         <div class="list-item">
           <i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i>
-          <strong>G.R.R</strong> (Grupo de Resposta Rápida) <i class="fa-solid fa-bolt"></i>
+          <strong>GRR</strong> (Grupo de Resposta Rápida) <i class="fa-solid fa-bolt"></i>
         </div>
 
         <h3 style="color: var(--prf-yellow); margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>BATEDOR</strong> <i class="fa-solid fa-motorcycle"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>BATEDOR</strong> (Escolta/Motos) <i class="fa-solid fa-motorcycle"></i></div>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>DOA</strong> (Operações Aéreas) <i class="fa-solid fa-helicopter"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>SPEED</strong> <i class="fa-solid fa-gauge-high"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>SPEED</strong> (Perseguição) <i class="fa-solid fa-gauge-high"></i></div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
@@ -157,16 +159,14 @@
           <div class="gallery-item">
             <img src="https://www.gov.br/prf/pt-br/noticias/estaduais/rio-grande-do-sul/2022/junho/prf-realiza-transporte-aeromedico-de-orgao-para-transplante/0b5107e3-5182-41ba-ac77-96a12b69472e.jpg/@@images/image" alt="DOA Helicóptero">
           </div>
-          <div class="gallery-item">
-            <img src="https://sinprf-pr.org.br/wp-content/uploads/2023/10/WhatsApp-Image-2023-10-18-at-13.33.26.jpeg" alt="Operação GRR">
-          </div>
         </div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
         <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
         <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Todos os dias e horários.</li>
+          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
+          <li>Horário: Todos os dias.</li>
         </ul>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
@@ -175,9 +175,13 @@
         <div class="discord-code">
           mascara 0 0; maos 0 0; calca 14 0; mochila 0 0; sapatos 56 0; acessorios 0 0; blusa 15 0; colete 0 0; adesivo 0 0; jaqueta 181 0; oculos -1 0; chapeu -1 0;
         </div>
+
         <div class="attention-note">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          Comparecer sem cabelo (cabelo 51), sem tatuagens e com olhos de cores naturais.
+          <i class="fa-solid fa-circle-exclamation fa-lg"></i>
+          <div>
+            <strong>Padrão Visual:</strong><br>
+            É exigido cabelo na régua (corte 51), sem tatuagens visíveis e olhos naturais.
+          </div>
         </div>
 
         <p style="margin-bottom: 5px;">🚺 <strong>Fardamento feminino:</strong></p>
@@ -185,21 +189,30 @@
           mascara 0 0; maos 14 0; calca 33 3; mochila 0 0; sapatos 50 0; acessorios 0 0; blusa 14 0; colete 0 0; adesivo 0 0; jaqueta 553 2; oculos -1 0; chapeu -1 0;
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <p style="margin-bottom: 20px;">
-          <strong><i class="fa-solid fa-book"></i> Manual do conscrito:</strong>
-          <a href="https://docs.google.com/document/d/1dii7sJSNBR4YLAbFO89pU6hU-s2K21_nLvyoQW57rZQ/edit?usp=sharing" target="_blank" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px; background-color: var(--prf-blue);">
-            Clique aqui <i class="fa-solid fa-external-link-alt"></i>
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="https://docs.google.com/document/d/1dii7sJSNBR4YLAbFO89pU6hU-s2K21_nLvyoQW57rZQ/edit?usp=sharing" target="_blank" class="btn-submit" style="display: inline-block; text-decoration: none; background-color: var(--prf-blue); border-color: #172554;">
+            <i class="fa-solid fa-book"></i> Manual do Conscrito
           </a>
-        </p>
+        </div>
 
-        <blockquote style="border-left: 4px solid var(--prf-yellow); padding-left: 15px; color: #94a3b8; font-style: italic;">
+        <blockquote style="border-left: 4px solid var(--prf-yellow); padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
           🔎 Se você tem disciplina, coragem e deseja fazer parte da elite rodoviária, essa é sua chance!
         </blockquote>
 
       </div>
     </section>
+
+    <section class="container commanders-section">
+      <h2 class="section-title"><i class="fa-solid fa-star"></i> Inspetoria Geral</h2>
+
+      <div id="prf-leadership" class="commanders-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
+          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--prf-yellow); margin-bottom: 15px;"></i>
+          <p>Carregando inspetores...</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="main-footer">

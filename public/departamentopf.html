@@ -5,10 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PF | Central de Polícia</title>
-  <link rel="shortcut icon" href="images/Policia-federal-logo.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../public/images/Policia-federal-logo.png" type="image/x-icon">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../style/main.css">
+
   <style>
+    /* --- ESTILOS ESPECÍFICOS PF (CINZA/PRETO) --- */
+
     .discord-code {
       background-color: #2b2d31;
       color: #dcddd4;
@@ -20,6 +24,7 @@
       border-left: 3px solid #94a3b8;
       /* Cinza PF */
       word-wrap: break-word;
+      user-select: text;
     }
 
     .discord-highlight {
@@ -37,23 +42,62 @@
       gap: 8px;
       color: #cbd5e1;
     }
+
+    /* --- GALERIA --- */
+    .gallery-title {
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: white;
+      border-left: 4px solid #94a3b8;
+      padding-left: 10px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 2px solid rgba(148, 163, 184, 0.3);
+      aspect-ratio: 16/9;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 
 <body>
 
   <nav class="navbar">
-    <div class="logo"><i class="fa-solid fa-building-shield"></i><span>PF</span></div>
+    <div class="logo">
+      <i class="fa-solid fa-building-shield" style="color: #cbd5e1;"></i>
+      <span>PF</span>
+    </div>
     <ul class="nav-links">
-      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar</a></li>
+      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar à Central</a></li>
     </ul>
     <div id="user-area" class="user-area"></div>
   </nav>
 
-  <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg'); background-size: cover; background-position: center;">
+  <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(15, 23, 42, 1)), url('https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg'); background-size: cover; background-position: center;">
     <div class="hero-content">
-      <h1>POLÍCIA FEDERAL</h1>
-      <p>A Lei Acima de Tudo.</p>
+      <h1 class="glitch-effect" data-text="POLÍCIA FEDERAL">POLÍCIA FEDERAL</h1>
+      <p>Lealdade, Integridade e Justiça.</p>
     </div>
   </header>
 
@@ -63,28 +107,48 @@
 
         <div style="text-align: center; margin-bottom: 30px;">
           <h2 style="color: white; text-transform: uppercase;">
-            <i class="fa-solid fa-globe"></i> POLÍCIA FEDERAL <i class="fa-solid fa-globe"></i>
+            <i class="fa-solid fa-globe" style="color: #94a3b8;"></i> DEPARTAMENTO DE POLÍCIA FEDERAL <i class="fa-solid fa-globe" style="color: #94a3b8;"></i>
           </h2>
         </div>
 
-        <p style="margin-bottom: 20px; color: #e2e8f0;">
-          A PF atua em investigações de crimes contra a União, corrupção, lavagem de dinheiro e terrorismo. A elite judiciária.
+        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
+          A Polícia Federal (PF) é a elite investigativa, atuando diretamente em crimes contra a União, corrupção, lavagem de dinheiro, tráfico internacional de drogas e terrorismo. Nossa missão é garantir a lei acima de tudo.
         </p>
+
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
         <h3 style="color: #94a3b8; margin-bottom: 10px;">Força Especial:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>COT</strong> (Comando Tático) <i class="fa-solid fa-user-ninja"></i></div>
+        <div class="list-item">
+          <i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i>
+          <strong>COT</strong> (Comando de Operações Táticas) <i class="fa-solid fa-user-ninja"></i>
+        </div>
 
         <h3 style="color: #94a3b8; margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>GPI</strong> (Pronta Intervenção) <i class="fa-solid fa-gun"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>CAOP</strong> (Aéreo) <i class="fa-solid fa-plane"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>DRE</strong> (Entorpecentes) <i class="fa-solid fa-capsules"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>CAOP</strong> (Comando Aéreo) <i class="fa-solid fa-plane"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>DRE</strong> (Repressão a Entorpecentes) <i class="fa-solid fa-capsules"></i></div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
-        <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
+        <h3 class="gallery-title">📸 Arquivo Federal</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <img src="https://static.poder360.com.br/2022/10/viaturas-policia-federal-pf-848x477.jpg" alt="Viatura PF">
+          </div>
+          <div class="gallery-item">
+            <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2021/06/25015_82F57813134D8A99.jpg" alt="COT em ação">
+          </div>
+          <div class="gallery-item">
+            <img src="https://gov.br/pf/pt-br/assuntos/noticias/2022/08/policia-federal-realiza-exercicio-simulado-de-ameaca-de-bomba-no-aeroporto-de-belem/WhatsAppImage20220818at14.39.05.jpeg/@@images/image" alt="Esquadrão Antibombas">
+          </div>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <p>📢 <span class="discord-highlight">Processo Seletivo</span></p>
         <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Mediante indicação ou concurso.</li>
+          <li>Status: <span style="color: #facc15; font-weight: bold;">SOB ANÁLISE</span></li>
+          <li>Método: Indicação ou Concurso Público.</li>
         </ul>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
@@ -99,22 +163,38 @@
           mascara -1 0; maos 0 0; calca 36 0; mochila -1 0; sapatos 11 0; acessorios -1 0; blusa 15 0; colete 54 0; jaqueta 43 0; oculos -1 0;
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <p style="margin-bottom: 20px;">
-          <strong>Manual do conscrito:</strong>
-          <a href="#" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px; background: #475569;">
-            Clique aqui <i class="fa-solid fa-external-link-alt"></i>
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="#" class="btn-submit" style="display: inline-block; text-decoration: none; background-color: #475569; border-color: #334155;">
+            <i class="fa-solid fa-book"></i> Ver Edital
           </a>
-        </p>
+        </div>
 
-        <blockquote style="border-left: 4px solid #94a3b8; padding-left: 15px; color: #94a3b8; font-style: italic;">
-          ⚖️ Integridade, honra e competência. Bem-vindo à Polícia Federal.
+        <blockquote style="border-left: 4px solid #94a3b8; padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
+          ⚖️ Integridade, honra e competência técnica. A excelência é o nosso padrão.
         </blockquote>
 
       </div>
     </section>
+
+    <section class="container commanders-section">
+      <h2 class="section-title"><i class="fa-solid fa-star"></i> Diretoria Geral</h2>
+
+      <div id="pf-leadership" class="commanders-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
+          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: #94a3b8; margin-bottom: 15px;"></i>
+          <p>Carregando diretores...</p>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <footer class="main-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Polícia Revoada RJ. Departamento Federal.</p>
+    </div>
+  </footer>
+
   <script src="../scripts/app.js"></script>
 </body>
 

@@ -125,13 +125,14 @@ body {
 }
 
 .dropdown-content a {
-  padding: 12px 20px;
-  display: block;
+  display: flex; /* Ativa o Flexbox */
+  align-items: center; /* Centraliza verticalmente */
+  gap: 10px; /* Espaço entre a logo e o texto */
 }
 
-.dropdown-content a:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--accent-gold);
+.dropdown-content a:hover .nav-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
 }
 
 /* --- HERO SECTION (ALINHADO À ESQUERDA) --- */
@@ -681,6 +682,14 @@ body {
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
+  }
+  .nav-icon {
+    width: 24px; /* Tamanho ideal para ícone de menu (pode testar 20px ou 30px) */
+    height: 24px; /* Mantém quadrado */
+    object-fit: contain; /* Garante que a logo não fique esticada/deformada */
+    filter: drop-shadow(
+      0 2px 2px rgba(0, 0, 0, 0.3)
+    ); /* (Opcional) Sombra leve para destacar */
   }
   .nav-links {
     gap: 1rem;

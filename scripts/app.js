@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Carregamentos Assíncronos
   loadNews();
   loadCommanders();
+  loadDepartmentLeadership();
   setupNavigation();
 
   // Listeners de Formulário e Modal
@@ -450,7 +451,7 @@ async function loadCommanders() {
         desc: "Coordena a logística e o gerenciamento tático das tropas em campo.",
       },
       {
-        title: "Chefe de Operações",
+        title: "Subcomandante Geral",
         desc: "Líder das forças especiais e operações de alto risco na cidade.",
       },
     ];
@@ -474,5 +475,97 @@ async function loadCommanders() {
     });
   } catch (e) {
     console.error("Erro ao carregar comandantes:", e);
+  }
+}
+/* ==========================================================================
+   9. CARREGAMENTO DE LIDERANÇA DEPARTAMENTAL
+   ========================================================================== */
+
+async function loadDepartmentLeadership() {
+  // Configurações para cada página (ID do container no HTML : Configuração da API)
+  const configs = {
+    "pcerj-leadership": {
+      api: "/api/get-pcerj",
+      roles: [
+        { title: "Delegado Titular", desc: "Chefe geral da Polícia Civil." },
+        {
+          title: "Delegado Adjunto",
+          desc: "Auxilia na administração da delegacia.",
+        },
+        {
+          title: "Chefe de Investigação",
+          desc: "Coordena os inquéritos e operações.",
+        },
+      ],
+    },
+    "pmerj-leadership": {
+      api: "/api/get-pmerj",
+      roles: [
+        { title: "Comandante", desc: "Responsável pelo batalhão." },
+        { title: "Subcomandante", desc: "Gestão da tropa e disciplina." },
+        { title: "Chefe P3", desc: "Planejamento de operações." },
+      ],
+    },
+    "pf-leadership": {
+      api: "/api/get-pf",
+      roles: [
+        { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
+        { title: "Diretor Executivo", desc: "Gestão administrativa." },
+        { title: "Corregedor", desc: "Fiscalização e conduta." },
+      ],
+    },
+    "prf-leadership": {
+      api: "/api/get-prf",
+      roles: [
+        {
+          title: "Diretor Geral",
+          desc: "Chefe da Polícia Rodoviária Federal.",
+        },
+        { title: "Superintendente", desc: "Coordenação regional." },
+        { title: "Chefe de Policiamento", desc: "Fiscalização nas rodovias." },
+      ],
+    },
+  };
+
+  // Procura na página atual se existe algum desses containers
+  for (const [containerId, config] of Object.entries(configs)) {
+    const container = document.getElementById(containerId);
+
+    if (container) {
+      try {
+        const req = await fetch(config.api);
+        const leaders = await req.json();
+
+        if (!req.ok || !leaders || leaders.length === 0) {
+          container.innerHTML =
+            "<p style='text-align:center; color:#64748b;'>Liderança não definida.</p>";
+          return;
+        }
+
+        container.innerHTML = ""; // Limpa o loader
+
+        leaders.forEach((leader, index) => {
+          // Pega o cargo correspondente ou usa um genérico se tiver mais gente que cargos
+          const role = config.roles[index] || {
+            title: "Oficial Superior",
+            desc: "Membro da diretoria.",
+          };
+
+          container.innerHTML += `
+                        <div class="commander-card">
+                            <div class="cmd-img-container">
+                                <img src="${leader.avatarUrl}" alt="${leader.username}">
+                            </div>
+                            <h3>${leader.username}</h3>
+                            <span class="rank">${role.title}</span>
+                            <p>${role.desc}</p>
+                        </div>
+                    `;
+        });
+      } catch (e) {
+        console.error(`Erro ao carregar ${containerId}:`, e);
+        container.innerHTML = "<p>Erro ao carregar dados.</p>";
+      }
+    }
   }
 }
