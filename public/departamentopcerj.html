@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../style/main.css">
   <style>
-    /* Estilo específico para simular o Code Block do Discord */
+    /* Estilo do Code Block (Discord) */
     .discord-code {
       background-color: #2b2d31;
       color: #dcddd4;
@@ -36,6 +36,45 @@
       gap: 8px;
       color: #cbd5e1;
     }
+
+    /* --- ESTILOS DA GALERIA --- */
+    .gallery-title {
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: white;
+      border-left: 4px solid var(--accent-gold);
+      padding-left: 10px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      /* Responsivo */
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      aspect-ratio: 16/9;
+      /* Mantém formato retangular */
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.1);
+      /* Zoom ao passar o mouse */
+    }
   </style>
 </head>
 
@@ -52,7 +91,7 @@
     <div id="user-area" class="user-area"></div>
   </nav>
 
-  <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://upload.wikimedia.org/wikipedia/commons/2/23/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro.svg'); background-size: cover; background-position: center;">
+  <header class="hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(15, 23, 42, 1)), url('https://img.freepik.com/fotos-gratis/carro-de-policia-na-rua_23-2150909564.jpg?t=st=1715000000~exp=1715003600~hmac=exemplo'); background-size: cover; background-position: center;">
     <div class="hero-content">
       <h1>POLÍCIA CIVIL</h1>
       <p>Investigação e Justiça.</p>
@@ -85,6 +124,24 @@
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>SAER</strong> <i class="fa-solid fa-helicopter"></i></div>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>GEM</strong> <i class="fa-solid fa-motorcycle"></i></div>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>CGPC</strong> <i class="fa-solid fa-clipboard-list"></i></div>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <h3 class="gallery-title">📸 Galeria Operacional</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Viatura_da_PCERJ.jpg/1200px-Viatura_da_PCERJ.jpg" alt="Viatura">
+          </div>
+          <div class="gallery-item">
+            <img src="https://ogimg.infoglobo.com.br/in/24933333-6f8-48f/FT1086A/652/x89803099_RJ-RIO-DE-JANEIRO-09-03-2021-POLICIA-CIVIL-OPERACAO-NA-MARA-Policiais-da-CORE.jpg.pagespeed.ic.w3wTylnK_x.jpg" alt="Operação">
+          </div>
+          <div class="gallery-item">
+            <img src="https://s2-g1.glbimg.com/a5VfGvJ6z8b_V6Pq1yZ7Y6qZ5Z0=/0x0:1700x1065/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2019/w/p/5f9B8BTrCtl5YJqJgQZA/helicoptero-civil.jpg" alt="Helicóptero">
+          </div>
+          <div class="gallery-item">
+            <img src="https://odia.ig.com.br/_midias/jpg/2022/05/11/1200x750/1_whatsapp_image_2022_05_11_at_16_42_57-25164801.jpeg" alt="Equipe">
+          </div>
+        </div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 

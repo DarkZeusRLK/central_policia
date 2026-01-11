@@ -8,6 +8,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../style/main.css">
   <style>
+    /* Cores Temáticas PRF */
+    :root {
+      --prf-yellow: #facc15;
+      /* Amarelo PRF */
+      --prf-blue: #1e3a8a;
+      /* Azul PRF */
+    }
+
+    /* Estilos Code Block */
     .discord-code {
       background-color: #2b2d31;
       color: #dcddd4;
@@ -16,8 +25,7 @@
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 0.9rem;
       margin-bottom: 15px;
-      border-left: 3px solid #f59e0b;
-      /* Amarelo PRF */
+      border-left: 3px solid var(--prf-yellow);
       word-wrap: break-word;
     }
 
@@ -36,23 +44,74 @@
       gap: 8px;
       color: #cbd5e1;
     }
+
+    /* Nota de Atenção */
+    .attention-note {
+      background: rgba(250, 204, 21, 0.1);
+      /* Fundo amarelo suave */
+      border-left: 3px solid var(--prf-yellow);
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+      color: #fde047;
+      font-style: italic;
+    }
+
+    /* --- GALERIA --- */
+    .gallery-title {
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: white;
+      border-left: 4px solid var(--prf-yellow);
+      padding-left: 10px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      aspect-ratio: 16/9;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 
 <body>
 
   <nav class="navbar">
-    <div class="logo"><i class="fa-solid fa-road"></i><span>PRF</span></div>
+    <div class="logo">
+      <i class="fa-solid fa-road"></i>
+      <span>PRF</span>
+    </div>
     <ul class="nav-links">
-      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar</a></li>
+      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar à Central</a></li>
     </ul>
     <div id="user-area" class="user-area"></div>
   </nav>
 
-  <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://upload.wikimedia.org/wikipedia/commons/2/24/Logo_Pol%C3%ADcia_Rodovi%C3%A1ria_Federal_-_Brasil.svg'); background-size: cover; background-position: center;">
+  <header class="hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(15, 23, 42, 1)), url('https://s2-g1.glbimg.com/s6n7Sj0tQ8WvvfA-pX_YFqUgeRc=/0x0:1600x1066/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2021/A/9/8O00rBSa2XAg5lnv5oAA/whatsapp-image-2021-05-24-at-15.54.40.jpeg'); background-size: cover; background-position: center;">
     <div class="hero-content">
-      <h1>POLÍCIA RODOVIÁRIA</h1>
-      <p>Segurança Viária.</p>
+      <h1>POLÍCIA RODOVIÁRIA FEDERAL</h1>
+      <p>Segurança com Cidadania.</p>
     </div>
   </header>
 
@@ -64,56 +123,90 @@
           <h2 style="color: white; text-transform: uppercase;">
             <i class="fa-solid fa-car-on"></i> PRF <i class="fa-solid fa-car-on"></i>
           </h2>
+          <p style="font-size: 0.9rem; color: #94a3b8;">POLÍCIA RODOVIÁRIA FEDERAL</p>
         </div>
 
         <p style="margin-bottom: 20px; color: #e2e8f0;">
-          A PRF é responsável pelo policiamento das rodovias, combate ao tráfico de drogas/armas e fiscalização de trânsito.
+          A Polícia Rodoviária Federal (PRF) é a principal responsável por manter a ordem na região das rodovias ao norte da cidade.
         </p>
+
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
-        <h3 style="color: #f59e0b; margin-bottom: 10px;">Força Especial:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #f59e0b;"></i> <strong>GRR</strong> (Resposta Rápida) <i class="fa-solid fa-bolt"></i></div>
+        <h3 style="color: var(--prf-yellow); margin-bottom: 10px;">Força Especial:</h3>
+        <div class="list-item">
+          <i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i>
+          <strong>G.R.R</strong> (Grupo de Resposta Rápida) <i class="fa-solid fa-bolt"></i>
+        </div>
 
-        <h3 style="color: #f59e0b; margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #f59e0b;"></i> <strong>NOE</strong> (Operações Especiais) <i class="fa-solid fa-user-secret"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #f59e0b;"></i> <strong>MOTO</strong> (Batedores) <i class="fa-solid fa-motorcycle"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #f59e0b;"></i> <strong>K9</strong> (Canil) <i class="fa-solid fa-dog"></i></div>
+        <h3 style="color: var(--prf-yellow); margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>BATEDOR</strong> <i class="fa-solid fa-motorcycle"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>DOA</strong> (Operações Aéreas) <i class="fa-solid fa-helicopter"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>SPEED</strong> <i class="fa-solid fa-gauge-high"></i></div>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <h3 class="gallery-title">📸 Galeria Rodoviária</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <img src="https://static.poder360.com.br/2021/12/prf-viatura-848x477.jpg" alt="Viatura PRF">
+          </div>
+          <div class="gallery-item">
+            <img src="https://agenciaja.com/wp-content/uploads/2019/07/Harley-Davidson-Road-King-Police-PRF-696x464.jpg" alt="Motos Batedor">
+          </div>
+          <div class="gallery-item">
+            <img src="https://www.gov.br/prf/pt-br/noticias/estaduais/rio-grande-do-sul/2022/junho/prf-realiza-transporte-aeromedico-de-orgao-para-transplante/0b5107e3-5182-41ba-ac77-96a12b69472e.jpg/@@images/image" alt="DOA Helicóptero">
+          </div>
+          <div class="gallery-item">
+            <img src="https://sinprf-pr.org.br/wp-content/uploads/2023/10/WhatsApp-Image-2023-10-18-at-13.33.26.jpeg" alt="Operação GRR">
+          </div>
+        </div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
         <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
         <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Aos finais de semana.</li>
+          <li>Todos os dias e horários.</li>
         </ul>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
         <p style="margin-bottom: 5px;">🚹 <strong>Fardamento masculino:</strong></p>
         <div class="discord-code">
-          mascara 0 0; maos 0 0; calca 88 0; mochila 0 0; sapatos 51 0; acessorios 0 0; blusa 122 0; colete 15 0; jaqueta 66 0; oculos 5 0;
+          mascara 0 0; maos 0 0; calca 14 0; mochila 0 0; sapatos 56 0; acessorios 0 0; blusa 15 0; colete 0 0; adesivo 0 0; jaqueta 181 0; oculos -1 0; chapeu -1 0;
+        </div>
+        <div class="attention-note">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Comparecer sem cabelo (cabelo 51), sem tatuagens e com olhos de cores naturais.
         </div>
 
         <p style="margin-bottom: 5px;">🚺 <strong>Fardamento feminino:</strong></p>
         <div class="discord-code">
-          mascara -1 0; maos 0 0; calca 92 0; mochila -1 0; sapatos 52 0; acessorios -1 0; blusa 123 0; colete 14 0; jaqueta 67 0; oculos 5 0;
+          mascara 0 0; maos 14 0; calca 33 3; mochila 0 0; sapatos 50 0; acessorios 0 0; blusa 14 0; colete 0 0; adesivo 0 0; jaqueta 553 2; oculos -1 0; chapeu -1 0;
         </div>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
         <p style="margin-bottom: 20px;">
-          <strong>Manual do conscrito:</strong>
-          <a href="#" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px; background: #f59e0b;">
+          <strong><i class="fa-solid fa-book"></i> Manual do conscrito:</strong>
+          <a href="https://docs.google.com/document/d/1dii7sJSNBR4YLAbFO89pU6hU-s2K21_nLvyoQW57rZQ/edit?usp=sharing" target="_blank" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px; background-color: var(--prf-blue);">
             Clique aqui <i class="fa-solid fa-external-link-alt"></i>
           </a>
         </p>
 
-        <blockquote style="border-left: 4px solid #f59e0b; padding-left: 15px; color: #94a3b8; font-style: italic;">
-          🛣️ A segurança do Brasil começa nas rodovias. Patrulhe com honra.
+        <blockquote style="border-left: 4px solid var(--prf-yellow); padding-left: 15px; color: #94a3b8; font-style: italic;">
+          🔎 Se você tem disciplina, coragem e deseja fazer parte da elite rodoviária, essa é sua chance!
         </blockquote>
 
       </div>
     </section>
   </main>
+
+  <footer class="main-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Polícia Revoada RJ. Departamento Rodoviário.</p>
+    </div>
+  </footer>
+
   <script src="../scripts/app.js"></script>
 </body>
 

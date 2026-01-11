@@ -18,6 +18,7 @@ const Session = {
   logout() {
     this.user = null;
     localStorage.removeItem("revoada_user");
+    localStorage.removeItem("revoada_is_journalist"); // Limpa permissão extra
     updateUI();
     Notify.info("Você saiu do sistema.");
     setTimeout(() => (window.location.href = "/"), 1000);
@@ -76,7 +77,7 @@ const Notify = {
 };
 
 /* ==========================================================================
-   3. CONTROLE DO MODAL DE LOGIN
+   3. CONTROLE DOS MODAIS
    ========================================================================== */
 function openLoginModal() {
   const modal = document.getElementById("login-modal");
@@ -95,6 +96,26 @@ function proceedToLogin() {
   window.location.href = "/api/auth";
 }
 
+// Modal Dinâmico de Acesso Negado (Policial)
+function openAccessDeniedModal() {
+  if (document.getElementById("denied-modal")) return;
+
+  const div = document.createElement("div");
+  div.id = "denied-modal";
+  div.className = "modal-overlay";
+  div.innerHTML = `
+        <div class="modal-box" style="border-color: #ef4444;">
+            <div class="modal-icon"><i class="fa-solid fa-ban" style="color: #ef4444;"></i></div>
+            <h2>Acesso Restrito</h2>
+            <p>Você não faz parte da corporação oficial no Discord.</p>
+            <div class="modal-actions">
+                <button class="btn-close-modal" onclick="document.getElementById('denied-modal').remove()">Fechar</button>
+            </div>
+        </div>
+    `;
+  document.body.appendChild(div);
+}
+
 /* ==========================================================================
    4. INICIALIZAÇÃO
    ========================================================================== */
@@ -106,13 +127,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const dateEl = document.getElementById("date-display");
   if (dateEl) dateEl.innerText = new Date().toLocaleDateString("pt-BR");
 
-  loadNews();
+  loadNews(); // Agora chama a versão nova que busca da API
   setupNavigation();
 
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
 
-  // Fecha modal ao clicar fora
   document.addEventListener("click", (e) => {
     const modal = document.getElementById("login-modal");
     if (e.target === modal) closeLoginModal();
@@ -120,17 +140,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   5. NAVEGAÇÃO
+   5. NAVEGAÇÃO E LINKS
    ========================================================================== */
 function setupNavigation() {
-  // 1. Link Boletim (Intercepta clique)
+  // 1. Link Boletim
   const btnBoletim = document.getElementById("nav-bo");
-
   if (btnBoletim) {
-    // Clone para remover listeners antigos e evitar duplicação
     const newBtn = btnBoletim.cloneNode(true);
     btnBoletim.parentNode.replaceChild(newBtn, btnBoletim);
-
     newBtn.addEventListener("click", (e) => {
       e.preventDefault();
       if (!Session.isLoggedIn()) {
@@ -142,25 +159,32 @@ function setupNavigation() {
     });
   }
 
-  // 2. Link Home
+  // 2. Link Acesso Policial
+  const btnPolice =
+    document.getElementById("nav-police") ||
+    document.querySelector('a[href="#"].disabled') ||
+    document.querySelector(".fa-lock").parentElement;
+
+  if (btnPolice) {
+    btnPolice.classList.remove("disabled");
+    const newPoliceBtn = btnPolice.cloneNode(true);
+    btnPolice.parentNode.replaceChild(newPoliceBtn, btnPolice);
+    newPoliceBtn.addEventListener("click", handlePoliceAccess);
+  }
+
+  // 3. Link Home
   const btnHome =
     document.querySelector('a[href="#home"]') ||
     document.querySelector('a[href="#"]');
   if (btnHome) {
     btnHome.addEventListener("click", (e) => {
-      e.preventDefault(); // Evita recarregar se for #
-      // Se estiver numa subpágina, o href deve ser ajustado no HTML,
-      // mas se for SPA na home:
+      e.preventDefault();
       showSection("jornal");
     });
   }
-
-  // NOTA: Removido o listener dos dropdowns aqui, pois agora
-  // eles são controlados diretamente pela função loadRecruitment abaixo.
 }
 
 function showSection(sectionId) {
-  // Esconde tudo que pode ser escondido na Home
   const sections = ["jornal", "boletim-section"];
   sections.forEach((id) => {
     const el = document.getElementById(id);
@@ -175,7 +199,7 @@ function showSection(sectionId) {
 }
 
 /* ==========================================================================
-   6. UI & LOGIN
+   6. LÓGICA DE LOGIN, UI E ACESSO POLICIAL
    ========================================================================== */
 function checkUrlLogin() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -196,6 +220,41 @@ function checkUrlLogin() {
       showSection("boletim-section");
       updateFormAvatar();
     }
+  }
+}
+
+async function handlePoliceAccess(e) {
+  e.preventDefault();
+
+  if (!Session.isLoggedIn()) {
+    openLoginModal();
+    return;
+  }
+
+  Notify.loading("Verificando credenciais...");
+
+  try {
+    const response = await fetch("/api/check-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: Session.user.id }),
+    });
+
+    const data = await response.json();
+
+    if (data.isMember) {
+      Notify.success("Acesso Policial Autorizado.");
+      localStorage.setItem("revoada_is_journalist", data.isJournalist);
+      setTimeout(() => {
+        window.location.href = "public/central_policial.html";
+      }, 1000);
+    } else {
+      Notify.error("Acesso Negado.");
+      openAccessDeniedModal();
+    }
+  } catch (error) {
+    console.error(error);
+    Notify.error("Erro de comunicação com a central.");
   }
 }
 
@@ -238,42 +297,66 @@ function updateFormAvatar() {
 }
 
 /* ==========================================================================
-   7. DADOS & REDIRECIONAMENTO DE DEPARTAMENTOS
+   7. DADOS E FORMULÁRIOS
    ========================================================================== */
+
+// --- FUNÇÃO DE NOTÍCIAS ATUALIZADA (API + NOVO VISUAL) ---
 async function loadNews() {
+  const grid = document.getElementById("news-grid");
+  if (!grid) return;
+
+  // Estado de carregamento opcional
+  // grid.innerHTML = '<p style="color: #64748b;">Carregando...</p>';
+
   try {
-    const req = await fetch("public/data/news.json");
-    if (!req.ok) throw new Error("Falha");
+    // Agora chama a API, não o JSON local
+    const req = await fetch("/api/get-news");
+    if (!req.ok) throw new Error("Falha na API");
+
     const data = await req.json();
-    const grid = document.getElementById("news-grid");
-    if (!grid) return;
     grid.innerHTML = "";
+
+    if (data.length === 0) {
+      grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Nenhuma notícia recente no mural.</p>`;
+      return;
+    }
+
     data.forEach((news) => {
+      // Cria o card da notícia dinamicamente com o estilo "Capa de Jornal"
       grid.innerHTML += `
-                <article class="news-card">
-                    <img src="${news.image}" alt="Notícia" class="news-img">
-                    <div class="news-content">
-                        <div class="news-date">${news.date}</div>
-                        <h3 class="news-title">${news.title}</h3>
-                        <p>${news.summary}</p>
-                    </div>
-                </article>`;
+        <article class="news-card">
+            <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative;">
+                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;">
+                <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
+                    <i class="fa-solid fa-camera"></i> ${news.author}
+                </div>
+            </div>
+            
+            <div class="news-content" style="padding: 20px;">
+                <div class="news-date" style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 10px;">
+                    <i class="fa-regular fa-calendar"></i> ${news.date}
+                </div>
+                
+                <h3 class="news-title" style="color: white; font-size: 1.2rem; margin-bottom: 10px; line-height: 1.4;">
+                    ${news.title}
+                </h3>
+                
+                <p style="color: #94a3b8; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${news.summary}
+                </p>
+            </div>
+        </article>`;
     });
   } catch (e) {
-    const grid = document.getElementById("news-grid");
-    if (grid)
-      grid.innerHTML = `<p style="color: #cbd5e1;">Nenhuma notícia encontrada.</p>`;
+    console.error(e);
+    grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notícias do servidor.</p>`;
   }
 }
 
-// -----------------------------------------------------
-// FUNÇÃO ATUALIZADA: REDIRECIONA PARA OS ARQUIVOS HTML
-// -----------------------------------------------------
 function loadRecruitment(deptId) {
-  // Mapa de IDs para Arquivos
   const deptFiles = {
     pcerj: "public/departamentopcerj.html",
-    pmerj: "public/batalhaopmerj.html", // Nome específico que você pediu
+    pmerj: "public/batalhaopmerj.html",
     prf: "public/departamentoprf.html",
     pf: "public/departamentopf.html",
   };
@@ -284,10 +367,9 @@ function loadRecruitment(deptId) {
     Notify.loading("Redirecionando para o departamento...");
     setTimeout(() => {
       window.location.href = targetFile;
-    }, 500); // Pequeno delay para mostrar o loading
+    }, 500);
   } else {
     Notify.error("Página do departamento não encontrada.");
-    console.error(`Departamento ${deptId} sem arquivo mapeado.`);
   }
 }
 
