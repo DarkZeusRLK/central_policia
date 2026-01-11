@@ -316,6 +316,18 @@
         transform: translateY(0);
       }
     }
+
+    .sidebar-logo {
+      width: 80px;
+      /* Tamanho da logo */
+      height: auto;
+      /* Mantém a proporção */
+      margin-bottom: 15px;
+      /* Espaço entre a logo e o texto "INTRANET" */
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+      /* Sombra para destacar */
+    }
   </style>
 </head>
 
@@ -323,7 +335,7 @@
 
   <aside class="sidebar">
     <div class="sidebar-header">
-      <i class="fa-solid fa-user-shield"></i>
+      <img src="images/Logo_policia.png" alt="Logo Polícia" class="sidebar-logo">
       <h2>INTRANET<br>POLICIAL</h2>
     </div>
 
