@@ -561,7 +561,16 @@
 
   <script>
     /* ==========================================================================
-       NOTIFICAÇÕES 
+       CONFIGURAÇÕES GERAIS
+       ========================================================================== */
+    // IDs dos cargos do Discord que podem ver os cursos de Perícia e Tráfico (PCERJ / PF)
+    const ALLOWED_ROLE_IDS = [
+      "1053687224320933888",
+      "1447060519726088212"
+    ];
+
+    /* ==========================================================================
+       NOTIFICAÇÕES (TOAST)
        ========================================================================== */
     const Notify = {
       container: null,
@@ -578,12 +587,15 @@
         if (!this.container) this.init();
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
+
         let icon = "fa-info-circle";
         if (type === "success") icon = "fa-check-circle";
         if (type === "error") icon = "fa-exclamation-triangle";
         if (type === "loading") icon = "fa-spinner fa-spin";
+
         toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
         this.container.appendChild(toast);
+
         if (type !== "loading") {
           setTimeout(() => {
             toast.style.animation = "slideIn 0.3s reverse forwards";
@@ -598,19 +610,21 @@
     };
 
     /* ==========================================================================
-       LÓGICA PRINCIPAL
+       LÓGICA PRINCIPAL (Ao carregar a página)
        ========================================================================== */
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener("DOMContentLoaded", () => {
       Notify.init();
 
       // 1. Verifica Sessão
-      const user = JSON.parse(localStorage.getItem("revoada_user"));
-      if (!user) {
-        window.location.href = "../index.html";
+      // Tenta ler o usuário salvo no login
+      const userJson = localStorage.getItem("revoada_user");
+      if (!userJson) {
+        window.location.href = "../index.html"; // Manda de volta pro login se não tiver usuário
         return;
       }
+      const user = JSON.parse(userJson);
 
-      // 2. Preenche User Sidebar
+      // 2. Preenche a Sidebar com a foto e nome
       const sidebarUser = document.getElementById("sidebar-user");
       if (sidebarUser) {
         sidebarUser.innerHTML = `
@@ -630,185 +644,149 @@
       }
 
       // ================================================================
-      // 4. LÓGICA DE PERMISSÃO (API + ENV)
+      // 4. LÓGICA DE PERMISSÃO (CURSOS ESPECIAIS)
       // ================================================================
-      await checkSpecialCoursesAccess(user);
 
-      // 5. Carrega Dados da Dashboard
-      loadDashboardData();
+      // DEBUG: Mostra no console o que o usuário tem
+      console.log("👤 [DEBUG] Dados do Usuário:", user);
+      console.log("🔑 [DEBUG] Cargos do Usuário:", user.roles);
 
-      // 6. Lógica de Envio de Notícia
-      setupNewsForm(user);
-    });
-
-    // --- FUNÇÃO PARA VERIFICAR ACESSO AOS CURSOS RESTRITOS ---
-    async function checkSpecialCoursesAccess(user) {
-      let allowedRoleIds = [];
-
-      try {
-        // Tenta buscar do backend (que lê o .env)
-        // Crie uma rota no seu backend tipo: app.get('/api/config/roles', (req, res) => res.json({ pcerj_pf: process.env.PCERJ_PF_ROLE_ID }))
-        const response = await fetch('/api/config/roles');
-
-        if (response.ok) {
-          const config = await response.json();
-          // Supondo que o backend retorne { pcerj_pf: "12345,67890" } ou array
-          if (config.pcerj_pf) {
-            // Se vier separado por vírgula ou array, tratamos aqui
-            allowedRoleIds = Array.isArray(config.pcerj_pf) ? config.pcerj_pf : config.pcerj_pf.split(',');
-          }
-        } else {
-          throw new Error("API de config não encontrada");
-        }
-      } catch (error) {
-        console.warn("⚠️ Não foi possível ler IDs da API (Backend offline ou rota inexistente). Usando Fallback.");
-
-        // FALLBACK MANUAL (Coloque seus IDs aqui caso a API falhe)
-        allowedRoleIds = ["1053687224320933888", "1447060519726088212"];
-      }
-
-      // DEBUG: Para você ver no F12 o que está acontecendo
-      console.log("🔍 [DEBUG] IDs Permitidos (Config):", allowedRoleIds);
-      console.log("👤 [DEBUG] IDs do Usuário (User):", user.roles);
-
-      // Verifica permissão
+      // Verifica se a propriedade 'roles' existe no usuário
       if (user.roles && Array.isArray(user.roles)) {
-        // Verifica se ALGUM dos cargos do usuário está na lista de permitidos
-        // Convertemos tudo para String para evitar erros de tipo (número vs string)
-        const hasAccess = user.roles.some(userRole =>
-          allowedRoleIds.includes(String(userRole))
+
+        // Verifica se ALGUM cargo do usuário bate com a lista permitida
+        // Convertemos para String para garantir (ex: "123" == 123)
+        const hasAccess = user.roles.some(userRoleId =>
+          ALLOWED_ROLE_IDS.includes(String(userRoleId))
         );
 
         if (hasAccess) {
-          console.log("✅ Acesso aos cursos especiais CONCEDIDO.");
+          console.log("✅ Permissão Concedida! Liberando cursos restritos...");
+
+          // Seleciona todos os cards com a classe .restricted-card e mostra eles
           const restrictedCards = document.querySelectorAll(".restricted-card");
           restrictedCards.forEach(card => {
-            card.style.display = "flex";
+            card.style.display = "flex"; // Remove o display:none
             card.classList.remove("hidden");
           });
+
+          // Opcional: Avisa o usuário visualmente
+          // Notify.success("Acesso a cursos especiais liberado.");
         } else {
-          console.log("❌ Acesso aos cursos especiais NEGADO.");
+          console.log("❌ Permissão Negada. Nenhum cargo compatível encontrado.");
         }
+
       } else {
-        console.log("⚠️ Usuário não possui lista de cargos (user.roles vazio).");
+        console.warn("⚠️ [AVISO] O usuário logado não tem a lista de cargos (user.roles). Verifique o código de login (auth.js).");
       }
-    }
 
-    // --- CONFIGURAÇÃO DO FORMULÁRIO DE NOTÍCIAS ---
-    function setupNewsForm(user) {
-      const formNews = document.getElementById("form-news");
-      if (formNews) {
-        formNews.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const btn = formNews.querySelector("button");
-          const originalText = btn.innerHTML;
-          Notify.loading("Conectando à central...");
-          btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Enviando...";
-          btn.disabled = true;
-          btn.style.opacity = "0.7";
+      // 5. Carrega Dados da Dashboard (Simulação)
+      loadDashboardData();
 
-          const formData = new FormData(formNews);
-          const data = Object.fromEntries(formData.entries());
-          data.userId = user.id;
+      // 6. Configura o formulário de notícias
+      setupNewsForm(user);
+    });
 
-          try {
-            const response = await fetch("/api/publish-news", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data)
-            });
-            if (response.ok) {
-              Notify.success("Matéria publicada no Jornal!");
-              formNews.reset();
-              loadDashboardData();
-            } else {
-              Notify.error("Erro ao publicar a matéria.");
-            }
-          } catch (err) {
-            console.error(err);
-            Notify.error("Erro de conexão com o servidor.");
-          } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.style.opacity = "1";
-          }
-        });
-      }
-    }
+    /* ==========================================================================
+       FUNÇÕES AUXILIARES
+       ========================================================================== */
 
-    // --- NAVEGAÇÃO ENTRE ABAS ---
-    window.switchTab = function (tabName, element) { // Exposto globalmente
+    // Função global para trocar de aba (chamada pelos onlick no HTML)
+    window.switchTab = function (tabName, element) {
       document.querySelectorAll(".dash-section").forEach(el => el.classList.add("hidden"));
       document.querySelectorAll(".sidebar-menu a").forEach(el => el.classList.remove("active"));
       document.getElementById(`sec-${tabName}`).classList.remove("hidden");
       element.classList.add("active");
     }
 
-    // --- FUNÇÃO PARA CARREGAR OS WIDGETS ---
+    // Configura o envio do formulário de notícias
+    function setupNewsForm(user) {
+      const formNews = document.getElementById("form-news");
+      if (formNews) {
+        formNews.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Feedback visual no botão
+          const btn = formNews.querySelector("button");
+          const originalText = btn.innerHTML;
+          btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Enviando...";
+          btn.disabled = true;
+          btn.style.opacity = "0.7";
+
+          // Simulação de envio (já que não tem backend real)
+          setTimeout(() => {
+            // Se tivesse backend, aqui seria o fetch('/api/publish-news'...)
+            // Como não tem, vamos simular sucesso ou erro:
+
+            // -> Simular Erro (descomente para testar erro):
+            // Notify.error("Erro: Servidor offline.");
+
+            // -> Simular Sucesso:
+            Notify.success("Matéria enviada para análise (Simulação)");
+            formNews.reset();
+
+            // Restaura o botão
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.style.opacity = "1";
+          }, 1500);
+        });
+      }
+    }
+
+    // Carrega dados fictícios para o dashboard não ficar vazio
     async function loadDashboardData() {
       const rankingContainer = document.getElementById('ranking-container');
 
-      // ... (Lógica do Ranking mantém igual) ...
-      try {
-        const mockRankingData = [
-          { name: "Ten. Silva", score: 42 },
-          { name: "Cb. Oliveira", score: 38 },
-          { name: "Sd. Souza", score: 25 },
-          { name: "Ag. Pereira", score: 12 },
-          { name: "Del. Mendes", score: 10 }
-        ];
+      // Simulação de dados do Ranking
+      const mockRankingData = [
+        { name: "Ten. Silva", score: 42 },
+        { name: "Cb. Oliveira", score: 38 },
+        { name: "Sd. Souza", score: 25 },
+        { name: "Ag. Pereira", score: 12 },
+        { name: "Del. Mendes", score: 10 }
+      ];
 
+      if (rankingContainer) {
         let html = '<ul class="ranking-list">';
-        mockRankingData.forEach((user, index) => {
-          let rankClass = '';
-          let icon = '';
+        mockRankingData.forEach((u, index) => {
+          let rankClass = '', icon = '';
           if (index === 0) { rankClass = 'rank-1'; icon = '<i class="fa-solid fa-crown"></i>'; }
           else if (index === 1) { rankClass = 'rank-2'; icon = '<i class="fa-solid fa-medal"></i>'; }
           else if (index === 2) { rankClass = 'rank-3'; icon = '<i class="fa-solid fa-medal"></i>'; }
           else { rankClass = ''; icon = `#${index + 1}`; }
 
           html += `
-                    <li class="ranking-item">
-                        <div class="rank-pos ${rankClass}">${icon}</div>
-                        <div class="rank-name">${user.name}</div>
-                        <div class="rank-score">${user.score} prisões</div>
-                    </li>
-                `;
+                <li class="ranking-item">
+                    <div class="rank-pos ${rankClass}">${icon}</div>
+                    <div class="rank-name">${u.name}</div>
+                    <div class="rank-score">${u.score} prisões</div>
+                </li>`;
         });
         html += '</ul>';
         rankingContainer.innerHTML = html;
-      } catch (error) {
-        rankingContainer.innerHTML = '<p style="color:#ef4444">Erro ao carregar ranking.</p>';
       }
 
-      // ... (Lógica de Notícias mantém igual) ...
+      // Simulação de Notícias (Fallback visual)
       const newsContainer = document.getElementById('latest-news-container');
-      try {
-        const response = await fetch('/api/news');
-        const news = await response.json();
-
-        if (news && news.length > 0) {
-          const latest = news[0];
+      if (newsContainer) {
+        // Tenta buscar da API (vai falhar e cair no catch, mostrando o fallback)
+        try {
+          const response = await fetch('/api/news');
+          if (!response.ok) throw new Error("API Offline");
+          const news = await response.json();
+          // ... lógica de popular notícia real ...
+        } catch (error) {
+          // Mostra o widget padrão bonito quando não tem backend
           newsContainer.innerHTML = `
-                    <div class="news-widget-content" style="background-image: url('${latest.image || 'images/news-placeholder.jpg'}');">
-                        <div class="news-overlay">
-                            <h4 style="margin: 0; font-size: 1rem; text-shadow: 1px 1px 2px black;">${latest.title}</h4>
-                            <small style="color: #cbd5e1; font-size: 0.8rem;">Postado recentemente</small>
-                        </div>
-                    </div>
-                `;
-        } else {
-          newsContainer.innerHTML = '<p style="color:#94a3b8">Nenhuma notícia recente encontrada.</p>';
-        }
-      } catch (error) {
-        newsContainer.innerHTML = `
                 <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
                     <div class="news-overlay">
-                        <h4 style="margin: 0; font-size: 1rem;">Sem notícias no momento</h4>
-                        <small style="color: #cbd5e1;">Aguardando atualizações...</small>
+                        <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
+                        <small style="color: #cbd5e1;">Aguardando conexão com o servidor...</small>
                     </div>
                 </div>
             `;
+        }
       }
     }
   </script>
