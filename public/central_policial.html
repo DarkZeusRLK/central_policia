@@ -323,12 +323,60 @@
   </main>
 
   <script>
+    /* ==========================================================================
+       NOTIFICAÇÕES (Copiado de app.js para funcionar aqui)
+       ========================================================================== */
+    const Notify = {
+      container: null,
+
+      init() {
+        if (!document.querySelector(".notification-container")) {
+          this.container = document.createElement("div");
+          this.container.className = "notification-container";
+          document.body.appendChild(this.container);
+        } else {
+          this.container = document.querySelector(".notification-container");
+        }
+      },
+
+      show(message, type = "info") {
+        if (!this.container) this.init();
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+
+        let icon = "fa-info-circle";
+        if (type === "success") icon = "fa-check-circle";
+        if (type === "error") icon = "fa-exclamation-triangle";
+        if (type === "loading") icon = "fa-spinner fa-spin";
+
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        this.container.appendChild(toast);
+
+        if (type !== "loading") {
+          setTimeout(() => {
+            toast.style.animation = "slideIn 0.3s reverse forwards";
+            setTimeout(() => toast.remove(), 300);
+          }, 4000);
+        }
+      },
+
+      success(msg) { this.show(msg, "success"); },
+      error(msg) { this.show(msg, "error"); },
+      info(msg) { this.show(msg, "info"); },
+      loading(msg) { this.show(msg, "loading"); },
+    };
+
+    /* ==========================================================================
+       LÓGICA PRINCIPAL
+       ========================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
+      Notify.init(); // Inicia o container de notificações
+
       // 1. Verifica Sessão
       const user = JSON.parse(localStorage.getItem("revoada_user"));
       if (!user) window.location.href = "../index.html";
 
-      // 2. Preenche User
+      // 2. Preenche User Sidebar
       document.getElementById("sidebar-user").innerHTML = `
                 <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" style="width: 40px; height: 40px; border-radius: 50%;">
                 <div>
@@ -337,13 +385,13 @@
                 </div>
             `;
 
-      // 3. Verifica Acesso Jornalista (Salvo no login)
+      // 3. Verifica Acesso Jornalista
       const isJournalist = localStorage.getItem("revoada_is_journalist") === "true";
       if (isJournalist) {
         document.getElementById("tab-jornalista").classList.remove("hidden");
       }
 
-      // 4. Lógica de Envio de Notícia (NOVO)
+      // 4. Lógica de Envio de Notícia
       const formNews = document.getElementById("form-news");
       if (formNews) {
         formNews.addEventListener("submit", async (e) => {
@@ -352,15 +400,15 @@
           const btn = formNews.querySelector("button");
           const originalText = btn.innerHTML;
 
-          // Estado de carregamento
+          // Notificação de carregamento
+          Notify.loading("Conectando à central...");
           btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Enviando...";
           btn.disabled = true;
           btn.style.opacity = "0.7";
 
-          // Coleta dados
           const formData = new FormData(formNews);
           const data = Object.fromEntries(formData.entries());
-          data.author = user.username; // Pega o usuário da sessão
+          data.author = user.username;
 
           try {
             const response = await fetch("/api/publish-news", {
@@ -370,16 +418,15 @@
             });
 
             if (response.ok) {
-              alert("✅ Notícia publicada com sucesso!");
+              Notify.success("Matéria publicada no Jornal!");
               formNews.reset();
             } else {
-              alert("❌ Erro ao publicar notícia.");
+              Notify.error("Erro ao publicar a matéria.");
             }
           } catch (err) {
             console.error(err);
-            alert("❌ Erro de conexão.");
+            Notify.error("Erro de conexão com o servidor.");
           } finally {
-            // Reseta botão
             btn.innerHTML = originalText;
             btn.disabled = false;
             btn.style.opacity = "1";
@@ -389,12 +436,8 @@
     });
 
     function switchTab(tabName, element) {
-      // Esconde todas as seções
       document.querySelectorAll(".dash-section").forEach(el => el.classList.add("hidden"));
-      // Remove active dos links
       document.querySelectorAll(".sidebar-menu a").forEach(el => el.classList.remove("active"));
-
-      // Mostra o alvo
       document.getElementById(`sec-${tabName}`).classList.remove("hidden");
       element.classList.add("active");
     }
