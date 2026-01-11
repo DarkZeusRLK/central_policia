@@ -65,12 +65,11 @@ body {
   z-index: 1000;
 }
 .nav-icon {
-  width: 24px; /* Tamanho ideal para ícone de menu (pode testar 20px ou 30px) */
-  height: 24px; /* Mantém quadrado */
-  object-fit: contain; /* Garante que a logo não fique esticada/deformada */
-  filter: drop-shadow(
-    0 2px 2px rgba(0, 0, 0, 0.3)
-  ); /* (Opcional) Sombra leve para destacar */
+  width: 38px; /* Aumentei de 24px para 38px */
+  height: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s ease;
 }
 .logo {
   font-size: 1.4rem;
@@ -118,12 +117,13 @@ body {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #111827;
+  background: #111827; /* Fundo escuro */
   border: 1px solid var(--glass-border);
-  min-width: 200px;
+  min-width: 280px; /* Aumentei de 200px para 280px */
   border-radius: 8px;
-  padding: 0.5rem 0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 8px 0; /* Espaço nas pontas de cima e baixo */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
 }
 
 .dropdown:hover .dropdown-content {
@@ -132,14 +132,28 @@ body {
 }
 
 .dropdown-content a {
-  display: flex; /* Ativa o Flexbox */
-  align-items: center; /* Centraliza verticalmente */
-  gap: 10px; /* Espaço entre a logo e o texto */
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Aumentei o espaço entre o ícone e o texto */
+  padding: 12px 20px; /* Mais "ar" em volta de cada item */
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 1.05rem; /* Texto levemente maior */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Linha sutil separando os itens */
+}
+.dropdown-content a:last-child {
+  border-bottom: none;
 }
 
 .dropdown-content a:hover .nav-icon {
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
+  transform: scale(1.15);
+}
+.dropdown-content a:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  padding-left: 25px; /* Pequeno movimento para a direita */
+  border-left: 4px solid var(--accent-gold); /* Detalhe dourado na esquerda */
 }
 
 /* --- HERO SECTION (ALINHADO À ESQUERDA) --- */
