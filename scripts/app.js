@@ -426,11 +426,11 @@ async function loadCommanders() {
         desc: "Responsável pela estratégia global de segurança e diretrizes da corporação.",
       },
       {
-        title: "Subcomandante",
+        title: "Subcomandante Geral",
         desc: "Coordena a logística e o gerenciamento tático das tropas em campo.",
       },
       {
-        title: "Chefe de Operações",
+        title: "Subcomandante Geral",
         desc: "Líder das forças especiais e operações de alto risco na cidade.",
       },
     ];
