@@ -17,37 +17,59 @@
 
   <nav class="navbar">
     <a href="#" class="logo">
-      <img src="caminho/para/sua/logo.png" alt="Logo" />
+      <img src="public/images/image.png" alt="Logo Revoada RJ">
       REVOADA
     </a>
 
     <ul class="nav-links">
-      <li><a href="index.html"><i class="fas fa-home"></i> Início</a></li>
+      <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Início</a></li>
 
       <li class="dropdown">
-        <a href="#">Recrutamentos <i class="fas fa-chevron-down"></i></a>
+        <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
+        <div class="dropdown-content">
+
+          <a href="public/departamentopcerj.html">
+            <img src="public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro.png" alt="PCERJ" class="nav-icon">
+            PCERJ
+          </a>
+
+          <a href="public/batalhaopmerj.html">
+            <img src="public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon">
+            PMERJ
+          </a>
+
+          <a href="public/departamentoprf.html">
+            <img src="public/images/PRF_new.png" alt="PRF" class="nav-icon">
+            PRF
+          </a>
+
+          <a href="public/departamentopf.html">
+            <img src="public/images/Policia-federal-logo.png" alt="PF" class="nav-icon">
+            PF
+          </a>
+
+        </div>
       </li>
 
-      <li><a href="#"><i class="fas fa-clipboard"></i> Boletim de Ocorrência</a></li>
+      <li><a href="#boletim" id="nav-bo"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
 
       <li>
         <a href="https://policia-revoada.vercel.app" target="_blank">
-          <i class="fas fa-gavel"></i> Código Penal
+          <i class="fa-solid fa-gavel"></i> Código Penal
         </a>
       </li>
     </ul>
 
     <div class="nav-user-group">
 
-      <a href="#" class="access-link">
-        <i class="fas fa-lock"></i> Acesso Policial
+      <a href="#" id="nav-police" class="access-link">
+        <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
 
-      <div class="user-profile-nav">
-        <span class="username">darkzeuss</span>
-        <div class="avatar-ring">
-          <img src="sua-foto-de-perfil.png" alt="User">
-        </div>
+      <div id="user-area" class="user-area">
+        <button id="btn-login" class="btn-login" onclick="window.location.href='/api/auth'">
+          <i class="fa-brands fa-discord"></i> Login
+        </button>
       </div>
 
     </div>
