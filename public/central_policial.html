@@ -245,7 +245,6 @@
     /* Estilo especial para o curso restrito */
     .course-card.special {
       border: 1px solid #10b981;
-      /* Verde esmeralda ou Dourado */
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
     }
 
@@ -283,6 +282,15 @@
       flex: 1;
     }
 
+    .course-actions {
+      margin-top: auto;
+      padding-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Botão Canva (Roxo) */
     .btn-canva {
       background: linear-gradient(45deg, #7e22ce, #a855f7);
       color: white;
@@ -290,8 +298,32 @@
       border-radius: 6px;
       text-decoration: none;
       font-size: 0.85rem;
-      display: inline-block;
-      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: 0.2s;
+    }
+
+    .btn-canva:hover {
+      filter: brightness(1.2);
+    }
+
+    /* Botão Video (Azul) */
+    .btn-video {
+      background: linear-gradient(45deg, #2563eb, #3b82f6);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: 0.2s;
+    }
+
+    .btn-video:hover {
+      filter: brightness(1.2);
     }
 
     /* Estilos do Formulário de Notícias */
@@ -410,15 +442,19 @@
 
     <section id="sec-cursos" class="dash-section hidden">
       <h1 style="color: white;">Cursos de Formação</h1>
-      <p style="color: #94a3b8;">Acervo de treinamentos e procedimentos operacionais padrão.</p>
+      <p style="color: #94a3b8;">Acervo de treinamentos, procedimentos operacionais e táticas especiais.</p>
 
       <div class="course-grid">
+
         <div class="course-card">
           <div class="course-thumb"><i class="fa-solid fa-person-military-to-person fa-3x"></i></div>
           <div class="course-body">
             <h3>Conduta Policial e Ordem Unida</h3>
             <p>Fundamentos de hierarquia, disciplina, postura e ética militar.</p>
-            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
           </div>
         </div>
 
@@ -427,7 +463,10 @@
           <div class="course-body">
             <h3>Patrulha e Modulação</h3>
             <p>Táticas de patrulhamento ostensivo, abordagem segura e códigos Q de rádio.</p>
-            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
           </div>
         </div>
 
@@ -436,7 +475,10 @@
           <div class="course-body">
             <h3>Detecção de Ilícitos</h3>
             <p>Identificação de substâncias, armas modificadas e procedimento de revista.</p>
-            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
           </div>
         </div>
 
@@ -445,16 +487,38 @@
           <div class="course-body">
             <h3>Curso de Carcereiro</h3>
             <p>Gestão prisional, transporte de detentos e segurança de celas.</p>
-            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
           </div>
         </div>
 
-        <div class="course-card special hidden" id="curso-especial">
-          <div class="course-thumb"><i class="fa-solid fa-dna fa-3x"></i></div>
+        <div class="course-card special restricted-card hidden" style="display: none;">
+          <div class="course-thumb" style="background: linear-gradient(45deg, #0f172a, #1e293b); color: #34d399;">
+            <i class="fa-solid fa-fingerprint fa-3x"></i>
+          </div>
           <div class="course-body">
-            <h3 style="color: #34d399;"><i class="fa-solid fa-shield-halved"></i> Perícia e Combate ao Tráfico</h3>
-            <p>Treinamento de elite: Investigação forense, coleta de evidências e operações de inteligência contra o crime organizado.</p>
-            <a href="#" class="btn-canva" target="_blank" style="background: linear-gradient(45deg, #059669, #10b981);"><i class="fa-solid fa-book-open"></i> Acessar Material Classificado</a>
+            <h3 style="color: #34d399;">Perícia Criminal</h3>
+            <p>Investigação forense, coleta de evidências, análise de cena de crime e balística.</p>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="course-card special restricted-card hidden" style="display: none;">
+          <div class="course-thumb" style="background: linear-gradient(45deg, #3f1010, #0f172a); color: #f87171;">
+            <i class="fa-solid fa-mask fa-3x"></i>
+          </div>
+          <div class="course-body">
+            <h3 style="color: #f87171;">Combate ao Tráfico</h3>
+            <p>Operações de DTE, inteligência, invasão tática e interceptação de cargas.</p>
+            <div class="course-actions">
+              <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Canva</a>
+              <a href="#" class="btn-video" target="_blank"><i class="fa-solid fa-play"></i> Vídeo</a>
+            </div>
           </div>
         </div>
 
@@ -559,26 +623,25 @@
       }
 
       // ================================================================
-      // 4. LÓGICA DO CURSO ESPECIAL (PCERJ / PF)
+      // 4. LÓGICA DOS CURSOS ESPECIAIS (PCERJ / PF)
       // ================================================================
 
-      // COLOQUE AQUI OS IDs DOS CARGOS QUE TÊM ACESSO (Simulação do .env)
-      // Ex: "123456789" (ID cargo PCERJ), "987654321" (ID cargo PF)
       const ALLOWED_ROLE_IDS = [
         "1053687224320933888",
         "1447060519726088212"
       ];
 
       // Verificamos se o usuário tem algum cargo (roles) salvo no login
-      // OBS: Seu sistema de login precisa salvar 'user.roles' (array de strings)
       if (user.roles && Array.isArray(user.roles)) {
         const hasAccess = user.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
 
         if (hasAccess) {
-          const specialCourse = document.getElementById("curso-especial");
-          if (specialCourse) {
-            specialCourse.classList.remove("hidden");
-          }
+          // Seleciona TODOS os cards restritos e mostra eles
+          const restrictedCards = document.querySelectorAll(".restricted-card");
+          restrictedCards.forEach(card => {
+            card.style.display = "flex"; // Volta a aparecer flexbox
+            card.classList.remove("hidden"); // Remove classe hidden
+          });
         }
       }
 
