@@ -7,66 +7,113 @@
   <title>PF | Central de Polícia</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../style/main.css">
+  <style>
+    .discord-code {
+      background-color: #2b2d31;
+      color: #dcddd4;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      border-left: 3px solid #94a3b8;
+      /* Cinza PF */
+      word-wrap: break-word;
+    }
+
+    .discord-highlight {
+      background-color: #383a40;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      color: #e3e5e8;
+    }
+
+    .list-item {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #cbd5e1;
+    }
+  </style>
 </head>
 
 <body>
 
   <nav class="navbar">
-    <div class="logo">
-      <i class="fa-solid fa-building-shield"></i>
-      <span>Polícia Federal</span>
-    </div>
+    <div class="logo"><i class="fa-solid fa-building-shield"></i><span>PF</span></div>
     <ul class="nav-links">
-      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar à Central</a></li>
+      <li><a href="../index.html" class="active"><i class="fa-solid fa-arrow-left"></i> Voltar</a></li>
     </ul>
     <div id="user-area" class="user-area"></div>
   </nav>
 
   <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg'); background-size: cover; background-position: center;">
     <div class="hero-content">
-      <h1>Polícia Federal</h1>
-      <p>A Lei Acima de Tudo. Operações Especiais.</p>
+      <h1>POLÍCIA FEDERAL</h1>
+      <p>A Lei Acima de Tudo.</p>
     </div>
   </header>
 
   <main>
     <section class="container">
-      <div class="glass-panel">
-        <div class="recruitment-header">
-          <h2>Departamento Federal</h2>
+      <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h2 style="color: white; text-transform: uppercase;">
+            <i class="fa-solid fa-globe"></i> POLÍCIA FEDERAL <i class="fa-solid fa-globe"></i>
+          </h2>
         </div>
-        <div class="recruitment-body">
-          <div class="dept-info">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg" alt="Brasão PF" style="width: 150px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">
-            <p>Atuação em crimes contra a União, corrupção, lavagem de dinheiro e terrorismo. A elite da polícia judiciária.</p>
 
-            <ul style="text-align: left; margin: 20px 0; color: #cbd5e1; list-style: none;">
-              <li><i class="fa-solid fa-check" style="color: var(--accent-gold);"></i> COT (Comando de Operações Táticas)</li>
-              <li><i class="fa-solid fa-check" style="color: var(--accent-gold);"></i> Crimes Cibernéticos</li>
-              <li><i class="fa-solid fa-check" style="color: var(--accent-gold);"></i> Combate ao Tráfico Internacional</li>
-            </ul>
+        <p style="margin-bottom: 20px; color: #e2e8f0;">
+          A PF atua em investigações de crimes contra a União, corrupção, lavagem de dinheiro e terrorismo. A elite judiciária.
+        </p>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
 
-            <a href="#" class="btn-primary" target="_blank"><i class="fa-solid fa-book"></i> Edital Federal</a>
-          </div>
+        <h3 style="color: #94a3b8; margin-bottom: 10px;">Força Especial:</h3>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>COT</strong> (Comando Tático) <i class="fa-solid fa-user-ninja"></i></div>
 
-          <div class="uniform-info">
-            <h3>Equipamento Tático</h3>
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border: 1px solid #334155;">
-              <i class="fa-solid fa-user-secret" style="font-size: 4rem; color: #475569;"></i>
-              <p style="margin-top: 10px;">Kit Tático Multicam Black ou Social</p>
-            </div>
-          </div>
+        <h3 style="color: #94a3b8; margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>GPI</strong> (Pronta Intervenção) <i class="fa-solid fa-gun"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>CAOP</strong> (Aéreo) <i class="fa-solid fa-plane"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>DRE</strong> (Entorpecentes) <i class="fa-solid fa-capsules"></i></div>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
+        <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
+          <li>Mediante indicação ou concurso.</li>
+        </ul>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <p style="margin-bottom: 5px;">🚹 <strong>Fardamento masculino:</strong></p>
+        <div class="discord-code">
+          mascara 0 0; maos 0 0; calca 35 0; mochila 0 0; sapatos 10 0; acessorios 0 0; blusa 15 0; colete 55 0; jaqueta 42 0; oculos -1 0;
         </div>
+
+        <p style="margin-bottom: 5px;">🚺 <strong>Fardamento feminino:</strong></p>
+        <div class="discord-code">
+          mascara -1 0; maos 0 0; calca 36 0; mochila -1 0; sapatos 11 0; acessorios -1 0; blusa 15 0; colete 54 0; jaqueta 43 0; oculos -1 0;
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+
+        <p style="margin-bottom: 20px;">
+          <strong>Manual do conscrito:</strong>
+          <a href="#" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px; background: #475569;">
+            Clique aqui <i class="fa-solid fa-external-link-alt"></i>
+          </a>
+        </p>
+
+        <blockquote style="border-left: 4px solid #94a3b8; padding-left: 15px; color: #94a3b8; font-style: italic;">
+          ⚖️ Integridade, honra e competência. Bem-vindo à Polícia Federal.
+        </blockquote>
+
       </div>
     </section>
   </main>
-
-  <footer class="main-footer">
-    <div class="footer-bottom">
-      <p>&copy; 2026 Polícia Revoada RJ. Polícia Federal.</p>
-    </div>
-  </footer>
-
   <script src="../scripts/app.js"></script>
 </body>
 
