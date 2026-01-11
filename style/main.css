@@ -832,3 +832,41 @@ body {
     0 2px 4px rgba(0, 0, 0, 0.3)
   ); /* Sombra leve para destacar no fundo escuro */
 }
+/* Container do Vídeo */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Garante que fique atrás de tudo */
+  overflow: hidden;
+}
+
+/* O Vídeo em si */
+.video-background video {
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centraliza perfeitamente */
+  object-fit: cover; /* Cobre a tela sem distorcer */
+}
+
+/* Camada Escura (Overlay) */
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Gradiente: Mais escuro embaixo para facilitar leitura, azulado escuro em cima */
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.85),
+    rgba(15, 23, 42, 0.95)
+  );
+}
