@@ -35,7 +35,7 @@
     </ul>
 
     <div id="user-area" class="user-area">
-      <button id="btn-login" class="btn-login">
+      <button id="btn-login" class="btn-login" onclick="window.location.href='/api/auth'">
         <i class="fa-brands fa-discord"></i> Login Cidadão
       </button>
     </div>
@@ -79,7 +79,6 @@
     <section class="container commanders-section">
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Comando Geral</h2>
       <div class="commanders-grid">
-
         <div class="commander-card">
           <div class="cmd-img-container">
             <img src="https://ui-avatars.com/api/?name=Tonin&background=1e3a8a&color=fff&size=200" alt="Comandante Tonin">
@@ -88,7 +87,6 @@
           <span class="rank">Comandante Geral</span>
           <p>Responsável pela estratégia global de segurança e diretrizes da corporação.</p>
         </div>
-
         <div class="commander-card">
           <div class="cmd-img-container">
             <img src="https://ui-avatars.com/api/?name=Dede&background=1e3a8a&color=fff&size=200" alt="Comandante Dede">
@@ -97,7 +95,6 @@
           <span class="rank">Subcomandante</span>
           <p>Coordena a logística e o gerenciamento tático das tropas em campo.</p>
         </div>
-
         <div class="commander-card">
           <div class="cmd-img-container">
             <img src="https://ui-avatars.com/api/?name=Colter&background=1e3a8a&color=fff&size=200" alt="Comandante Colter">
@@ -106,7 +103,6 @@
           <span class="rank">Chefe de Operações</span>
           <p>Líder das forças especiais e operações de alto risco na cidade.</p>
         </div>
-
       </div>
     </section>
 
@@ -133,7 +129,6 @@
     <section id="boletim-section" class="container hidden">
       <div class="glass-panel form-panel">
         <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
-
         <form id="form-bo">
           <div class="user-badge">
             <img id="form-avatar" src="" alt="Avatar">
@@ -142,7 +137,6 @@
               <small>Identidade Confirmada</small>
             </div>
           </div>
-
           <div class="form-grid">
             <div class="input-group">
               <label>Nome do Cidadão</label>
@@ -173,7 +167,6 @@
               <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
             </div>
           </div>
-
           <div class="form-actions">
             <button type="submit" class="btn-submit">
               <i class="fa-solid fa-paper-plane"></i> Enviar Ocorrência
@@ -214,10 +207,23 @@
     </div>
   </footer>
 
+  <div id="login-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <h2>Identificação Necessária</h2>
+      <p>Para registrar um Boletim de Ocorrência, você precisa se identificar primeiro.</p>
+      <p class="modal-subtext">Por favor, utilize o botão <strong>Login Cidadão</strong> no topo do site.</p>
+
+      <div class="modal-actions">
+        <button class="btn-close-modal" onclick="closeLoginModal()">Entendi</button>
+        <button class="btn-login-modal" onclick="window.location.href='/api/auth'">Fazer Login Agora</button>
+      </div>
+    </div>
+  </div>
+
   <script src="scripts/notification.js"></script>
-
-  <script src="scripts/session.js"></script>
-
   <script src="scripts/app.js"></script>
 
 </body>

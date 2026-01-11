@@ -648,3 +648,96 @@ body {
     gap: 1rem;
   }
 }
+/* --- MODAL (OVERLAY) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+/* Quando removemos a classe 'hidden', ele aparece */
+.modal-overlay:not(.hidden) {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-box {
+  background: #0f172a;
+  border: 1px solid var(--accent-gold);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  transform: scale(0.9);
+  transition: 0.3s;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+}
+
+.modal-overlay:not(.hidden) .modal-box {
+  transform: scale(1);
+}
+
+.modal-icon i {
+  font-size: 3rem;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+
+.modal-box h2 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.modal-box p {
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.modal-subtext {
+  font-size: 0.9rem;
+  margin-bottom: 2rem !important;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: 1px solid #334155;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-login-modal {
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-login-modal:hover {
+  background: #1e40af;
+}
+.btn-close-modal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
