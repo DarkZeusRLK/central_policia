@@ -79,13 +79,9 @@ const Notify = {
    3. CONTROLE DO MODAL DE LOGIN
    ========================================================================== */
 function openLoginModal() {
-  console.log("Tentando abrir modal..."); // Debug
   const modal = document.getElementById("login-modal");
   if (modal) {
     modal.classList.remove("hidden");
-    console.log("Classe hidden removida.");
-  } else {
-    console.error("ERRO: Modal não encontrado no HTML");
   }
 }
 
@@ -103,7 +99,6 @@ function proceedToLogin() {
    4. INICIALIZAÇÃO
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("App iniciado.");
   Notify.init();
   updateUI();
   checkUrlLogin();
@@ -112,12 +107,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (dateEl) dateEl.innerText = new Date().toLocaleDateString("pt-BR");
 
   loadNews();
-  setupNavigation(); // Configura os cliques
+  setupNavigation();
 
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
 
-  // Evento global para fechar modal
+  // Fecha modal ao clicar fora
   document.addEventListener("click", (e) => {
     const modal = document.getElementById("login-modal");
     if (e.target === modal) closeLoginModal();
@@ -125,34 +120,26 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   5. NAVEGAÇÃO (AQUI ESTÁ A CORREÇÃO PRINCIPAL)
+   5. NAVEGAÇÃO
    ========================================================================== */
 function setupNavigation() {
-  // 1. Link Boletim (CAPTURA O CLIQUE)
+  // 1. Link Boletim (Intercepta clique)
   const btnBoletim = document.getElementById("nav-bo");
 
   if (btnBoletim) {
-    console.log("Botão de B.O. encontrado. Adicionando evento.");
-
-    // Removemos clones antigos para garantir
+    // Clone para remover listeners antigos e evitar duplicação
     const newBtn = btnBoletim.cloneNode(true);
     btnBoletim.parentNode.replaceChild(newBtn, btnBoletim);
 
     newBtn.addEventListener("click", (e) => {
-      console.log("Clicou no Boletim!");
-      e.preventDefault(); // <--- ISSO IMPEDE O LINK DE MUDAR A URL
-
+      e.preventDefault();
       if (!Session.isLoggedIn()) {
-        console.log("Não logado. Abrindo modal.");
         openLoginModal();
       } else {
-        console.log("Logado. Abrindo seção.");
         showSection("boletim-section");
         updateFormAvatar();
       }
     });
-  } else {
-    console.error("Botão nav-bo não encontrado!");
   }
 
   // 2. Link Home
@@ -161,23 +148,20 @@ function setupNavigation() {
     document.querySelector('a[href="#"]');
   if (btnHome) {
     btnHome.addEventListener("click", (e) => {
-      e.preventDefault();
+      e.preventDefault(); // Evita recarregar se for #
+      // Se estiver numa subpágina, o href deve ser ajustado no HTML,
+      // mas se for SPA na home:
       showSection("jornal");
     });
   }
 
-  // 3. Dropdowns
-  document.querySelectorAll(".dropdown-content a").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const deptName = e.target.getAttribute("data-dept") || "pmerj";
-      loadRecruitment(deptName);
-    });
-  });
+  // NOTA: Removido o listener dos dropdowns aqui, pois agora
+  // eles são controlados diretamente pela função loadRecruitment abaixo.
 }
 
 function showSection(sectionId) {
-  const sections = ["jornal", "boletim-section", "recrutamento"];
+  // Esconde tudo que pode ser escondido na Home
+  const sections = ["jornal", "boletim-section"];
   sections.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.add("hidden");
@@ -254,7 +238,7 @@ function updateFormAvatar() {
 }
 
 /* ==========================================================================
-   7. DADOS & BACKEND (PREENCHIDO AGORA)
+   7. DADOS & REDIRECIONAMENTO DE DEPARTAMENTOS
    ========================================================================== */
 async function loadNews() {
   try {
@@ -282,48 +266,28 @@ async function loadNews() {
   }
 }
 
-async function loadRecruitment(deptId) {
-  try {
-    Notify.loading("Carregando departamento...");
-    // Simulando dados para não precisar do JSON por enquanto
-    const deptData = {
-      pcerj: {
-        name: "Polícia Civil (PCERJ)",
-        desc: "Investigação e Inteligência.",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/2/23/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro.svg",
-        link: "#",
-      },
-      pmerj: {
-        name: "Polícia Militar (PMERJ)",
-        desc: "Patrulhamento Ostensivo.",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/6/66/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro.svg",
-        link: "#",
-      },
-      prf: {
-        name: "Polícia Rodoviária Federal",
-        desc: "Patrulhamento de Rodovias.",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/2/24/Logo_Pol%C3%ADcia_Rodovi%C3%A1ria_Federal_-_Brasil.svg",
-        link: "#",
-      },
-      pf: {
-        name: "Polícia Federal",
-        desc: "Crimes Federais e Fronteiras.",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg",
-        link: "#",
-      },
-    };
+// -----------------------------------------------------
+// FUNÇÃO ATUALIZADA: REDIRECIONA PARA OS ARQUIVOS HTML
+// -----------------------------------------------------
+function loadRecruitment(deptId) {
+  // Mapa de IDs para Arquivos
+  const deptFiles = {
+    pcerj: "public/departamentopcerj.html",
+    pmerj: "public/batalhaopmerj.html", // Nome específico que você pediu
+    prf: "public/departamentoprf.html",
+    pf: "public/departamentopf.html",
+  };
 
-    const dept = deptData[deptId];
-    if (!dept) throw new Error("Dept não encontrado");
+  const targetFile = deptFiles[deptId];
 
-    document.getElementById("dept-name").innerText = dept.name;
-    document.getElementById("dept-desc").innerText = dept.desc;
-    document.getElementById("dept-img").src = dept.logo;
-    showSection("recrutamento");
-    Notify.success(dept.name);
-  } catch (e) {
-    console.error(e);
-    Notify.error("Erro ao carregar.");
+  if (targetFile) {
+    Notify.loading("Redirecionando para o departamento...");
+    setTimeout(() => {
+      window.location.href = targetFile;
+    }, 500); // Pequeno delay para mostrar o loading
+  } else {
+    Notify.error("Página do departamento não encontrada.");
+    console.error(`Departamento ${deptId} sem arquivo mapeado.`);
   }
 }
 
