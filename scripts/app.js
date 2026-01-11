@@ -487,14 +487,17 @@ async function loadDepartmentLeadership() {
     "pcerj-leadership": {
       api: "/api/get-pcerj",
       roles: [
-        { title: "Delegado Titular", desc: "Chefe geral da Polícia Civil." },
         {
-          title: "Delegado Adjunto",
-          desc: "Auxilia na administração da delegacia.",
+          title: "Delegado Geral",
+          desc: "Delegado Investigativo responsável por todos os inquéritos policiais e atividades relacionadas ao âmbito investigativo.",
         },
         {
-          title: "Chefe de Investigação",
-          desc: "Coordena os inquéritos e operações.",
+          title: "Delegado Adjunto",
+          desc: "Delegado Operacional, responsável pelas atividades dos Grupamentos e Guarnições especiais, sendo comandante das pacificações.",
+        },
+        {
+          title: "Delegado Adjunto",
+          desc: "Delegado Administrativo, responsável pelas atividades de inatividade e escrivães.",
         },
       ],
     },
@@ -503,15 +506,15 @@ async function loadDepartmentLeadership() {
       roles: [
         { title: "Comandante", desc: "Responsável pelo batalhão." },
         { title: "Subcomandante", desc: "Gestão da tropa e disciplina." },
-        { title: "Chefe P3", desc: "Planejamento de operações." },
+        { title: "Subcomandante", desc: "Planejamento de operações." },
       ],
     },
     "pf-leadership": {
       api: "/api/get-pf",
       roles: [
         { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
-        { title: "Diretor Executivo", desc: "Gestão administrativa." },
-        { title: "Corregedor", desc: "Fiscalização e conduta." },
+        { title: "Vice-Diretor", desc: "Gestão administrativa." },
+        { title: "Vice-Diretor", desc: "Fiscalização e conduta." },
       ],
     },
     "prf-leadership": {
@@ -521,7 +524,7 @@ async function loadDepartmentLeadership() {
           title: "Diretor Geral",
           desc: "Chefe da Polícia Rodoviária Federal.",
         },
-        { title: "Superintendente", desc: "Coordenação regional." },
+        { title: "Vice-Diretor", desc: "Coordenação regional." },
         { title: "Chefe de Policiamento", desc: "Fiscalização nas rodovias." },
       ],
     },
