@@ -180,17 +180,13 @@
       text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     }
 
-    /* Ouro */
     .rank-2 {
       color: #C0C0C0;
     }
 
-    /* Prata */
     .rank-3 {
       color: #CD7F32;
     }
-
-    /* Bronze */
 
     .rank-name {
       flex: 1;
@@ -223,8 +219,6 @@
       color: white;
     }
 
-    /* --- FIM NOVOS ESTILOS --- */
-
     /* Cards de Cursos */
     .course-grid {
       display: grid;
@@ -239,11 +233,25 @@
       overflow: hidden;
       border: 1px solid #334155;
       transition: 0.3s;
+      display: flex;
+      flex-direction: column;
     }
 
     .course-card:hover {
       transform: translateY(-5px);
       border-color: var(--accent-gold);
+    }
+
+    /* Estilo especial para o curso restrito */
+    .course-card.special {
+      border: 1px solid #10b981;
+      /* Verde esmeralda ou Dourado */
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+
+    .course-card.special .course-thumb {
+      background: linear-gradient(45deg, #064e3b, #0f172a);
+      color: #34d399;
     }
 
     .course-thumb {
@@ -257,6 +265,9 @@
 
     .course-body {
       padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .course-body h3 {
@@ -269,6 +280,7 @@
       color: #94a3b8;
       font-size: 0.9rem;
       margin-bottom: 15px;
+      flex: 1;
     }
 
     .btn-canva {
@@ -279,6 +291,7 @@
       text-decoration: none;
       font-size: 0.85rem;
       display: inline-block;
+      text-align: center;
     }
 
     /* Estilos do Formulário de Notícias */
@@ -319,14 +332,10 @@
 
     .sidebar-logo {
       width: 80px;
-      /* Tamanho da logo */
       height: auto;
-      /* Mantém a proporção */
       margin-bottom: 15px;
-      /* Espaço entre a logo e o texto "INTRANET" */
       object-fit: contain;
       filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-      /* Sombra para destacar */
     }
   </style>
 </head>
@@ -379,7 +388,6 @@
       </div>
 
       <div class="dashboard-grid">
-
         <div class="widget-card">
           <div class="widget-title">
             <i class="fa-solid fa-trophy"></i> Ranking de Prisões
@@ -397,32 +405,59 @@
             <p style="color: #64748b; font-size: 0.9rem;">Buscando notícias...</p>
           </div>
         </div>
-
       </div>
     </section>
 
     <section id="sec-cursos" class="dash-section hidden">
       <h1 style="color: white;">Cursos de Formação</h1>
-      <p style="color: #94a3b8;">Acervo de treinamentos e procedimentos.</p>
+      <p style="color: #94a3b8;">Acervo de treinamentos e procedimentos operacionais padrão.</p>
 
       <div class="course-grid">
         <div class="course-card">
-          <div class="course-thumb"><i class="fa-solid fa-handcuffs fa-3x"></i></div>
+          <div class="course-thumb"><i class="fa-solid fa-person-military-to-person fa-3x"></i></div>
           <div class="course-body">
-            <h3>Procedimentos de Abordagem</h3>
-            <p>Aprenda o padrão ouro de abordagem veicular e pessoal.</p>
+            <h3>Conduta Policial e Ordem Unida</h3>
+            <p>Fundamentos de hierarquia, disciplina, postura e ética militar.</p>
             <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
-            <a href="#" class="btn-primary" style="padding: 8px 15px; font-size: 0.85rem; margin-left: 5px; background: #3b82f6; color:white; border-radius:6px; text-decoration:none;"><i class="fa-solid fa-play"></i> Vídeo</a>
           </div>
         </div>
+
         <div class="course-card">
-          <div class="course-thumb"><i class="fa-solid fa-walkie-talkie fa-3x"></i></div>
+          <div class="course-thumb"><i class="fa-solid fa-headset fa-3x"></i></div>
           <div class="course-body">
-            <h3>Códigos Q e Modulação</h3>
-            <p>Comunicação eficiente via rádio.</p>
+            <h3>Patrulha e Modulação</h3>
+            <p>Táticas de patrulhamento ostensivo, abordagem segura e códigos Q de rádio.</p>
             <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
           </div>
         </div>
+
+        <div class="course-card">
+          <div class="course-thumb"><i class="fa-solid fa-magnifying-glass-chart fa-3x"></i></div>
+          <div class="course-body">
+            <h3>Detecção de Ilícitos</h3>
+            <p>Identificação de substâncias, armas modificadas e procedimento de revista.</p>
+            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-thumb"><i class="fa-solid fa-lock fa-3x"></i></div>
+          <div class="course-body">
+            <h3>Curso de Carcereiro</h3>
+            <p>Gestão prisional, transporte de detentos e segurança de celas.</p>
+            <a href="#" class="btn-canva" target="_blank"><i class="fa-solid fa-paintbrush"></i> Ver no Canva</a>
+          </div>
+        </div>
+
+        <div class="course-card special hidden" id="curso-especial">
+          <div class="course-thumb"><i class="fa-solid fa-dna fa-3x"></i></div>
+          <div class="course-body">
+            <h3 style="color: #34d399;"><i class="fa-solid fa-shield-halved"></i> Perícia e Combate ao Tráfico</h3>
+            <p>Treinamento de elite: Investigação forense, coleta de evidências e operações de inteligência contra o crime organizado.</p>
+            <a href="#" class="btn-canva" target="_blank" style="background: linear-gradient(45deg, #059669, #10b981);"><i class="fa-solid fa-book-open"></i> Acessar Material Classificado</a>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -523,10 +558,34 @@
         document.getElementById("tab-jornalista").classList.remove("hidden");
       }
 
-      // 4. Carrega Dados da Dashboard (RANKING + NOTÍCIA)
+      // ================================================================
+      // 4. LÓGICA DO CURSO ESPECIAL (PCERJ / PF)
+      // ================================================================
+
+      // COLOQUE AQUI OS IDs DOS CARGOS QUE TÊM ACESSO (Simulação do .env)
+      // Ex: "123456789" (ID cargo PCERJ), "987654321" (ID cargo PF)
+      const ALLOWED_ROLE_IDS = [
+        "1053687224320933888",
+        "1447060519726088212"
+      ];
+
+      // Verificamos se o usuário tem algum cargo (roles) salvo no login
+      // OBS: Seu sistema de login precisa salvar 'user.roles' (array de strings)
+      if (user.roles && Array.isArray(user.roles)) {
+        const hasAccess = user.roles.some(roleId => ALLOWED_ROLE_IDS.includes(roleId));
+
+        if (hasAccess) {
+          const specialCourse = document.getElementById("curso-especial");
+          if (specialCourse) {
+            specialCourse.classList.remove("hidden");
+          }
+        }
+      }
+
+      // 5. Carrega Dados da Dashboard
       loadDashboardData();
 
-      // 5. Lógica de Envio de Notícia
+      // 6. Lógica de Envio de Notícia
       const formNews = document.getElementById("form-news");
       if (formNews) {
         formNews.addEventListener("submit", async (e) => {
@@ -551,7 +610,7 @@
             if (response.ok) {
               Notify.success("Matéria publicada no Jornal!");
               formNews.reset();
-              loadDashboardData(); // Recarrega o widget de notícia
+              loadDashboardData();
             } else {
               Notify.error("Erro ao publicar a matéria.");
             }
@@ -576,12 +635,8 @@
 
     // --- FUNÇÃO PARA CARREGAR OS WIDGETS ---
     async function loadDashboardData() {
-
-      // A. Carregar Ranking (Simulação de fetch do Canal Discord)
       const rankingContainer = document.getElementById('ranking-container');
       try {
-        // Nota: No futuro, isso será um fetch('/api/get-discord-ranking')
-        // Por enquanto, simulamos os dados que o BOT enviaria
         const mockRankingData = [
           { name: "Ten. Silva", score: 42 },
           { name: "Cb. Oliveira", score: 38 },
@@ -615,15 +670,13 @@
         rankingContainer.innerHTML = '<p style="color:#ef4444">Erro ao carregar ranking.</p>';
       }
 
-      // B. Carregar Última Notícia
       const newsContainer = document.getElementById('latest-news-container');
       try {
-        // Fetch real para pegar a última notícia
         const response = await fetch('/api/news');
         const news = await response.json();
 
         if (news && news.length > 0) {
-          const latest = news[0]; // Pega a primeira (mais recente)
+          const latest = news[0];
           newsContainer.innerHTML = `
                     <div class="news-widget-content" style="background-image: url('${latest.image || 'images/news-placeholder.jpg'}');">
                         <div class="news-overlay">
@@ -636,7 +689,6 @@
           newsContainer.innerHTML = '<p style="color:#94a3b8">Nenhuma notícia recente encontrada.</p>';
         }
       } catch (error) {
-        // Fallback visual se a API não estiver rodando ainda
         newsContainer.innerHTML = `
                 <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
                     <div class="news-overlay">
