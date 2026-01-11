@@ -741,3 +741,23 @@ body {
 .btn-close-modal:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+/* Ajuste para o Container da Logo */
+.logo {
+  display: flex;
+  align-items: center; /* Centraliza verticalmente */
+  gap: 12px; /* Espaço entre a imagem e o texto */
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+}
+
+/* Ajuste específico para a Imagem */
+.logo img {
+  height: 45px; /* Altura fixa para caber na navbar */
+  width: auto; /* Mantém a proporção */
+  object-fit: contain; /* Garante que a imagem não distorça */
+  filter: drop-shadow(
+    0 2px 4px rgba(0, 0, 0, 0.3)
+  ); /* Sombra leve para destacar no fundo escuro */
+}
