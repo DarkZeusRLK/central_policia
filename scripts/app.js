@@ -423,7 +423,7 @@ async function loadCommanders() {
     const roles = [
       {
         title: "Comandante Geral",
-        desc: "Responsável pela estratégia global de segurança e diretrizes da corporação.",
+        desc: "Responsável Polícia",
       },
       {
         title: "Subcomandante Geral",
