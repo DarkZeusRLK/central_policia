@@ -1,6 +1,6 @@
-/* ==========================================================================
-   1. GESTÃO DE SESSÃO
-   ========================================================================== */
+//* ==========================================================================
+// 1. GESTÃO DE SESSÃO (MANTENHA O SEU CÓDIGO AQUI)
+// ========================================================================== */
 const Session = {
   user: JSON.parse(localStorage.getItem("revoada_user")) || null,
 
@@ -11,20 +11,68 @@ const Session = {
   login(userData) {
     this.user = userData;
     localStorage.setItem("revoada_user", JSON.stringify(userData));
-    updateUI();
-    Notify.success(`Bem-vindo, ${userData.username}!`);
+
+    // Verifica se a função updateUI existe antes de chamar (para evitar erros)
+    if (typeof updateUI === "function") updateUI();
+
+    // Se tiver o sistema de notificação, usa ele, senão usa alert ou console
+    if (typeof Notify !== "undefined") {
+      Notify.success(`Bem-vindo, ${userData.username}!`);
+    } else {
+      console.log(`Login realizado: ${userData.username}`);
+    }
   },
 
   logout() {
     this.user = null;
     localStorage.removeItem("revoada_user");
-    localStorage.removeItem("revoada_is_journalist"); // Limpa permissão extra
-    updateUI();
-    Notify.info("Você saiu do sistema.");
+    localStorage.removeItem("revoada_is_journalist");
+
+    if (typeof updateUI === "function") updateUI();
+
+    if (typeof Notify !== "undefined") Notify.info("Você saiu do sistema.");
+
     setTimeout(() => (window.location.href = "/"), 1000);
   },
 };
 
+/* ==========================================================================
+   2. CAPTURA DE DADOS DO LOGIN (ADICIONE ISSO ABAIXO)
+   ========================================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  // Verifica se tem parâmetros na URL (volta do Discord)
+  const params = new URLSearchParams(window.location.search);
+
+  // Se tiver username na URL, significa que o login foi feito
+  if (params.has("username")) {
+    // 1. Pega os roles da URL (que vem como texto stringfy)
+    const rolesString = params.get("roles");
+    let rolesArray = [];
+
+    try {
+      // Tenta transformar o texto "[123, 456]" em array real
+      if (rolesString) {
+        rolesArray = JSON.parse(rolesString);
+      }
+    } catch (e) {
+      console.error("Erro ao processar cargos:", e);
+    }
+
+    // 2. Monta o objeto do usuário
+    const userData = {
+      username: params.get("username"),
+      id: params.get("id"),
+      avatar: params.get("avatar"),
+      roles: rolesArray, // AQUI ESTÁ A CORREÇÃO: Salvando os cargos!
+    };
+
+    // 3. Salva na sessão
+    Session.login(userData);
+
+    // 4. Limpa a URL para ficar bonita (remove ?username=... etc)
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+});
 /* ==========================================================================
    2. SISTEMA DE NOTIFICAÇÕES
    ========================================================================== */
