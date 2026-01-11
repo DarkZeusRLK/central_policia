@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Polícia | REVOADA RJ</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="style/main.css">
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>REVOADA RJ</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Início</a></li>
+
+      <li class="dropdown">
+        <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
+        <div class="dropdown-content">
+          <a href="#recrutamento" onclick="loadRecruitment('pcerj')"><i class="fa-solid fa-magnifying-glass"></i> PCERJ</a>
+          <a href="#recrutamento" onclick="loadRecruitment('pmerj')"><i class="fa-solid fa-person-military-rifle"></i> PMERJ</a>
+          <a href="#recrutamento" onclick="loadRecruitment('prf')"><i class="fa-solid fa-road"></i> PRF</a>
+          <a href="#recrutamento" onclick="loadRecruitment('pf')"><i class="fa-solid fa-building-shield"></i> PF</a>
+        </div>
+      </li>
+
+      <li><a href="#boletim" id="nav-bo"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
+      <li><a href="#" class="disabled"><i class="fa-solid fa-lock"></i> Acesso Policial</a></li>
+    </ul>
+
+    <div id="user-area" class="user-area">
+      <button id="btn-login" class="btn-login">
+        <i class="fa-brands fa-discord"></i> Login Cidadão
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Servir e Proteger</h1>
+      <p>Central de Polícia Oficial da Cidade Revoada RJ</p>
+      <div class="stats">
+        <div class="stat-item">
+          <span id="date-display">--/--/----</span>
+          <small>Data Atual</small>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="jornal" class="container">
+      <h2 class="section-title"><i class="fa-regular fa-newspaper"></i> Jornal da Polícia</h2>
+      <div id="news-grid" class="news-grid">
+        <div class="loading-placeholder">Carregando notícias...</div>
+      </div>
+    </section>
+
+    <section id="recrutamento" class="container hidden">
+      <div class="glass-panel">
+        <div class="recruitment-header">
+          <h2 id="dept-name">Departamento</h2>
+          <button class="btn-close" onclick="closeRecruitment()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="recruitment-body">
+          <div class="dept-info">
+            <img id="dept-img" src="" alt="Logo Departamento">
+            <p id="dept-desc">Selecione um departamento no menu acima.</p>
+            <a id="dept-link" href="#" target="_blank" class="btn-primary">Material de Estudo</a>
+          </div>
+          <div class="uniform-info">
+            <h3>Uniforme Exigido</h3>
+            <img id="uniform-img" src="" alt="Uniforme">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="boletim-section" class="container hidden">
+      <div class="glass-panel form-panel">
+        <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
+
+        <form id="form-bo">
+          <div class="user-badge">
+            <img id="form-avatar" src="" alt="Avatar">
+            <div>
+              <span id="form-username">Usuário</span>
+              <small>Identidade Confirmada</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Nome do Cidadão</label>
+              <input type="text" name="nome" required placeholder="Ex: João da Silva">
+            </div>
+            <div class="input-group">
+              <label>Passaporte (ID)</label>
+              <input type="number" name="passaporte" required placeholder="Ex: 1234">
+            </div>
+            <div class="input-group">
+              <label>Telefone</label>
+              <input type="text" name="telefone" required placeholder="Ex: 555-0100">
+            </div>
+            <div class="input-group">
+              <label>Horário Aproximado</label>
+              <input type="datetime-local" name="horario" required>
+            </div>
+            <div class="input-group full-width">
+              <label>Local do Ocorrido</label>
+              <input type="text" name="local" required placeholder="Ex: Praça Central, ao lado do banco">
+            </div>
+            <div class="input-group full-width">
+              <label>Ocorrência (Resumo)</label>
+              <input type="text" name="ocorrencia" required placeholder="Ex: Roubo de Veículo">
+            </div>
+            <div class="input-group full-width">
+              <label>Itens Perdidos</label>
+              <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">
+              <i class="fa-solid fa-paper-plane"></i> Enviar Ocorrência
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Central de Polícia Revoada RJ - Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="scripts/notifications.js"></script>
+  <script src="scripts/session.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+
+</html>
