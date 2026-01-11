@@ -71,6 +71,19 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s ease;
 }
+.access-link {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+}
+.access-link:hover {
+  color: var(--danger); /* Vermelho para indicar área restrita/atenção */
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
 .logo {
   font-size: 1.4rem;
   font-weight: bold;
@@ -83,7 +96,22 @@ body {
 .nav-links {
   display: flex;
   list-style: none;
-  gap: 2.5rem;
+  gap: 2rem;
+  /* Isso empurra o grupo do usuário para o final da tela */
+  margin-right: auto;
+  margin-left: 3rem; /* Espaço para desgrudar da Logo */
+}
+
+/* Novo Container da Direita (Segurança contra cliques acidentais) */
+.nav-user-group {
+  display: flex;
+  align-items: center;
+  gap: 2rem; /* Espaço entre o botão de acesso e o perfil */
+
+  /* Adiciona uma linha divisória visual e um padding extra */
+  padding-left: 2rem;
+  border-left: 1px solid var(--glass-border);
+  height: 40px; /* Altura para a linha divisória ficar bonita */
 }
 
 .nav-links a {
@@ -160,7 +188,7 @@ body {
 
 .hero {
   position: relative;
-  height: 100vh; /* Ocupa a tela toda */
+  height: 50vh; /* Ocupa a tela toda */
   display: flex;
   flex-direction: column;
   justify-content: center; /* Centraliza verticalmente */
@@ -660,7 +688,37 @@ body {
   height: 50px;
   border-radius: 50%;
 }
+/* Estilo do Perfil na Navbar */
+.user-profile-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
 
+.user-profile-nav .username {
+  font-weight: bold;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+.avatar-ring {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  padding: 2px;
+  border: 2px solid var(--accent-gold);
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-ring img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
 /* --- ANIMAÇÕES --- */
 @keyframes slideIn {
   from {
