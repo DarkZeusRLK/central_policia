@@ -88,7 +88,7 @@ const Notify = {
 document.addEventListener("DOMContentLoaded", () => {
   Notify.init(); // Inicia sistema de notificação
   updateUI(); // Atualiza botões de login/logout
-  checkUrlLogin(); // Verifica se voltou do Login do Discord
+  checkUrlLogin(); // Verifica se voltou do Login do Discord e se tem ação pendente
 
   // 1. Data Atual no Topo
   const dateEl = document.getElementById("date-display");
@@ -97,12 +97,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // 2. Carregar Notícias
   loadNews();
 
-  // 3. Botão de Login (Redireciona para nossa API)
+  // 3. Botão de Login (Opção manual, caso o usuário queira logar sem ir pro BO)
   const btnLogin = document.getElementById("btn-login");
   if (btnLogin) {
     btnLogin.addEventListener("click", () => {
       Notify.loading("Redirecionando para o Discord...");
-      // IMPORTANTE: Aqui vai para a API que criamos no passo anterior
       window.location.href = "/api/auth";
     });
   }
@@ -121,10 +120,11 @@ document.addEventListener("DOMContentLoaded", () => {
    4. LÓGICA DE LOGIN E UI
    ========================================================================== */
 
-// Verifica se a URL tem ?username=... (Retorno da API)
+// Verifica retorno da API e Ações Pendentes (Lazy Login)
 function checkUrlLogin() {
   const urlParams = new URLSearchParams(window.location.search);
 
+  // 1. Realiza o Login se vierem dados da URL
   if (urlParams.has("username")) {
     const userData = {
       username: urlParams.get("username"),
@@ -132,28 +132,42 @@ function checkUrlLogin() {
       avatar: urlParams.get("avatar"),
     };
 
-    // Salva na sessão
     Session.login(userData);
-
-    // Limpa a URL para ficar "bonita" (sem mostrar os dados)
     window.history.replaceState({}, document.title, "/");
+  }
+
+  // 2. VERIFICAÇÃO DE AÇÃO PENDENTE (Mágica do Lazy Login)
+  if (Session.isLoggedIn()) {
+    const pendingAction = localStorage.getItem("pending_action");
+
+    if (pendingAction === "open_boletim") {
+      // Limpa a pendência
+      localStorage.removeItem("pending_action");
+
+      // Notifica e abre a tela
+      Notify.success("Autenticação confirmada. Prossiga com o B.O.");
+      showSection("boletim-section");
+
+      // Atualiza a foto no formulário de B.O.
+      const userBadgeForm = document.querySelector(".user-badge img");
+      if (userBadgeForm && Session.user) {
+        userBadgeForm.src = `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
+      }
+    }
   }
 }
 
 // Atualiza a barra superior (Mostra botão Login ou Avatar do Usuário)
 function updateUI() {
-  const navRight = document.querySelector(".navbar .nav-links"); // Ajuste conforme seu HTML
-  // Ou se o botão estiver solto na navbar:
+  const navRight = document.querySelector(".navbar .nav-links");
   const btnLogin = document.getElementById("btn-login");
 
   if (Session.isLoggedIn()) {
     if (btnLogin) btnLogin.classList.add("hidden");
 
-    // Remove badge antigo se existir
     const oldBadge = document.getElementById("user-badge-nav");
     if (oldBadge) oldBadge.remove();
 
-    // Cria badge do usuário
     const badge = document.createElement("li");
     badge.id = "user-badge-nav";
     badge.innerHTML = `
@@ -163,7 +177,6 @@ function updateUI() {
                      style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
             </div>
         `;
-    // Adiciona na lista de links ou substitui o botão
     if (navRight) navRight.appendChild(badge);
   } else {
     if (btnLogin) btnLogin.classList.remove("hidden");
@@ -182,14 +195,22 @@ function setupNavigation() {
     showSection("jornal");
   });
 
-  // Link Boletim
+  // Link Boletim (MODIFICADO: Lazy Login)
   document.getElementById("nav-bo")?.addEventListener("click", (e) => {
     e.preventDefault();
+
     if (!Session.isLoggedIn()) {
-      Notify.error("Faça Login para registrar um B.O.");
+      // CASO NÃO LOGADO: Salva intenção e redireciona
+      Notify.info("Login necessário para registrar ocorrência.");
+      localStorage.setItem("pending_action", "open_boletim");
+
+      setTimeout(() => {
+        window.location.href = "/api/auth";
+      }, 1500);
     } else {
+      // CASO LOGADO: Abre direto
       showSection("boletim-section");
-      // Preenche o avatar do usuário no formulário automaticamente
+
       const userBadgeForm = document.querySelector(".user-badge img");
       if (userBadgeForm && Session.user) {
         userBadgeForm.src = `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
@@ -197,21 +218,17 @@ function setupNavigation() {
     }
   });
 
-  // Links de Recrutamento (Dropdown)
-  // Supondo que no HTML os links sejam: <a href="#" onclick="loadRecruitment('gate')">GATE</a>
-  // Vamos fazer via classe para ficar mais limpo: class="dept-link" data-dept="gate"
+  // Links de Recrutamento
   document.querySelectorAll(".dropdown-content a").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      // Pega o nome do departamento do texto ou de um atributo data
-      const deptName = e.target.getAttribute("data-dept") || "gate"; // Exemplo padrão
+      const deptName = e.target.getAttribute("data-dept") || "gate";
       loadRecruitment(deptName);
     });
   });
 }
 
 function showSection(sectionId) {
-  // Esconde todas as seções principais
   const sections = [
     "jornal",
     "boletim-section",
@@ -223,7 +240,6 @@ function showSection(sectionId) {
     if (el) el.classList.add("hidden");
   });
 
-  // Mostra a desejada
   const target = document.getElementById(sectionId);
   if (target) {
     target.classList.remove("hidden");
@@ -237,10 +253,7 @@ function showSection(sectionId) {
 
 async function loadNews() {
   try {
-    // Tenta carregar. Se falhar, usa dados fictícios para não quebrar o layout
     const req = await fetch("public/data/news.json");
-    // OBS: Na Vercel, se 'data' está na raiz, use "/data/news.json"
-
     if (!req.ok) throw new Error("Falha no fetch");
 
     const data = await req.json();
@@ -262,8 +275,7 @@ async function loadNews() {
             `;
     });
   } catch (e) {
-    console.warn("Usando notícias de fallback...");
-    // Fallback visual caso o JSON falhe
+    console.warn("Usando fallback de notícias...");
     const grid = document.getElementById("news-grid");
     if (grid)
       grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3;">Nenhuma notícia recente encontrada.</p>`;
@@ -273,22 +285,18 @@ async function loadNews() {
 async function loadRecruitment(deptId) {
   try {
     Notify.loading("Acessando banco de dados...");
-
-    // Simulação de delay para parecer "hacker/sistema"
     await new Promise((r) => setTimeout(r, 800));
 
-    const req = await fetch("public/data/recruitment.json"); // Ajuste o caminho se necessário
+    const req = await fetch("public/data/recruitment.json");
     const data = await req.json();
     const dept = data[deptId];
 
     if (!dept) throw new Error("Departamento não encontrado");
 
-    // Preenche UI
     document.getElementById("dept-name").innerText = dept.name;
     document.getElementById("dept-desc").innerText = dept.description;
     document.getElementById("dept-img").src = dept.logo;
 
-    // Seção específica para botão de material
     const btnLink = document.getElementById("dept-link");
     if (btnLink) btnLink.href = dept.studyMaterial;
 
@@ -314,12 +322,10 @@ async function handleBOSubmit(e) {
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData.entries());
 
-  // Anexa dados de autenticação seguros
   data.userId = Session.user.id;
   data.username = Session.user.username;
 
   try {
-    // Envia para a API Serverless (que você criará depois, ou apenas simula por enquanto)
     const response = await fetch("/api/submit-bo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -334,7 +340,6 @@ async function handleBOSubmit(e) {
       throw new Error("Erro no servidor");
     }
   } catch (error) {
-    // Se não tiver backend de BO ainda, avisa:
     Notify.error("Erro de conexão com a central (API não encontrada).");
   }
 }
