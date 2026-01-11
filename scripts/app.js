@@ -1,6 +1,6 @@
-//* ==========================================================================
-// 1. GESTÃO DE SESSÃO (MANTENHA O SEU CÓDIGO AQUI)
-// ========================================================================== */
+/* ==========================================================================
+   1. GESTÃO DE SESSÃO
+   ========================================================================== */
 const Session = {
   user: JSON.parse(localStorage.getItem("revoada_user")) || null,
 
@@ -12,10 +12,10 @@ const Session = {
     this.user = userData;
     localStorage.setItem("revoada_user", JSON.stringify(userData));
 
-    // Verifica se a função updateUI existe antes de chamar (para evitar erros)
+    // Atualiza a interface se a função existir
     if (typeof updateUI === "function") updateUI();
 
-    // Se tiver o sistema de notificação, usa ele, senão usa alert ou console
+    // Notificação de boas-vindas
     if (typeof Notify !== "undefined") {
       Notify.success(`Bem-vindo, ${userData.username}!`);
     } else {
@@ -37,41 +37,43 @@ const Session = {
 };
 
 /* ==========================================================================
-   2. CAPTURA DE DADOS DO LOGIN (ADICIONE ISSO ABAIXO)
+   2. CAPTURA DO LOGIN (QUANDO VOLTA DO DISCORD)
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-  // Verifica se tem parâmetros na URL (volta do Discord)
+  // Verifica a URL atual
   const params = new URLSearchParams(window.location.search);
 
-  // Se tiver username na URL, significa que o login foi feito
+  // Se tiver 'username' na URL, é porque o login acabou de acontecer
   if (params.has("username")) {
-    // 1. Pega os roles da URL (que vem como texto stringfy)
-    const rolesString = params.get("roles");
+    // Tenta ler os roles que vieram como texto
     let rolesArray = [];
+    const rolesString = params.get("roles");
 
-    try {
-      // Tenta transformar o texto "[123, 456]" em array real
-      if (rolesString) {
+    if (rolesString) {
+      try {
         rolesArray = JSON.parse(rolesString);
+      } catch (e) {
+        console.error("Erro ao ler cargos:", e);
       }
-    } catch (e) {
-      console.error("Erro ao processar cargos:", e);
     }
 
-    // 2. Monta o objeto do usuário
+    // Monta o objeto do usuário completo
     const userData = {
       username: params.get("username"),
       id: params.get("id"),
       avatar: params.get("avatar"),
-      roles: rolesArray, // AQUI ESTÁ A CORREÇÃO: Salvando os cargos!
+      roles: rolesArray, // Salva os cargos aqui!
     };
 
-    // 3. Salva na sessão
+    // Salva na sessão
     Session.login(userData);
 
-    // 4. Limpa a URL para ficar bonita (remove ?username=... etc)
+    // Limpa a URL para remover os dados visíveis
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+
+  // Se tiver função de inicializar UI global, chama ela
+  if (typeof updateUI === "function") updateUI();
 });
 /* ==========================================================================
    2. SISTEMA DE NOTIFICAÇÕES

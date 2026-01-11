@@ -1,6 +1,5 @@
-// api/auth.js
 export default async function handler(req, res) {
-  // 1. Pegamos também o DISCORD_GUILD_ID do .env
+  // 1. Pegamos as variáveis do ambiente (Incluindo o ID do Servidor)
   const {
     DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET,
@@ -15,11 +14,11 @@ export default async function handler(req, res) {
     if (!DISCORD_CLIENT_ID || !DISCORD_REDIRECT_URL || !DISCORD_GUILD_ID) {
       return res.status(500).json({
         error:
-          "Erro de Configuração: Faltam variáveis no .env (Verifique o GUILD_ID)",
+          "Erro de Configuração: Faltam variáveis no .env (Verifique DISCORD_GUILD_ID)",
       });
     }
 
-    // ADICIONAMOS 'guilds.members.read' ao escopo
+    // ADICIONAMOS 'guilds.members.read' ao escopo para poder ler os cargos
     const scope = "identify guilds.members.read";
 
     const discordLoginUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(
@@ -51,16 +50,16 @@ export default async function handler(req, res) {
       return res.redirect("/?error=token_invalido");
     }
 
-    // --- FASE 3: Pegar Dados do Usuário ---
-    // Pega dados básicos (Username, Avatar, ID)
+    // --- FASE 3: Pegar Dados Básicos do Usuário ---
     const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: { authorization: `Bearer ${tokenData.access_token}` },
     });
     const userData = await userResponse.json();
 
     // --- FASE 4: Pegar CARGOS (Roles) no Servidor Específico ---
-    // Usamos o endpoint de Guild Member para pegar os cargos daquele servidor
     let userRoles = [];
+
+    // Tenta buscar os dados do membro dentro do servidor (Guild)
     try {
       const memberResponse = await fetch(
         `https://discord.com/api/users/@me/guilds/${DISCORD_GUILD_ID}/member`,
@@ -71,23 +70,27 @@ export default async function handler(req, res) {
 
       if (memberResponse.ok) {
         const memberData = await memberResponse.json();
-        userRoles = memberData.roles; // Isso é um array de IDs ["123", "456"]
+        userRoles = memberData.roles; // Isso é um array com os IDs dos cargos
       } else {
-        console.error("Erro ao buscar cargos:", await memberResponse.text());
+        console.error(
+          "Erro ao buscar cargos (Verifique se o bot está no servidor):",
+          await memberResponse.text()
+        );
       }
     } catch (err) {
       console.error("Falha ao conectar na API de Guilds:", err);
     }
 
-    // --- FASE 5: Redirecionar para o Frontend ---
+    // --- FASE 5: Redirecionar para o Frontend com os Dados ---
     const params = new URLSearchParams({
       username: userData.username,
       id: userData.id,
       avatar: userData.avatar,
-      // Enviamos os roles como uma string JSON para o front conseguir ler depois
+      // IMPORTANTE: Enviamos os roles como Texto (JSON) para o front ler
       roles: JSON.stringify(userRoles),
     });
 
+    // Redireciona de volta para a home
     return res.redirect(`/?${params.toString()}`);
   } catch (error) {
     console.error("Erro Auth:", error);
