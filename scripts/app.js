@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. GESTÃO DE SESSÃO (Session Manager)
+   1. GESTÃO DE SESSÃO
    ========================================================================== */
 const Session = {
   user: JSON.parse(localStorage.getItem("revoada_user")) || null,
@@ -25,7 +25,7 @@ const Session = {
 };
 
 /* ==========================================================================
-   2. SISTEMA DE NOTIFICAÇÕES (Toasts)
+   2. SISTEMA DE NOTIFICAÇÕES
    ========================================================================== */
 const Notify = {
   container: null,
@@ -79,8 +79,14 @@ const Notify = {
    3. CONTROLE DO MODAL DE LOGIN
    ========================================================================== */
 function openLoginModal() {
+  console.log("Tentando abrir modal..."); // Debug
   const modal = document.getElementById("login-modal");
-  if (modal) modal.classList.remove("hidden");
+  if (modal) {
+    modal.classList.remove("hidden");
+    console.log("Classe hidden removida.");
+  } else {
+    console.error("ERRO: Modal não encontrado no HTML");
+  }
 }
 
 function closeLoginModal() {
@@ -88,156 +94,90 @@ function closeLoginModal() {
   if (modal) modal.classList.add("hidden");
 }
 
-// Função chamada pelo botão "Login Cidadão" de dentro do Modal
 function proceedToLogin() {
-  // Salva a intenção de abrir o B.O. na volta
   localStorage.setItem("pending_action", "open_boletim");
-  // Redireciona
   window.location.href = "/api/auth";
 }
 
-// Fecha modal ao clicar fora
-document.addEventListener("click", (e) => {
-  const modal = document.getElementById("login-modal");
-  if (e.target === modal) closeLoginModal();
-});
-
 /* ==========================================================================
-   4. INICIALIZAÇÃO E EVENTOS
+   4. INICIALIZAÇÃO
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("App iniciado.");
   Notify.init();
   updateUI();
   checkUrlLogin();
 
-  // Data
   const dateEl = document.getElementById("date-display");
   if (dateEl) dateEl.innerText = new Date().toLocaleDateString("pt-BR");
 
-  // Notícias
   loadNews();
+  setupNavigation(); // Configura os cliques
 
-  // Navegação e Formulário
-  setupNavigation();
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
+
+  // Evento global para fechar modal
+  document.addEventListener("click", (e) => {
+    const modal = document.getElementById("login-modal");
+    if (e.target === modal) closeLoginModal();
+  });
 });
 
 /* ==========================================================================
-   5. LÓGICA DE LOGIN E UI
-   ========================================================================== */
-function checkUrlLogin() {
-  const urlParams = new URLSearchParams(window.location.search);
-
-  // Login vindo da API
-  if (urlParams.has("username")) {
-    const userData = {
-      username: urlParams.get("username"),
-      id: urlParams.get("id"),
-      avatar: urlParams.get("avatar"),
-    };
-    Session.login(userData);
-    window.history.replaceState({}, document.title, "/");
-  }
-
-  // Verifica Ação Pendente (abrir B.O. automaticamente)
-  if (Session.isLoggedIn()) {
-    const pendingAction = localStorage.getItem("pending_action");
-    if (pendingAction === "open_boletim") {
-      localStorage.removeItem("pending_action");
-      Notify.success("Identidade confirmada. Acesso liberado.");
-      showSection("boletim-section");
-
-      // Atualiza avatar no form
-      updateFormAvatar();
-    }
-  }
-}
-
-function updateUI() {
-  const navRight = document.querySelector(".navbar .nav-links");
-  const btnLogin = document.getElementById("btn-login"); // Botão Navbar
-
-  if (Session.isLoggedIn()) {
-    // Esconde botão login navbar
-    if (btnLogin) btnLogin.classList.add("hidden");
-
-    // Remove badge antigo se houver
-    const oldBadge = document.getElementById("user-badge-nav");
-    if (oldBadge) oldBadge.remove();
-
-    // Cria badge novo
-    const badge = document.createElement("li");
-    badge.id = "user-badge-nav";
-    badge.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="Session.logout()">
-                <span style="color: white; font-weight: bold;">${Session.user.username}</span>
-                <img src="https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png" 
-                     style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
-            </div>
-        `;
-    if (navRight) navRight.appendChild(badge);
-
-    updateFormAvatar();
-  } else {
-    if (btnLogin) btnLogin.classList.remove("hidden");
-    const oldBadge = document.getElementById("user-badge-nav");
-    if (oldBadge) oldBadge.remove();
-  }
-}
-
-function updateFormAvatar() {
-  const userBadgeForm = document.querySelector(".user-badge img");
-  const userBadgeName = document.querySelector(".user-badge span");
-
-  if (userBadgeForm && Session.user) {
-    userBadgeForm.src = `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
-  }
-  if (userBadgeName && Session.user) {
-    userBadgeName.innerText = Session.user.username;
-  }
-}
-
-/* ==========================================================================
-   6. NAVEGAÇÃO
+   5. NAVEGAÇÃO (AQUI ESTÁ A CORREÇÃO PRINCIPAL)
    ========================================================================== */
 function setupNavigation() {
-  // Home
-  document.querySelector('a[href="#home"]')?.addEventListener("click", (e) => {
-    e.preventDefault();
-    showSection("jornal");
-  });
+  // 1. Link Boletim (CAPTURA O CLIQUE)
+  const btnBoletim = document.getElementById("nav-bo");
 
-  // BOTÃO B.O. (Com Modal)
-  document.getElementById("nav-bo")?.addEventListener("click", (e) => {
-    e.preventDefault();
+  if (btnBoletim) {
+    console.log("Botão de B.O. encontrado. Adicionando evento.");
 
-    if (!Session.isLoggedIn()) {
-      // Se não tá logado, abre o MODAL em vez de redirecionar direto
-      openLoginModal();
-    } else {
-      showSection("boletim-section");
-      updateFormAvatar();
-    }
-  });
+    // Removemos clones antigos para garantir
+    const newBtn = btnBoletim.cloneNode(true);
+    btnBoletim.parentNode.replaceChild(newBtn, btnBoletim);
 
-  // Recrutamento
+    newBtn.addEventListener("click", (e) => {
+      console.log("Clicou no Boletim!");
+      e.preventDefault(); // <--- ISSO IMPEDE O LINK DE MUDAR A URL
+
+      if (!Session.isLoggedIn()) {
+        console.log("Não logado. Abrindo modal.");
+        openLoginModal();
+      } else {
+        console.log("Logado. Abrindo seção.");
+        showSection("boletim-section");
+        updateFormAvatar();
+      }
+    });
+  } else {
+    console.error("Botão nav-bo não encontrado!");
+  }
+
+  // 2. Link Home
+  const btnHome =
+    document.querySelector('a[href="#home"]') ||
+    document.querySelector('a[href="#"]');
+  if (btnHome) {
+    btnHome.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSection("jornal");
+    });
+  }
+
+  // 3. Dropdowns
   document.querySelectorAll(".dropdown-content a").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      const deptName = e.target.getAttribute("data-dept") || "gate";
+      const deptName = e.target.getAttribute("data-dept") || "pmerj";
       loadRecruitment(deptName);
     });
   });
 }
 
 function showSection(sectionId) {
-  const sections = [
-    "jornal",
-    "boletim-section",
-    "recrutamento",
-    "comando-geral",
-  ];
+  const sections = ["jornal", "boletim-section", "recrutamento"];
   sections.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.add("hidden");
@@ -251,7 +191,70 @@ function showSection(sectionId) {
 }
 
 /* ==========================================================================
-   7. DADOS & BACKEND
+   6. UI & LOGIN
+   ========================================================================== */
+function checkUrlLogin() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has("username")) {
+    const userData = {
+      username: urlParams.get("username"),
+      id: urlParams.get("id"),
+      avatar: urlParams.get("avatar"),
+    };
+    Session.login(userData);
+    window.history.replaceState({}, document.title, "/");
+  }
+
+  if (Session.isLoggedIn()) {
+    const pendingAction = localStorage.getItem("pending_action");
+    if (pendingAction === "open_boletim") {
+      localStorage.removeItem("pending_action");
+      showSection("boletim-section");
+      updateFormAvatar();
+    }
+  }
+}
+
+function updateUI() {
+  const navRight = document.querySelector(".navbar .nav-links");
+  const btnLogin = document.getElementById("btn-login");
+
+  if (Session.isLoggedIn()) {
+    if (btnLogin) btnLogin.classList.add("hidden");
+    const oldBadge = document.getElementById("user-badge-nav");
+    if (oldBadge) oldBadge.remove();
+
+    const badge = document.createElement("li");
+    badge.id = "user-badge-nav";
+    badge.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="Session.logout()">
+                <span style="color: white; font-weight: bold;">${Session.user.username}</span>
+                <img src="https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png" 
+                     style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
+            </div>
+        `;
+    if (navRight) navRight.appendChild(badge);
+    updateFormAvatar();
+  } else {
+    if (btnLogin) btnLogin.classList.remove("hidden");
+    const oldBadge = document.getElementById("user-badge-nav");
+    if (oldBadge) oldBadge.remove();
+  }
+}
+
+function updateFormAvatar() {
+  const userBadgeForm = document.querySelector(".user-badge img");
+  const userBadgeName = document.querySelector(".user-badge span");
+  if (userBadgeForm && Session.user) {
+    userBadgeForm.src = `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
+  }
+  if (userBadgeName && Session.user) {
+    userBadgeName.innerText = Session.user.username;
+  }
+}
+
+/* ==========================================================================
+   7. DADOS & BACKEND (PREENCHIDO AGORA)
    ========================================================================== */
 async function loadNews() {
   try {
@@ -280,9 +283,48 @@ async function loadNews() {
 }
 
 async function loadRecruitment(deptId) {
-  // ... (Mantive igual ao seu código anterior)
-  // ... (Código omitido para brevidade, mas você já tem ele)
-  // Se quiser, posso reenviar, mas a lógica é a mesma
+  try {
+    Notify.loading("Carregando departamento...");
+    // Simulando dados para não precisar do JSON por enquanto
+    const deptData = {
+      pcerj: {
+        name: "Polícia Civil (PCERJ)",
+        desc: "Investigação e Inteligência.",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/2/23/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro.svg",
+        link: "#",
+      },
+      pmerj: {
+        name: "Polícia Militar (PMERJ)",
+        desc: "Patrulhamento Ostensivo.",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/6/66/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro.svg",
+        link: "#",
+      },
+      prf: {
+        name: "Polícia Rodoviária Federal",
+        desc: "Patrulhamento de Rodovias.",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/2/24/Logo_Pol%C3%ADcia_Rodovi%C3%A1ria_Federal_-_Brasil.svg",
+        link: "#",
+      },
+      pf: {
+        name: "Polícia Federal",
+        desc: "Crimes Federais e Fronteiras.",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/d/df/Simbolo_da_Pol%C3%ADcia_Federal.svg",
+        link: "#",
+      },
+    };
+
+    const dept = deptData[deptId];
+    if (!dept) throw new Error("Dept não encontrado");
+
+    document.getElementById("dept-name").innerText = dept.name;
+    document.getElementById("dept-desc").innerText = dept.desc;
+    document.getElementById("dept-img").src = dept.logo;
+    showSection("recrutamento");
+    Notify.success(dept.name);
+  } catch (e) {
+    console.error(e);
+    Notify.error("Erro ao carregar.");
+  }
 }
 
 async function handleBOSubmit(e) {
