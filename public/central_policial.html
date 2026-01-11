@@ -408,7 +408,7 @@
 
           const formData = new FormData(formNews);
           const data = Object.fromEntries(formData.entries());
-          data.author = user.username;
+          data.userId = user.id;
 
           try {
             const response = await fetch("/api/publish-news", {

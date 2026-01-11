@@ -3,26 +3,32 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
 
-  const { title, content, imageUrl, author } = req.body;
+  // Agora esperamos 'userId' (o ID do discord) vindo do frontend, não apenas o nome
+  const { title, content, imageUrl, userId } = req.body;
+
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, MATRIZES_ROLE_ID } = process.env;
 
-  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID) {
-    return res.status(500).json({ error: "Configuração incompleta." });
+  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !MATRIZES_ROLE_ID) {
+    return res.status(500).json({ error: "Configuração incompleta (.env)." });
   }
 
   try {
-    // Formatação "Jornalística" em Markdown do Discord
-    // <@&ID> menciona o cargo
-    // # Título deixa grande
-    // > Citação para o autor
+    // 1. Processa os Cargos (Permite múltiplos IDs separados por vírgula no .env)
+    // Ex no .env: MATRIZES_ROLE_ID=123456,789012,345678
+    const rolesToMention = MATRIZES_ROLE_ID.split(",")
+      .map((id) => `<@&${id.trim()}>`) // Cria a menção <@&ID> para cada um
+      .join(" "); // Junta com espaço
+
+    // 2. Monta a Mensagem
+    // <@${userId}> cria a menção clicável ao autor
     const messageContent = `
-<@&${MATRIZES_ROLE_ID}>
+${rolesToMention}
 
 # 📰 ${title.toUpperCase()}
 
 ${content}
 
-> ✍️ *Reportagem por: ${author}*
+> ✍️ *Reportagem por:* <@${userId}>
 
 ${imageUrl}
     `.trim();
@@ -41,7 +47,11 @@ ${imageUrl}
       }
     );
 
-    if (!response.ok) throw new Error("Falha ao enviar para o Discord");
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Discord Error:", err);
+      throw new Error("Falha ao enviar para o Discord");
+    }
 
     return res.status(200).json({ success: true });
   } catch (error) {

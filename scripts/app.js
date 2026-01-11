@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadNews(); // Agora chama a versão nova que busca da API
   setupNavigation();
+  loadCommanders();
 
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
@@ -399,5 +400,60 @@ async function handleBOSubmit(e) {
     }
   } catch (error) {
     Notify.error("Erro ao enviar.");
+  }
+}
+/* ==========================================================================
+   8. FUNÇÕES DO INDEX (ADICIONE ESTA NOVA SEÇÃO NO FINAL)
+   ========================================================================== */
+
+async function loadCommanders() {
+  const container = document.querySelector(".commanders-grid");
+  if (!container) return; // Se não estiver na home, sai
+
+  try {
+    const req = await fetch("/api/get-commanders");
+    const commanders = await req.json();
+
+    if (!req.ok || !commanders || commanders.length < 3) {
+      console.warn("Não foi possível carregar todos os comandantes.");
+      return; // Mantém o HTML original (fallback) se der erro
+    }
+
+    // Títulos fixos baseados na ordem do .env
+    const roles = [
+      {
+        title: "Comandante Geral",
+        desc: "Responsável pela estratégia global de segurança e diretrizes da corporação.",
+      },
+      {
+        title: "Subcomandante",
+        desc: "Coordena a logística e o gerenciamento tático das tropas em campo.",
+      },
+      {
+        title: "Chefe de Operações",
+        desc: "Líder das forças especiais e operações de alto risco na cidade.",
+      },
+    ];
+
+    container.innerHTML = ""; // Limpa os cards estáticos
+
+    // Cria os cards dinâmicos
+    commanders.forEach((cmd, index) => {
+      // Se houver mais IDs que cargos, usa um genérico, ou para no 3º
+      if (index >= roles.length) return;
+
+      container.innerHTML += `
+            <div class="commander-card">
+                <div class="cmd-img-container">
+                    <img src="${cmd.avatarUrl}" alt="${cmd.username}">
+                </div>
+                <h3>${cmd.username}</h3>
+                <span class="rank">${roles[index].title}</span>
+                <p>${roles[index].desc}</p>
+            </div>
+        `;
+    });
+  } catch (e) {
+    console.error("Erro ao carregar comandantes:", e);
   }
 }
