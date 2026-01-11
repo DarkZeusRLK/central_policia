@@ -2,8 +2,11 @@
   "name": "revoada-rj",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "build": "echo 'Sem build necessario'"
+  },
   "engines": {
-    "node": "22.x"
+    "node": "20.x"
   },
   "dependencies": {}
 }
