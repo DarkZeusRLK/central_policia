@@ -178,7 +178,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Carregamentos Assíncronos
   loadNews();
-  loadCommanders();
+  
+  // Só carrega comandantes gerais se estiver na página principal (index.html)
+  // Nas páginas de departamento, só carrega os comandantes específicos
+  const isMainPage = !document.getElementById("pcerj-leadership") && 
+                     !document.getElementById("pmerj-leadership") && 
+                     !document.getElementById("pf-leadership") && 
+                     !document.getElementById("prf-leadership");
+  
+  if (isMainPage) {
+    loadCommanders();
+  }
+  
   loadDepartmentLeadership();
   setupNavigation();
 
@@ -522,10 +533,13 @@ async function loadCommanders() {
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
 
+      // Usa imagem local se existir, senão usa do Discord
+      const imagePath = `public/images/commanders/comando_geral_${index + 1}.jpg`;
+
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${cmd.avatarUrl}" alt="${cmd.username}">
+                    <img src="${imagePath}" alt="${cmd.username}" onerror="this.src='${cmd.avatarUrl}'">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
@@ -614,10 +628,23 @@ async function loadDepartmentLeadership() {
             desc: "Membro da diretoria.",
           };
 
+          // Determina o caminho da imagem local baseado no container
+          // As páginas de departamento estão em public/, então o caminho é relativo a partir de lá
+          let imagePath = "";
+          if (containerId === "pcerj-leadership") {
+            imagePath = `images/commanders/pcerj_${index + 1}.jpg`;
+          } else if (containerId === "pmerj-leadership") {
+            imagePath = `images/commanders/pmerj_${index + 1}.jpg`;
+          } else if (containerId === "pf-leadership") {
+            imagePath = `images/commanders/pf_${index + 1}.jpg`;
+          } else if (containerId === "prf-leadership") {
+            imagePath = `images/commanders/prf_${index + 1}.jpg`;
+          }
+
           container.innerHTML += `
                         <div class="commander-card">
                             <div class="cmd-img-container">
-                                <img src="${leader.avatarUrl}" alt="${leader.username}">
+                                <img src="${imagePath || leader.avatarUrl}" alt="${leader.username}" onerror="this.src='${leader.avatarUrl}'">
                             </div>
                             <h3>${leader.username}</h3>
                             <span class="rank">${role.title}</span>

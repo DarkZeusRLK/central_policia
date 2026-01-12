@@ -422,10 +422,19 @@
       <div class="dashboard-grid">
         <div class="widget-card">
           <div class="widget-title">
-            <i class="fa-solid fa-trophy"></i> Ranking de Prisões
+            <i class="fa-solid fa-trophy"></i> Top Ranking de Prisões
           </div>
-          <div id="ranking-container">
-            <p style="color: #64748b; font-size: 0.9rem;">Carregando ranking do canal oficial...</p>
+          <div id="ranking-prisoes-container">
+            <p style="color: #64748b; font-size: 0.9rem;">Carregando ranking de prisões...</p>
+          </div>
+        </div>
+
+        <div class="widget-card">
+          <div class="widget-title">
+            <i class="fa-solid fa-users"></i> Top Ranking de Recrutamentos
+          </div>
+          <div id="ranking-recrutamentos-container">
+            <p style="color: #64748b; font-size: 0.9rem;">Carregando ranking de recrutamentos...</p>
           </div>
         </div>
 
@@ -734,22 +743,65 @@
       }
     }
 
-    // Carrega dados fictícios para o dashboard não ficar vazio
+    // Carrega dados do bot Discord para os rankings
     async function loadDashboardData() {
-      const rankingContainer = document.getElementById('ranking-container');
+      await Promise.all([
+        loadRankingPrisoes(),
+        loadRankingRecrutamentos()
+      ]);
 
-      // Simulação de dados do Ranking
-      const mockRankingData = [
-        { name: "Ten. Silva", score: 42 },
-        { name: "Cb. Oliveira", score: 38 },
-        { name: "Sd. Souza", score: 25 },
-        { name: "Ag. Pereira", score: 12 },
-        { name: "Del. Mendes", score: 10 }
-      ];
+      // Carrega notícias
+      const newsContainer = document.getElementById('latest-news-container');
+      if (newsContainer) {
+        try {
+          const response = await fetch('/api/get-news');
+          if (!response.ok) throw new Error("API Offline");
+          const news = await response.json();
+          
+          if (news && news.length > 0) {
+            const latest = news[0];
+            newsContainer.innerHTML = `
+              <div class="news-widget-content" style="background-image: url('${latest.image || 'https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg'}');">
+                <div class="news-overlay">
+                  <h4 style="margin: 0; font-size: 1rem;">${latest.title}</h4>
+                  <small style="color: #cbd5e1;">${latest.date || 'Data não disponível'}</small>
+                </div>
+              </div>
+            `;
+          } else {
+            throw new Error("Sem notícias");
+          }
+        } catch (error) {
+          newsContainer.innerHTML = `
+            <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
+              <div class="news-overlay">
+                <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
+                <small style="color: #cbd5e1;">Aguardando conexão com o servidor...</small>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
 
-      if (rankingContainer) {
+    // Função para carregar ranking de prisões do bot Discord
+    async function loadRankingPrisoes() {
+      const container = document.getElementById('ranking-prisoes-container');
+      if (!container) return;
+
+      try {
+        const response = await fetch('/api/get-ranking-prisoes');
+        if (!response.ok) throw new Error("API Offline");
+
+        const data = await response.json();
+        
+        if (!data || !data.ranking || data.ranking.length === 0) {
+          container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Nenhum dado disponível.</p>';
+          return;
+        }
+
         let html = '<ul class="ranking-list">';
-        mockRankingData.forEach((u, index) => {
+        data.ranking.forEach((entry, index) => {
           let rankClass = '', icon = '';
           if (index === 0) { rankClass = 'rank-1'; icon = '<i class="fa-solid fa-crown"></i>'; }
           else if (index === 1) { rankClass = 'rank-2'; icon = '<i class="fa-solid fa-medal"></i>'; }
@@ -757,36 +809,56 @@
           else { rankClass = ''; icon = `#${index + 1}`; }
 
           html += `
-                <li class="ranking-item">
-                    <div class="rank-pos ${rankClass}">${icon}</div>
-                    <div class="rank-name">${u.name}</div>
-                    <div class="rank-score">${u.score} prisões</div>
-                </li>`;
+            <li class="ranking-item">
+              <div class="rank-pos ${rankClass}">${icon}</div>
+              <div class="rank-name">${entry.name || entry.username || 'N/A'}</div>
+              <div class="rank-score">${entry.count || entry.score || 0} prisões</div>
+            </li>`;
         });
         html += '</ul>';
-        rankingContainer.innerHTML = html;
+        container.innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao carregar ranking de prisões:', error);
+        container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Erro ao carregar ranking.</p>';
       }
+    }
 
-      // Simulação de Notícias (Fallback visual)
-      const newsContainer = document.getElementById('latest-news-container');
-      if (newsContainer) {
-        // Tenta buscar da API (vai falhar e cair no catch, mostrando o fallback)
-        try {
-          const response = await fetch('/api/news');
-          if (!response.ok) throw new Error("API Offline");
-          const news = await response.json();
-          // ... lógica de popular notícia real ...
-        } catch (error) {
-          // Mostra o widget padrão bonito quando não tem backend
-          newsContainer.innerHTML = `
-                <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
-                    <div class="news-overlay">
-                        <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
-                        <small style="color: #cbd5e1;">Aguardando conexão com o servidor...</small>
-                    </div>
-                </div>
-            `;
+    // Função para carregar ranking de recrutamentos do bot Discord
+    async function loadRankingRecrutamentos() {
+      const container = document.getElementById('ranking-recrutamentos-container');
+      if (!container) return;
+
+      try {
+        const response = await fetch('/api/get-ranking-recrutamentos');
+        if (!response.ok) throw new Error("API Offline");
+
+        const data = await response.json();
+        
+        if (!data || !data.ranking || data.ranking.length === 0) {
+          container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Nenhum dado disponível.</p>';
+          return;
         }
+
+        let html = '<ul class="ranking-list">';
+        data.ranking.forEach((entry, index) => {
+          let rankClass = '', icon = '';
+          if (index === 0) { rankClass = 'rank-1'; icon = '<i class="fa-solid fa-crown"></i>'; }
+          else if (index === 1) { rankClass = 'rank-2'; icon = '<i class="fa-solid fa-medal"></i>'; }
+          else if (index === 2) { rankClass = 'rank-3'; icon = '<i class="fa-solid fa-medal"></i>'; }
+          else { rankClass = ''; icon = `#${index + 1}`; }
+
+          html += `
+            <li class="ranking-item">
+              <div class="rank-pos ${rankClass}">${icon}</div>
+              <div class="rank-name">${entry.name || entry.username || 'N/A'}</div>
+              <div class="rank-score">${entry.count || entry.score || 0} recrutamentos</div>
+            </li>`;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao carregar ranking de recrutamentos:', error);
+        container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Erro ao carregar ranking.</p>';
       }
     }
   </script>

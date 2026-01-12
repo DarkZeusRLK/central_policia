@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jornal Mare | Central de Polícia</title>
+  <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style/main.css">
+
+  <style>
+    .news-header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 3px solid var(--accent-gold);
+      margin-bottom: 40px;
+    }
+
+    .news-header h1 {
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-weight: 700;
+    }
+
+    .news-header .subtitle {
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      font-style: italic;
+    }
+
+    .news-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .news-article {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      margin-bottom: 30px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .news-article:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.2);
+      border-color: var(--accent-gold);
+    }
+
+    .news-article-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .news-article-date {
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .news-article-category {
+      background: var(--accent-gold);
+      color: #0f172a;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .news-article-content {
+      padding: 30px;
+    }
+
+    .news-article-title {
+      font-size: 1.8rem;
+      color: white;
+      margin-bottom: 15px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+
+    .news-article-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .news-article-text {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      text-align: justify;
+      margin-bottom: 20px;
+    }
+
+    .news-article-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background: rgba(15, 23, 42, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .news-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .news-author img {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-gold);
+    }
+
+    .news-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      margin: 40px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+      opacity: 0.5;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--accent-gold);
+    }
+
+    .loading-state i {
+      font-size: 3rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <img src="images/Logo_policia.png" alt="Logo Revoada" style="width: 45px; height: auto;">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Voltar à Central</a></li>
+    </ul>
+
+    <div id="user-area" class="user-area">
+    </div>
+  </nav>
+
+  <header class="news-header">
+    <h1><i class="fa-solid fa-newspaper"></i> JORNAL MARE</h1>
+    <p class="subtitle">Últimas Notícias da Polícia | Revoada RJ</p>
+  </header>
+
+  <main>
+    <div class="news-container">
+      <div id="news-content">
+        <div class="loading-state">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <p>Carregando últimas notícias...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Jornal Mare - Central de Polícia Revoada RJ. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="../scripts/app.js"></script>
+  <script>
+    async function loadMareNews() {
+      const container = document.getElementById('news-content');
+      
+      try {
+        const response = await fetch('/api/get-news');
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar notícias');
+        }
+
+        const news = await response.json();
+
+        if (!news || news.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fa-solid fa-newspaper"></i>
+              <h3 style="color: white; margin-top: 20px;">Nenhuma notícia disponível</h3>
+              <p>As últimas notícias da polícia aparecerão aqui em breve.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+
+        news.forEach((article, index) => {
+          const articleDate = new Date(article.date || Date.now());
+          const formattedDate = articleDate.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          const articleHTML = `
+            <article class="news-article">
+              <div class="news-article-header">
+                <div class="news-article-date">
+                  <i class="fa-regular fa-calendar"></i>
+                  ${formattedDate}
+                </div>
+                <div class="news-article-category">
+                  <i class="fa-solid fa-bullhorn"></i> Notícia Oficial
+                </div>
+              </div>
+              
+              <div class="news-article-content">
+                <h2 class="news-article-title">${article.title}</h2>
+                
+                ${article.image ? `
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image">
+                ` : ''}
+                
+                <div class="news-article-text">
+                  ${article.summary || article.content || 'Conteúdo não disponível.'}
+                </div>
+              </div>
+              
+              <div class="news-article-footer">
+                <div class="news-author">
+                  <i class="fa-solid fa-user-shield"></i>
+                  <span>Por: ${article.author || 'Redação Jornal Mare'}</span>
+                </div>
+                <div style="color: #64748b; font-size: 0.85rem;">
+                  <i class="fa-solid fa-eye"></i> Notícia Oficial
+                </div>
+              </div>
+            </article>
+          `;
+
+          container.innerHTML += articleHTML;
+          
+          if (index < news.length - 1) {
+            container.innerHTML += '<div class="news-divider"></div>';
+          }
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar notícias:', error);
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <h3 style="color: white; margin-top: 20px;">Erro ao carregar notícias</h3>
+            <p>Não foi possível conectar ao servidor. Tente novamente mais tarde.</p>
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMareNews();
+      
+      // Atualiza a cada 5 minutos
+      setInterval(loadMareNews, 300000);
+    });
+  </script>
+
+</body>
+
+</html>
