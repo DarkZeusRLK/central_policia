@@ -541,21 +541,7 @@ async function loadCommanders() {
             <div class="commander-card">
                 <div class="cmd-img-container">
                     <img src="${imagePath}" 
-                         alt="${cmd.username}" 
-                         onerror="
-                           const img = this;
-                           if (!img.dataset.tried1) {
-                             img.dataset.tried1 = 'true';
-                             img.src = img.dataset.fallback1;
-                           } else if (!img.dataset.tried2) {
-                             img.dataset.tried2 = 'true';
-                             img.src = img.dataset.fallback2;
-                           } else {
-                             console.error('[ERRO] Todas as tentativas falharam para comando_geral_${imageIndex}.png');
-                             img.style.border='3px solid red';
-                             img.style.backgroundColor='#1e293b';
-                           }
-                         ">
+                         alt="${cmd.username}">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
