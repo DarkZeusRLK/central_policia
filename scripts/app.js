@@ -534,21 +534,18 @@ async function loadCommanders() {
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
 
-      // Usa imagem local PNG
-      const imagePath = `public/images/commanders/comando_geral_${
-        index + 1
-      }.png`;
+      // Usa imagem local PNG - index começa em 0, então index+1 para comando_geral_1, comando_geral_2, comando_geral_3
+      const imageIndex = index + 1;
+      const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
-      // Debug: log do caminho gerado
-      if (index === 2) {
-        console.log(`[DEBUG] Tentando carregar: ${imagePath}`);
-      }
+      // Debug: log detalhado
+      console.log(`[DEBUG] Index: ${index}, ImageIndex: ${imageIndex}, Caminho: "${imagePath}", Comandante: ${cmd.username}`);
 
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
                     <img src="${imagePath}" alt="${cmd.username}" 
-                         onerror="console.error('404 - Arquivo não encontrado: ${imagePath}');">
+                         onerror="console.error('404 - Arquivo não encontrado: ${imagePath}'); this.style.border='2px solid red';">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
