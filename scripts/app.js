@@ -178,18 +178,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Carregamentos Assíncronos
   loadNews();
-  
+
   // Só carrega comandantes gerais se estiver na página principal (index.html)
   // Nas páginas de departamento, só carrega os comandantes específicos
-  const isMainPage = !document.getElementById("pcerj-leadership") && 
-                     !document.getElementById("pmerj-leadership") && 
-                     !document.getElementById("pf-leadership") && 
-                     !document.getElementById("prf-leadership");
-  
+  const isMainPage =
+    !document.getElementById("pcerj-leadership") &&
+    !document.getElementById("pmerj-leadership") &&
+    !document.getElementById("pf-leadership") &&
+    !document.getElementById("prf-leadership");
+
   if (isMainPage) {
     loadCommanders();
   }
-  
+
   loadDepartmentLeadership();
   setupNavigation();
 
@@ -534,7 +535,9 @@ async function loadCommanders() {
       if (index >= roles.length) return;
 
       // Usa imagem local se existir, senão usa do Discord
-      const imagePath = `public/images/commanders/comando_geral_${index + 1}.jpg`;
+      const imagePath = `public/images/commanders/comando_geral_${
+        index + 1
+      },png`;
 
       container.innerHTML += `
             <div class="commander-card">
@@ -632,19 +635,23 @@ async function loadDepartmentLeadership() {
           // As páginas de departamento estão em public/, então o caminho é relativo a partir de lá
           let imagePath = "";
           if (containerId === "pcerj-leadership") {
-            imagePath = `images/commanders/pcerj_${index + 1}.jpg`;
+            imagePath = `images/commanders/pcerj_${index + 1}.png`;
           } else if (containerId === "pmerj-leadership") {
-            imagePath = `images/commanders/pmerj_${index + 1}.jpg`;
+            imagePath = `images/commanders/pmerj_${index + 1}.png`;
           } else if (containerId === "pf-leadership") {
-            imagePath = `images/commanders/pf_${index + 1}.jpg`;
+            imagePath = `images/commanders/pf_${index + 1}.png`;
           } else if (containerId === "prf-leadership") {
-            imagePath = `images/commanders/prf_${index + 1}.jpg`;
+            imagePath = `images/commanders/prf_${index + 1}.png`;
           }
 
           container.innerHTML += `
                         <div class="commander-card">
                             <div class="cmd-img-container">
-                                <img src="${imagePath || leader.avatarUrl}" alt="${leader.username}" onerror="this.src='${leader.avatarUrl}'">
+                                <img src="${
+                                  imagePath || leader.avatarUrl
+                                }" alt="${
+            leader.username
+          }" onerror="this.src='${leader.avatarUrl}'">
                             </div>
                             <h3>${leader.username}</h3>
                             <span class="rank">${role.title}</span>
