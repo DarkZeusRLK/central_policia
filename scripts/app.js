@@ -539,19 +539,35 @@ async function loadCommanders() {
       // index 1 -> comando_geral_2.png
       // index 2 -> comando_geral_3.png
       const imageIndex = index + 1;
-      // Usa caminho relativo igual às outras imagens do index.html (sem / no início)
-      const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
+      // Tenta múltiplos caminhos para resolver o problema do servidor
+      const imagePath1 = `public/images/commanders/comando_geral_${imageIndex}.png`;
+      const imagePath2 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
+      const imagePath3 = `./public/images/commanders/comando_geral_${imageIndex}.png`;
 
-      // Debug: log detalhado para diagnóstico
-      console.log(
-        `[DEBUG Commander] Array Index: ${index}, Image Number: ${imageIndex}, Expected File: comando_geral_${imageIndex}.png, Full Path: ${imagePath}, Username: ${cmd.username}`
-      );
+      // Usa o primeiro caminho e adiciona fallback no onerror
+      const imagePath = imagePath1;
 
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${imagePath}" alt="${cmd.username}" 
-                         onerror="console.error('[ERRO 404] Array Index: ${index}, Image Index: ${imageIndex}, Arquivo esperado: comando_geral_${imageIndex}.png, Caminho completo: ${imagePath}'); this.style.border='3px solid red'; this.style.backgroundColor='#1e293b';">
+                    <img src="${imagePath}" 
+                         alt="${cmd.username}" 
+                         data-fallback1="${imagePath2}"
+                         data-fallback2="${imagePath3}"
+                         onerror="
+                           const img = this;
+                           if (!img.dataset.tried1) {
+                             img.dataset.tried1 = 'true';
+                             img.src = img.dataset.fallback1;
+                           } else if (!img.dataset.tried2) {
+                             img.dataset.tried2 = 'true';
+                             img.src = img.dataset.fallback2;
+                           } else {
+                             console.error('[ERRO] Todas as tentativas falharam para comando_geral_${imageIndex}.png');
+                             img.style.border='3px solid red';
+                             img.style.backgroundColor='#1e293b';
+                           }
+                         ">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>

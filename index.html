@@ -34,6 +34,126 @@
       background: #1e293b;
       color: white;
     }
+
+    /* Estilos do Carrossel de Fotos */
+    .photo-carousel-container {
+      position: relative;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .photo-carousel {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      overflow: hidden;
+    }
+
+    .photo-slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .photo-slide.active {
+      display: block;
+    }
+
+    .photo-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .carousel-btn {
+      background: rgba(251, 191, 36, 0.9);
+      border: none;
+      color: #0f172a;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      pointer-events: all;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .carousel-btn:hover {
+      background: var(--accent-gold);
+      transform: scale(1.1);
+    }
+
+    .carousel-btn:active {
+      transform: scale(0.95);
+    }
+
+    .carousel-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active,
+    .dot:hover {
+      background: var(--accent-gold);
+      transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .photo-carousel {
+        height: 300px;
+      }
+
+      .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 
@@ -131,6 +251,37 @@
         <div class="info-item">
           <h2><i class="fa-solid fa-gavel"></i> Como Funcionamos</h2>
           <p>A Polícia de Revoada opera 24 horas por dia através de patrulhamento ostensivo, investigações criminais (PCERJ) e operações táticas especiais. Trabalhamos em conjunto com a comunidade para prevenir crimes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Galeria de Fotos Automática -->
+    <section class="container" style="margin-top: 40px;">
+      <h2 class="section-title"><i class="fa-solid fa-images"></i> Galeria de Fotos</h2>
+      <div class="photo-carousel-container">
+        <div class="photo-carousel">
+          <div class="photo-slide active">
+            <img src="public/images/commanders/comando_geral_1.png" alt="Comando Geral 1">
+          </div>
+          <div class="photo-slide">
+            <img src="public/images/commanders/comando_geral_2.png" alt="Comando Geral 2">
+          </div>
+          <div class="photo-slide">
+            <img src="public/images/commanders/comando_geral_3.png" alt="Comando Geral 3">
+          </div>
+          <div class="photo-slide">
+            <img src="public/images/Logo_policia.png" alt="Logo Polícia">
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="carousel-btn next" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="carousel-dots">
+          <span class="dot active" onclick="currentSlide(1)"></span>
+          <span class="dot" onclick="currentSlide(2)"></span>
+          <span class="dot" onclick="currentSlide(3)"></span>
+          <span class="dot" onclick="currentSlide(4)"></span>
         </div>
       </div>
     </section>
@@ -291,6 +442,58 @@
   </div>
 
   <script src="scripts/app.js"></script>
+  <script>
+    // Carrossel de Fotos Automático
+    let currentSlideIndex = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+      const slides = document.querySelectorAll('.photo-slide');
+      const dots = document.querySelectorAll('.dot');
+
+      if (index >= slides.length) currentSlideIndex = 0;
+      if (index < 0) currentSlideIndex = slides.length - 1;
+
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        if (i === currentSlideIndex) {
+          slide.classList.add('active');
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        dot.classList.remove('active');
+        if (i === currentSlideIndex) {
+          dot.classList.add('active');
+        }
+      });
+    }
+
+    function changeSlide(direction) {
+      currentSlideIndex += direction;
+      showSlide(currentSlideIndex);
+      resetInterval();
+    }
+
+    function currentSlide(index) {
+      currentSlideIndex = index - 1;
+      showSlide(currentSlideIndex);
+      resetInterval();
+    }
+
+    function resetInterval() {
+      clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        currentSlideIndex++;
+        showSlide(currentSlideIndex);
+      }, 5000); // Muda a cada 5 segundos
+    }
+
+    // Inicia o carrossel automático
+    document.addEventListener('DOMContentLoaded', () => {
+      resetInterval();
+    });
+  </script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
