@@ -761,23 +761,49 @@
           btn.disabled = true;
           btn.style.opacity = "0.7";
 
-          // Simulação de envio (já que não tem backend real)
-          setTimeout(() => {
-            // Se tivesse backend, aqui seria o fetch('/api/publish-news'...)
-            // Como não tem, vamos simular sucesso ou erro:
+          try {
+            // Coleta os dados do formulário
+            const formData = new FormData(formNews);
+            const title = formData.get("title");
+            const content = formData.get("content");
+            const imageUrl = formData.get("imageUrl");
 
-            // -> Simular Erro (descomente para testar erro):
-            // Notify.error("Erro: Servidor offline.");
+            // Envia para a API
+            const response = await fetch("/api/publish-news", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                title: title,
+                content: content,
+                imageUrl: imageUrl,
+                userId: user.id, // ID do Discord do usuário
+              }),
+            });
 
-            // -> Simular Sucesso:
-            Notify.success("Matéria enviada para análise (Simulação)");
-            formNews.reset();
+            const result = await response.json();
 
+            if (response.ok && result.success) {
+              Notify.success("Notícia publicada com sucesso no Discord!");
+              formNews.reset();
+
+              // Opcional: recarrega as notícias após publicar
+              setTimeout(() => {
+                loadDashboardData();
+              }, 1000);
+            } else {
+              throw new Error(result.error || "Erro ao publicar notícia");
+            }
+          } catch (error) {
+            console.error("Erro ao publicar notícia:", error);
+            Notify.error(error.message || "Erro ao publicar notícia. Verifique sua conexão.");
+          } finally {
             // Restaura o botão
             btn.innerHTML = originalText;
             btn.disabled = false;
             btn.style.opacity = "1";
-          }, 1500);
+          }
         });
       }
     }

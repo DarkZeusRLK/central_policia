@@ -30,9 +30,19 @@ export default async function handler(req, res) {
         const titleMatch = content.match(/# 📰 (.*)/);
         const title = titleMatch ? titleMatch[1] : "Manchete Policial";
 
-        // 2. Extrair Autor (Tudo depois de "Reportagem por: ")
-        const authorMatch = content.match(/Reportagem por: (.*)\*/);
-        const author = authorMatch ? authorMatch[1] : "Redação";
+        // 2. Extrair Autor (ID do usuário na menção)
+        // Formato: > ✍️ *Reportagem por:* <@USER_ID>
+        const authorMatch = content.match(/> ✍️.*?Reportagem por:.*?<@(\d+)>/);
+        let author = "Redação";
+        
+        // Se encontrou o ID, tenta buscar o nome do usuário (opcional, pode manter apenas o ID)
+        if (authorMatch && msg.mentions && msg.mentions.length > 0) {
+          const mentionedUser = msg.mentions[0];
+          author = mentionedUser.username || mentionedUser.global_name || `<@${authorMatch[1]}>`;
+        } else if (authorMatch) {
+          // Se não tiver mencionado, usa apenas o ID formatado
+          author = `<@${authorMatch[1]}>`;
+        }
 
         // 3. Extrair Imagem (A última linha que parece um link)
         // Se o Discord gerou anexo (imagem upada), usamos ele. Se não, tentamos achar url no texto.
@@ -48,12 +58,14 @@ export default async function handler(req, res) {
           }
         }
 
-        // 4. Limpar o corpo do texto (Remove titulo, autor, imagem e menção)
+        // 4. Limpar o corpo do texto (Remove titulo, autor, imagem e menções)
         let cleanBody = content
-          .replace(/<@&\d+>/g, "") // Remove menção
-          .replace(/# 📰 .*/, "") // Remove titulo
-          .replace(/> ✍️.*/, "") // Remove autor linha
-          .replace(image, "") // Remove url da imagem
+          .replace(/<@&\d+>/g, "") // Remove menções de roles
+          .replace(/<@\d+>/g, "") // Remove menções de usuários
+          .replace(/# 📰 .*\n?/g, "") // Remove titulo e quebra de linha
+          .replace(/> ✍️.*\n?/g, "") // Remove autor linha
+          .replace(/https?:\/\/\S+/g, "") // Remove URLs (incluindo imagem)
+          .replace(/\n\n+/g, "\n") // Remove quebras de linha duplas
           .trim();
 
         return {
