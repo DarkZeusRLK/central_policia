@@ -121,7 +121,39 @@
         <div class="loading-placeholder">Carregando notícias...</div>
       </div>
     </section>
+    <section class="container" style="margin-top: 20px;">
+      <div class="glass-panel">
+        <h3 style="color: white; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+          <i class="fa-solid fa-chart-line"></i> Estatísticas do Dia
+        </h3>
 
+        <div class="stats-live-grid">
+          <div class="stat-live-item">
+            <div class="icon-box alert"><i class="fa-solid fa-handcuffs"></i></div>
+            <div class="stat-text">
+              <h3 id="stat-prisoes">--</h3>
+              <p>Prisões Hoje</p>
+            </div>
+          </div>
+
+          <div class="stat-live-item">
+            <div class="icon-box warning"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="stat-text">
+              <h3 id="stat-fiancas">--</h3>
+              <p>Fianças Hoje</p>
+            </div>
+          </div>
+
+          <div class="stat-live-item">
+            <div class="icon-box success"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div class="stat-text">
+              <h3 id="stat-total">--</h3>
+              <p>Total Registros</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="container">
       <div class="glass-panel info-grid">
         <div class="info-item">
@@ -145,7 +177,6 @@
         </div>
       </div>
     </section>
-
     <section id="boletim-section" class="container hidden">
       <div class="glass-panel form-panel">
         <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
@@ -286,6 +317,54 @@
       const modal = document.getElementById("login-modal");
       if (modal) modal.classList.add("hidden");
     }
+    // Máscara para Telefone (Padrão RP: xxx-xxx)
+    const inputTelefone = document.querySelector('input[name="telefone"]');
+
+    if (inputTelefone) {
+      inputTelefone.addEventListener('input', function (e) {
+        // 1. Remove tudo que não é número
+        let value = e.target.value.replace(/\D/g, '');
+
+        // 2. Limita a 6 dígitos no máximo
+        if (value.length > 6) value = value.slice(0, 6);
+
+        // 3. Aplica o traço depois do 3º dígito
+        if (value.length > 3) {
+          value = value.replace(/^(\d{3})(\d+)/, '$1-$2');
+        }
+
+        e.target.value = value;
+      });
+    }
+    // Função para carregar estatísticas do Discord
+    async function loadOperationalStats() {
+      try {
+        // Chama a API que criamos
+        const response = await fetch('/api/stats');
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Atualiza os números na tela com animação simples
+          document.getElementById('stat-prisoes').innerText = data.prisoes;
+          document.getElementById('stat-fiancas').innerText = data.fiancas;
+          document.getElementById('stat-total').innerText = data.total;
+        } else {
+          console.warn("API de stats offline");
+          document.getElementById('stat-prisoes').innerText = "0";
+        }
+      } catch (error) {
+        console.error("Erro ao carregar stats:", error);
+      }
+    }
+
+    // Chama a função quando a página carregar
+    document.addEventListener("DOMContentLoaded", () => {
+      loadOperationalStats();
+
+      // Opcional: Atualiza a cada 60 segundos automaticamente
+      setInterval(loadOperationalStats, 60000);
+    });
   </script>
 
 </body>
