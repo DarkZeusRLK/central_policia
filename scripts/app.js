@@ -498,7 +498,7 @@ async function loadCommanders() {
       },
       {
         title: "Subcomandante Geral",
-        desc: "Coordena a logística e o gerenciamento tático das tropas em campo.",
+        desc: "Dirige e fiscaliza a atuação da Corregedoria de Polícia Revoada, coordena a atuação dos comandantes de grupamentos e guarnições especiais, promove e realiza o gerenciamento tático das tropas em campo. Atua como consultor estratégico em pacificações e operações de alto risco.",
       },
       {
         title: "Subcomandante Geral",
