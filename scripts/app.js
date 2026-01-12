@@ -502,7 +502,7 @@ async function loadCommanders() {
       },
       {
         title: "Subcomandante Geral",
-        desc: "Líder das forças especiais e operações de alto risco na cidade.",
+        desc: "Supervisionar a atuação da corporação, supervisionar os setores administrativos, o gerenciamento e a liderança das guarnições, participar das decisões do alto comando, bem como coordenar a atuação operacional.",
       },
     ];
 
