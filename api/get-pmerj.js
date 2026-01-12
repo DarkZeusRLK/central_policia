@@ -1,29 +1,32 @@
 export default async function handler(req, res) {
-  const { DISCORD_BOT_TOKEN, COMANDOS_PMERJ_IDS } = process.env;
+  const { DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, COMANDOS_PMERJ_IDS } =
+    process.env;
 
-  if (!DISCORD_BOT_TOKEN || !COMANDOS_PMERJ_IDS) {
-    return res
-      .status(500)
-      .json({ error: "Configuração faltando no .env (COMANDANTES_PMERJ_IDS)" });
+  if (!DISCORD_BOT_TOKEN || !COMANDOS_PMERJ_IDS || !DISCORD_GUILD_ID) {
+    return res.status(500).json({ error: "Configuração faltando no .env" });
   }
 
   const ids = COMANDOS_PMERJ_IDS.split(",").map((id) => id.trim());
 
   try {
     const fetchPromises = ids.map(async (id) => {
-      const response = await fetch(`https://discord.com/api/v10/users/${id}`, {
-        headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
-      });
+      const response = await fetch(
+        `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members/${id}`,
+        {
+          headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+        }
+      );
 
       if (!response.ok) return null;
-      const userData = await response.json();
+      const memberData = await response.json();
+      const user = memberData.user;
 
       return {
-        username: userData.global_name || userData.username,
-        avatarUrl: userData.avatar
-          ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png?size=512`
+        username: memberData.nick || user.global_name || user.username,
+        avatarUrl: user.avatar
+          ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
           : `https://cdn.discordapp.com/embed/avatars/${
-              parseInt(userData.discriminator) % 5
+              parseInt(user.discriminator || 0) % 5
             }.png`,
       };
     });
@@ -31,7 +34,6 @@ export default async function handler(req, res) {
     const members = await Promise.all(fetchPromises);
     return res.status(200).json(members.filter((c) => c !== null));
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Erro ao buscar comandantes PMERJ" });
+    return res.status(500).json({ error: "Erro interno" });
   }
 }

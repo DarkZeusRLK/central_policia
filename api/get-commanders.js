@@ -1,39 +1,50 @@
 export default async function handler(req, res) {
-  const { DISCORD_BOT_TOKEN, COMANDO_GERAL_IDS } = process.env;
+  // ADICIONADO: DISCORD_GUILD_ID para saber de qual servidor pegar o apelido
+  const { DISCORD_BOT_TOKEN, COMANDO_GERAL_IDS, DISCORD_GUILD_ID } =
+    process.env;
 
-  if (!DISCORD_BOT_TOKEN || !COMANDO_GERAL_IDS) {
-    return res.status(500).json({ error: "Configuração faltando no .env" });
+  if (!DISCORD_BOT_TOKEN || !COMANDO_GERAL_IDS || !DISCORD_GUILD_ID) {
+    return res.status(500).json({
+      error: "Configuração faltando no .env (Verifique DISCORD_GUILD_ID)",
+    });
   }
 
-  // Separa os IDs da string (removendo espaços extras)
+  // Separa os IDs da string
   const ids = COMANDO_GERAL_IDS.split(",").map((id) => id.trim());
 
   try {
-    // Cria uma lista de "promessas" para buscar todos os usuários ao mesmo tempo
     const fetchPromises = ids.map(async (id) => {
-      const response = await fetch(`https://discord.com/api/v10/users/${id}`, {
-        headers: {
-          Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-        },
-      });
+      // MUDANÇA: Endpoint de Membros do Servidor (traz o apelido)
+      const response = await fetch(
+        `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members/${id}`,
+        {
+          headers: {
+            Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+          },
+        }
+      );
 
-      if (!response.ok) return null; // Se o ID estiver errado, ignora
-      const userData = await response.json();
+      if (!response.ok) return null;
+
+      const memberData = await response.json();
+      const user = memberData.user; // Os dados globais ficam dentro de .user
 
       return {
-        username: userData.global_name || userData.username, // Pega o nome global ou usuário
-        avatarUrl: userData.avatar
-          ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png?size=512`
+        // PRIORIDADE: Nick (Apelido) -> Global Name -> Username
+        username: memberData.nick || user.global_name || user.username,
+
+        avatarUrl: user.avatar
+          ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
           : `https://cdn.discordapp.com/embed/avatars/${
-              parseInt(userData.discriminator) % 5
-            }.png`, // Avatar padrão se não tiver foto
+              parseInt(user.discriminator || 0) % 5
+            }.png`,
       };
     });
 
     // Espera todos os dados chegarem
     const commanders = await Promise.all(fetchPromises);
 
-    // Retorna filtrando possíveis nulos (erros)
+    // Retorna filtrando possíveis nulos
     return res.status(200).json(commanders.filter((c) => c !== null));
   } catch (error) {
     console.error(error);
