@@ -526,10 +526,6 @@ async function loadCommanders() {
         title: "Subcomandante Geral",
         desc: "Supervisionar a atuação da corporação, supervisionar os setores administrativos, o gerenciamento e a liderança das guarnições, participar das decisões do alto comando, bem como coordenar a atuação operacional.",
       },
-      {
-        title: "Subcomandante Geral",
-        desc: "Supervisionar a atuação da corporação, supervisionar os setores administrativos, o gerenciamento e a liderança das guarnições, participar das decisões do alto comando, bem como coordenar a atuação operacional.",
-      },
     ];
 
     container.innerHTML = ""; // Limpa o loading
@@ -541,8 +537,7 @@ async function loadCommanders() {
       // Tenta múltiplos caminhos para resolver o problema do servidor
       const imagePath1 = `public/images/commanders/comando_geral_${imageIndex}.png`;
       const imagePath2 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
-      const imagePath3 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
-      const imagePath4 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
+      const imagePath3 = `public/images/commanders/comando_geral_${imageIndex}.png`;
       // Usa o primeiro caminho e adiciona fallback no onerror
       const imagePath = imagePath1;
 
@@ -553,7 +548,6 @@ async function loadCommanders() {
                          alt="${cmd.username}" 
                          data-fallback1="${imagePath2}"
                          data-fallback2="${imagePath3}"
-                         data-fallback3="${imagePath4}"
                          onerror="
                            const img = this;
                            if (!img.dataset.tried1) {
