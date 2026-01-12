@@ -534,20 +534,14 @@ async function loadCommanders() {
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
       const imageIndex = index + 1;
-      // Tenta múltiplos caminhos para resolver o problema do servidor
-      const imagePath1 = `public/images/commanders/comando_geral_${imageIndex}.png`;
-      const imagePath2 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
-      const imagePath3 = `public/images/commanders/comando_geral_${imageIndex}.png`;
-      // Usa o primeiro caminho e adiciona fallback no onerror
-      const imagePath = imagePath1;
+      // Tenta múltiplos caminhos para resolver o problema do servidor     // Usa o primeiro caminho e adiciona fallback no onerror
+      const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
                     <img src="${imagePath}" 
                          alt="${cmd.username}" 
-                         data-fallback1="${imagePath2}"
-                         data-fallback2="${imagePath3}"
                          onerror="
                            const img = this;
                            if (!img.dataset.tried1) {
