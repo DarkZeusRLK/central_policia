@@ -422,24 +422,6 @@
       <div class="dashboard-grid">
         <div class="widget-card">
           <div class="widget-title">
-            <i class="fa-solid fa-trophy"></i> Top Ranking de Prisões
-          </div>
-          <div id="ranking-prisoes-container">
-            <p style="color: #64748b; font-size: 0.9rem;">Carregando ranking de prisões...</p>
-          </div>
-        </div>
-
-        <div class="widget-card">
-          <div class="widget-title">
-            <i class="fa-solid fa-users"></i> Top Ranking de Recrutamentos
-          </div>
-          <div id="ranking-recrutamentos-container">
-            <p style="color: #64748b; font-size: 0.9rem;">Carregando ranking de recrutamentos...</p>
-          </div>
-        </div>
-
-        <div class="widget-card">
-          <div class="widget-title">
             <i class="fa-regular fa-newspaper"></i> Último Informativo
           </div>
           <div id="latest-news-container">
@@ -743,13 +725,8 @@
       }
     }
 
-    // Carrega dados do bot Discord para os rankings
+    // Carrega dados do dashboard
     async function loadDashboardData() {
-      await Promise.all([
-        loadRankingPrisoes(),
-        loadRankingRecrutamentos()
-      ]);
-
       // Carrega notícias
       const newsContainer = document.getElementById('latest-news-container');
       if (newsContainer) {
@@ -784,83 +761,6 @@
       }
     }
 
-    // Função para carregar ranking de prisões do bot Discord
-    async function loadRankingPrisoes() {
-      const container = document.getElementById('ranking-prisoes-container');
-      if (!container) return;
-
-      try {
-        const response = await fetch('/api/get-ranking-prisoes');
-        if (!response.ok) throw new Error("API Offline");
-
-        const data = await response.json();
-        
-        if (!data || !data.ranking || data.ranking.length === 0) {
-          container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Nenhum dado disponível.</p>';
-          return;
-        }
-
-        let html = '<ul class="ranking-list">';
-        data.ranking.forEach((entry, index) => {
-          let rankClass = '', icon = '';
-          if (index === 0) { rankClass = 'rank-1'; icon = '<i class="fa-solid fa-crown"></i>'; }
-          else if (index === 1) { rankClass = 'rank-2'; icon = '<i class="fa-solid fa-medal"></i>'; }
-          else if (index === 2) { rankClass = 'rank-3'; icon = '<i class="fa-solid fa-medal"></i>'; }
-          else { rankClass = ''; icon = `#${index + 1}`; }
-
-          html += `
-            <li class="ranking-item">
-              <div class="rank-pos ${rankClass}">${icon}</div>
-              <div class="rank-name">${entry.name || entry.username || 'N/A'}</div>
-              <div class="rank-score">${entry.count || entry.score || 0} prisões</div>
-            </li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-      } catch (error) {
-        console.error('Erro ao carregar ranking de prisões:', error);
-        container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Erro ao carregar ranking.</p>';
-      }
-    }
-
-    // Função para carregar ranking de recrutamentos do bot Discord
-    async function loadRankingRecrutamentos() {
-      const container = document.getElementById('ranking-recrutamentos-container');
-      if (!container) return;
-
-      try {
-        const response = await fetch('/api/get-ranking-recrutamentos');
-        if (!response.ok) throw new Error("API Offline");
-
-        const data = await response.json();
-        
-        if (!data || !data.ranking || data.ranking.length === 0) {
-          container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Nenhum dado disponível.</p>';
-          return;
-        }
-
-        let html = '<ul class="ranking-list">';
-        data.ranking.forEach((entry, index) => {
-          let rankClass = '', icon = '';
-          if (index === 0) { rankClass = 'rank-1'; icon = '<i class="fa-solid fa-crown"></i>'; }
-          else if (index === 1) { rankClass = 'rank-2'; icon = '<i class="fa-solid fa-medal"></i>'; }
-          else if (index === 2) { rankClass = 'rank-3'; icon = '<i class="fa-solid fa-medal"></i>'; }
-          else { rankClass = ''; icon = `#${index + 1}`; }
-
-          html += `
-            <li class="ranking-item">
-              <div class="rank-pos ${rankClass}">${icon}</div>
-              <div class="rank-name">${entry.name || entry.username || 'N/A'}</div>
-              <div class="rank-score">${entry.count || entry.score || 0} recrutamentos</div>
-            </li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-      } catch (error) {
-        console.error('Erro ao carregar ranking de recrutamentos:', error);
-        container.innerHTML = '<p style="color: #64748b; font-size: 0.9rem;">Erro ao carregar ranking.</p>';
-      }
-    }
   </script>
   <script src="../api/ler_cargo.js"></script>
 </body>
