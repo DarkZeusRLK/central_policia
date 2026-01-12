@@ -542,7 +542,8 @@ async function loadCommanders() {
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${imagePath}" alt="${cmd.username}">
+                    <img src="${imagePath}" alt="${cmd.username}" 
+                         onerror="console.error('Erro ao carregar: ${imagePath}'); this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23334155\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%2394a3b8\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem não encontrada%3C/text%3E%3C/svg%3E';">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
