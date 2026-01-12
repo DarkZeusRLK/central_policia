@@ -516,7 +516,7 @@ async function loadCommanders() {
     const roles = [
       {
         title: "Comandante Geral",
-        desc: "Responsável pela estratégia global de segurança e diretrizes da corporação.",
+        desc: "Responsável geral pela Polícia Revoada, com atribuições voltadas à gestão interna, coordenação operacional e supervisão dos setores da corporação, assegurando o cumprimento das normas, a eficiência administrativa e a integridade institucional.",
       },
       {
         title: "Subcomandante Geral",
