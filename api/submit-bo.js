@@ -1,15 +1,16 @@
 // api/submit-bo.js
 export default async function handler(req, res) {
-  // 1. Só aceita POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
-  // 2. Pega os dados do formulário (incluindo o novo video_link)
+  // Captura os novos campos profissao e sexo
   const {
     nome,
     passaporte,
     telefone,
+    profissao,
+    sexo,
     ocorrencia,
     itens,
     local,
@@ -21,7 +22,6 @@ export default async function handler(req, res) {
 
   const { DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID_BO } = process.env;
 
-  // 3. Verificação de Segurança
   if (!DISCORD_BOT_TOKEN || !DISCORD_CHANNEL_ID_BO) {
     return res
       .status(500)
@@ -29,13 +29,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 4. Formatação de Dados
-    // Gera um número de protocolo aleatório (ex: 2024-4921)
     const anoAtual = new Date().getFullYear();
     const protocolo = Math.floor(1000 + Math.random() * 9000);
     const boNumero = `${anoAtual}-${protocolo}`;
 
-    // Formata a data e hora para ficar bonito (DD/MM/AAAA HH:MM)
     const dataObj = new Date(horario);
     const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -45,7 +42,7 @@ export default async function handler(req, res) {
       minute: "2-digit",
     });
 
-    // 5. Monta o Relatório no estilo Markdown (Igual ao seu modelo)
+    // MONTAGEM DO RELATÓRIO COM OS NOVOS CAMPOS
     const relatorio = `
 \`\`\`md
 # BOLETIM DE OCORRÊNCIA Nº ${boNumero}
@@ -56,8 +53,8 @@ LOCAL DO FATO: ${local}
 NOME: ${nome}
 PASSAPORTE: ${passaporte}
 TELEFONE: ${telefone}
-PROFISSÃO: Não Informado
-SEXO: Não Informado
+PROFISSÃO: ${profissao || "Não Informado"}
+SEXO: ${sexo || "Não Informado"}
 
 # RELATO INDIVIDUAL
 ${ocorrencia}
@@ -69,11 +66,8 @@ ${itens || "Nenhum bem declarado."}
 ${video_link || "N/A"}
 \`\`\``;
 
-    // Mensagem final enviada ao Discord
-    // Adicionei a menção ao usuário (<@ID>) fora do bloco de código para ele ser notificado/identificado
     const contentMessage = `👮 **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
 
-    // 6. Envia para o Discord
     const discordResponse = await fetch(
       `https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID_BO}/messages`,
       {
@@ -82,7 +76,6 @@ ${video_link || "N/A"}
           Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
           "Content-Type": "application/json",
         },
-        // Aqui mudamos de 'embeds' para 'content' para suportar o formato de texto
         body: JSON.stringify({ content: contentMessage }),
       }
     );
