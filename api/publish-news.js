@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
 
   // Agora esperamos 'userId' (o ID do discord) vindo do frontend, não apenas o nome
-  const { title, content, imageUrl, userId } = req.body;
+  const { title, content, imageUrl, userId, fontFamily } = req.body;
 
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, MATRIZES_ROLE_ID } = process.env;
 
@@ -19,14 +19,31 @@ export default async function handler(req, res) {
       .map((id) => `<@&${id.trim()}>`) // Cria a menção <@&ID> para cada um
       .join(" "); // Junta com espaço
 
-    // 2. Monta a Mensagem
+    // 2. Aplica formatação de fonte ao conteúdo baseado na seleção
+    let formattedContent = content;
+    if (fontFamily === "bold") {
+      formattedContent = `**${content}**`;
+    } else if (fontFamily === "italic") {
+      formattedContent = `*${content}*`;
+    } else if (fontFamily === "bold-italic") {
+      formattedContent = `***${content}***`;
+    } else if (fontFamily === "code") {
+      formattedContent = `\`\`\`\n${content}\n\`\`\``;
+    }
+    // Se for "normal", mantém o conteúdo sem formatação
+
+    // 3. ID do usuário policial a ser mencionado
+    const POLICIAL_USER_ID = "1447056982371602526";
+
+    // 4. Monta a Mensagem
     // <@${userId}> cria a menção clicável ao autor
     const messageContent = `
 ${rolesToMention}
+<@${POLICIAL_USER_ID}>
 
 # 📰 ${title.toUpperCase()}
 
-${content}
+${formattedContent}
 
 > ✍️ *Reportagem por:* <@${userId}>
 

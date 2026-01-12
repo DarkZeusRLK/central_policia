@@ -593,9 +593,20 @@
             <input type="url" name="imageUrl" required placeholder="https://..." class="form-dark-input">
           </div>
 
+          <div style="margin-bottom: 15px;">
+            <label style="color: #cbd5e1; font-size: 0.9rem;">Tipo de Fonte do Texto</label>
+            <select name="fontFamily" id="fontFamily" class="form-dark-input" style="margin-top: 5px;">
+              <option value="normal">Normal (Padrão)</option>
+              <option value="bold">Negrito</option>
+              <option value="italic">Itálico</option>
+              <option value="bold-italic">Negrito e Itálico</option>
+              <option value="code">Código/Monospace</option>
+            </select>
+          </div>
+
           <div style="margin-bottom: 20px;">
             <label style="color: #cbd5e1; font-size: 0.9rem;">Corpo da Notícia</label>
-            <textarea name="content" rows="6" required placeholder="Digite os detalhes da ocorrência aqui..." class="form-dark-input"></textarea>
+            <textarea name="content" id="newsContent" rows="6" required placeholder="Digite os detalhes da ocorrência aqui..." class="form-dark-input" style="font-family: inherit;"></textarea>
           </div>
 
           <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background: var(--accent-gold); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s;">
@@ -751,6 +762,31 @@
     function setupNewsForm(user) {
       const formNews = document.getElementById("form-news");
       if (formNews) {
+        const fontFamilySelect = document.getElementById("fontFamily");
+        const newsContentTextarea = document.getElementById("newsContent");
+
+        // Aplica visualmente o estilo de fonte no textarea
+        if (fontFamilySelect && newsContentTextarea) {
+          fontFamilySelect.addEventListener("change", function () {
+            const selectedFont = this.value;
+            // Remove estilos anteriores
+            newsContentTextarea.style.fontWeight = "normal";
+            newsContentTextarea.style.fontStyle = "normal";
+            newsContentTextarea.style.fontFamily = "inherit";
+
+            if (selectedFont === "bold") {
+              newsContentTextarea.style.fontWeight = "bold";
+            } else if (selectedFont === "italic") {
+              newsContentTextarea.style.fontStyle = "italic";
+            } else if (selectedFont === "bold-italic") {
+              newsContentTextarea.style.fontWeight = "bold";
+              newsContentTextarea.style.fontStyle = "italic";
+            } else if (selectedFont === "code") {
+              newsContentTextarea.style.fontFamily = "'Consolas', 'Monaco', monospace";
+            }
+          });
+        }
+
         formNews.addEventListener("submit", async (e) => {
           e.preventDefault();
 
@@ -767,6 +803,7 @@
             const title = formData.get("title");
             const content = formData.get("content");
             const imageUrl = formData.get("imageUrl");
+            const fontFamily = formData.get("fontFamily") || "normal";
 
             // Envia para a API
             const response = await fetch("/api/publish-news", {
@@ -778,6 +815,7 @@
                 title: title,
                 content: content,
                 imageUrl: imageUrl,
+                fontFamily: fontFamily,
                 userId: user.id, // ID do Discord do usuário
               }),
             });
