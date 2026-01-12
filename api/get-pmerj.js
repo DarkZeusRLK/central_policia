@@ -1,13 +1,13 @@
 export default async function handler(req, res) {
-  const { DISCORD_BOT_TOKEN, COMANDANTES_PMERJ_IDS } = process.env;
+  const { DISCORD_BOT_TOKEN, COMANDOS_PMERJ_IDS } = process.env;
 
-  if (!DISCORD_BOT_TOKEN || !COMANDANTES_PMERJ_IDS) {
+  if (!DISCORD_BOT_TOKEN || !COMANDOS_PMERJ_IDS) {
     return res
       .status(500)
       .json({ error: "Configuração faltando no .env (COMANDANTES_PMERJ_IDS)" });
   }
 
-  const ids = COMANDANTES_PMERJ_IDS.split(",").map((id) => id.trim());
+  const ids = COMANDOS_PMERJ_IDS.split(",").map((id) => id.trim());
 
   try {
     const fetchPromises = ids.map(async (id) => {
