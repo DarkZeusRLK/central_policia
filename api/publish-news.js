@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // Se for "normal", mantém o conteúdo sem formatação
 
     // 3. ID do usuário policial a ser mencionado
-    const POLICIAL_USER_ID = "1447056982371602526";
+    const POLICIAL_USER_ID = "&1447056982371602526";
 
     // 4. Monta a Mensagem
     // <@${userId}> cria a menção clicável ao autor
