@@ -533,17 +533,13 @@ async function loadCommanders() {
     // Cria os cards dinâmicos
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
-
-      // Usa imagem local PNG - index começa em 0, então index+1 para comando_geral_1, comando_geral_2, comando_geral_3
-      // index 0 -> comando_geral_1.png
-      // index 1 -> comando_geral_2.png
-      // index 2 -> comando_geral_3.png
       const imageIndex = index + 1;
       // Tenta múltiplos caminhos para resolver o problema do servidor
       const imagePath1 = `public/images/commanders/comando_geral_${imageIndex}.png`;
       const imagePath2 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
       const imagePath3 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
 
+      console.log(imageIndex);
       // Usa o primeiro caminho e adiciona fallback no onerror
       const imagePath = imagePath1;
 
