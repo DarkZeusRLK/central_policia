@@ -328,7 +328,22 @@ async function handlePoliceAccess(e) {
       Notify.success("Acesso Policial Autorizado.");
       localStorage.setItem("revoada_is_journalist", data.isJournalist);
       setTimeout(() => {
-        window.location.href = "public/central_policial.html";
+        // Detecta o caminho correto baseado na página atual
+        const currentPath = window.location.pathname;
+        let redirectPath;
+
+        if (
+          currentPath.includes("/public/") ||
+          currentPath.startsWith("/public")
+        ) {
+          // Se estiver em uma página dentro de /public/, usa caminho relativo
+          redirectPath = "central_policial.html";
+        } else {
+          // Se estiver na raiz (index.html), usa caminho com public/
+          redirectPath = "public/central_policial.html";
+        }
+
+        window.location.href = redirectPath;
       }, 1000);
     } else {
       Notify.error("Acesso Negado.");
