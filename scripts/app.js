@@ -329,7 +329,7 @@ async function handlePoliceAccess(e) {
 }
 
 function updateUI() {
-  const navRight = document.querySelector(".navbar .nav-links");
+  const navUserGroup = document.querySelector(".nav-user-group");
   const btnLogin = document.getElementById("btn-login");
 
   if (Session.isLoggedIn()) {
@@ -337,16 +337,26 @@ function updateUI() {
     const oldBadge = document.getElementById("user-badge-nav");
     if (oldBadge) oldBadge.remove();
 
-    const badge = document.createElement("li");
+    const badge = document.createElement("div");
     badge.id = "user-badge-nav";
+    badge.style.display = "flex";
+    badge.style.alignItems = "center";
+    badge.style.gap = "10px";
+    badge.style.cursor = "pointer";
+    badge.onclick = () => Session.logout();
     badge.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="Session.logout()">
-                <span style="color: white; font-weight: bold;">${Session.user.username}</span>
-                <img src="https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png" 
-                     style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
-            </div>
+            <span style="color: white; font-weight: bold;">${Session.user.username}</span>
+            <img src="https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png" 
+                 alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
         `;
-    if (navRight) navRight.appendChild(badge);
+    if (navUserGroup) {
+      const userArea = document.getElementById("user-area");
+      if (userArea) {
+        navUserGroup.insertBefore(badge, userArea);
+      } else {
+        navUserGroup.appendChild(badge);
+      }
+    }
     updateFormAvatar();
   } else {
     if (btnLogin) btnLogin.classList.remove("hidden");
