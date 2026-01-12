@@ -537,7 +537,7 @@ async function loadCommanders() {
       // Tenta múltiplos caminhos para resolver o problema do servidor
       const imagePath1 = `public/images/commanders/comando_geral_${imageIndex}.png`;
       const imagePath2 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
-      const imagePath3 = `/public/images/commanders/comando_geral_${imageIndex}.png`;
+      const imagePath3 = `../public/images/commanders/comando_geral_${imageIndex}.png`;
 
       console.log(imageIndex);
       // Usa o primeiro caminho e adiciona fallback no onerror
