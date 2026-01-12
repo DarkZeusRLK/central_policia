@@ -7,9 +7,7 @@
   <title>Central de Polícia | REVOADA RJ</title>
 
   <link rel="shortcut icon" href="public/images/Logo_policia.png" type="image/x-icon">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <link rel="stylesheet" href="style/main.css">
 </head>
 
@@ -26,31 +24,26 @@
       <li class="dropdown">
         <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
         <div class="dropdown-content">
-
           <a href="public/departamentopcerj.html">
             <img src="public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;">
             PCERJ
           </a>
-
           <a href="public/batalhaopmerj.html">
             <img src="public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;">
             PMERJ
           </a>
-
           <a href="public/departamentoprf.html">
             <img src="public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;">
             PRF
           </a>
-
           <a href="public/departamentopf.html">
             <img src="public/images/Policia-federal-logo.png" alt="PF" class="nav-icon" style="width: 25px; height: auto;">
             PF
           </a>
-
         </div>
       </li>
 
-      <li><a href="#boletim" id="nav-bo"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
+      <li><a href="#boletim-section" id="nav-bo-link"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
 
       <li>
         <a href="https://policia-revoada.vercel.app" target="_blank">
@@ -65,17 +58,14 @@
     </ul>
 
     <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-
       <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
-
       <div id="user-area" class="user-area">
         <button id="btn-login" class="btn-login" onclick="window.location.href='/api/auth'">
           <i class="fa-brands fa-discord"></i> Login
         </button>
       </div>
-
     </div>
   </nav>
 
@@ -136,7 +126,6 @@
 
     <section class="container commanders-section">
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Comando Geral</h2>
-
       <div class="commanders-grid">
         <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
           <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--accent-gold); margin-bottom: 15px;"></i>
@@ -185,6 +174,12 @@
               <label>Itens Perdidos</label>
               <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
             </div>
+
+            <div class="input-group full-width">
+              <label><i class="fa-brands fa-youtube" style="color: #ff0000; margin-right:5px;"></i> Link de Provas (YouTube/Medal)</label>
+              <input type="url" name="video_link" placeholder="Cole o link do vídeo aqui (Opcional)">
+            </div>
+
           </div>
           <div class="form-actions">
             <button type="submit" class="btn-submit">
@@ -208,7 +203,7 @@
         <ul>
           <li><a href="#">Início</a></li>
           <li><a href="#">Recrutamentos</a></li>
-          <li><a href="#boletim">Registrar B.O.</a></li>
+          <li><a href="#" onclick="document.getElementById('nav-bo-link').click(); return false;">Registrar B.O.</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -239,6 +234,44 @@
   </div>
 
   <script src="scripts/app.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const boLink = document.getElementById("nav-bo-link");
+      const boSection = document.getElementById("boletim-section");
+      const loginModal = document.getElementById("login-modal");
+
+      if (boLink && boSection) {
+        boLink.addEventListener("click", (e) => {
+          e.preventDefault(); // Impede o pulo seco padrão
+
+          // Verifica se o usuário está logado (Baseado no seu localStorage)
+          const user = localStorage.getItem("revoada_user");
+
+          if (!user) {
+            // Se não estiver logado, mostra o modal e não desce
+            if (loginModal) loginModal.classList.remove("hidden");
+          } else {
+            // Se estiver logado:
+            // 1. Remove o hidden para o formulário aparecer
+            boSection.classList.remove("hidden");
+
+            // 2. Faz o scroll suave até a seção
+            boSection.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          }
+        });
+      }
+    });
+
+    // Função auxiliar para fechar o modal (caso não esteja no app.js)
+    function closeLoginModal() {
+      const modal = document.getElementById("login-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+  </script>
 
 </body>
 
