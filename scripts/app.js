@@ -539,6 +539,7 @@ async function loadCommanders() {
       // index 1 -> comando_geral_2.png
       // index 2 -> comando_geral_3.png
       const imageIndex = index + 1;
+      // Usa caminho relativo igual às outras imagens do index.html (sem / no início)
       const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
       // Debug: log detalhado para diagnóstico
