@@ -535,17 +535,22 @@ async function loadCommanders() {
       if (index >= roles.length) return;
 
       // Usa imagem local PNG - index começa em 0, então index+1 para comando_geral_1, comando_geral_2, comando_geral_3
+      // index 0 -> comando_geral_1.png
+      // index 1 -> comando_geral_2.png
+      // index 2 -> comando_geral_3.png
       const imageIndex = index + 1;
       const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
-      // Debug: log detalhado
-      console.log(`[DEBUG] Index: ${index}, ImageIndex: ${imageIndex}, Caminho: "${imagePath}", Comandante: ${cmd.username}`);
+      // Debug: log detalhado para diagnóstico
+      console.log(
+        `[DEBUG Commander] Array Index: ${index}, Image Number: ${imageIndex}, Expected File: comando_geral_${imageIndex}.png, Full Path: ${imagePath}, Username: ${cmd.username}`
+      );
 
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
                     <img src="${imagePath}" alt="${cmd.username}" 
-                         onerror="console.error('404 - Arquivo não encontrado: ${imagePath}'); this.style.border='2px solid red';">
+                         onerror="console.error('[ERRO 404] Array Index: ${index}, Image Index: ${imageIndex}, Arquivo esperado: comando_geral_${imageIndex}.png, Caminho completo: ${imagePath}'); this.style.border='3px solid red'; this.style.backgroundColor='#1e293b';">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
