@@ -534,15 +534,15 @@ async function loadCommanders() {
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
 
-      // Usa imagem local se existir, senão usa do Discord
+      // Usa imagem local PNG
       const imagePath = `public/images/commanders/comando_geral_${
         index + 1
-      },png`;
+      }.png`;
 
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${imagePath}" alt="${cmd.username}" onerror="this.src='${cmd.avatarUrl}'">
+                    <img src="${imagePath}" alt="${cmd.username}">
                 </div>
                 <h3>${cmd.username}</h3>
                 <span class="rank">${roles[index].title}</span>
@@ -647,11 +647,7 @@ async function loadDepartmentLeadership() {
           container.innerHTML += `
                         <div class="commander-card">
                             <div class="cmd-img-container">
-                                <img src="${
-                                  imagePath || leader.avatarUrl
-                                }" alt="${
-            leader.username
-          }" onerror="this.src='${leader.avatarUrl}'">
+                                <img src="${imagePath}" alt="${leader.username}">
                             </div>
                             <h3>${leader.username}</h3>
                             <span class="rank">${role.title}</span>
