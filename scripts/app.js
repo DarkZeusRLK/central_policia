@@ -427,8 +427,8 @@ async function loadNews() {
     data.forEach((news) => {
       grid.innerHTML += `
         <article class="news-card">
-            <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative;">
-                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;">
+            <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
+                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/1e293b/fbbf24?text=Imagem+Indisponível'; this.style.opacity='0.7';">
                 <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
                     <i class="fa-solid fa-camera"></i> ${news.author}
                 </div>

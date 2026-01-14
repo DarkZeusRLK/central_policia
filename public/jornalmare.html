@@ -38,13 +38,15 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
+      text-align: center;
     }
 
     .news-article {
       background: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      margin-bottom: 30px;
+      margin: 0 auto 30px auto;
+      max-width: 900px;
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -62,6 +64,108 @@
       padding: 20px 30px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(15, 23, 42, 0.5);
+    }
+
+    .news-stats-section {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .news-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .news-stat-item {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .news-stat-item i {
+      font-size: 2rem;
+      color: var(--accent-gold);
+      margin-bottom: 10px;
+    }
+
+    .news-stat-item h3 {
+      color: white;
+      font-size: 1.5rem;
+      margin: 10px 0;
+    }
+
+    .news-stat-item p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .news-about-section {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .news-about-section h2 {
+      color: var(--accent-gold);
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .news-about-section p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .news-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .news-feature {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 25px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .news-feature i {
+      font-size: 2.5rem;
+      color: var(--accent-gold);
+      margin-bottom: 15px;
+    }
+
+    .news-feature h3 {
+      color: white;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .news-feature p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
     .news-article-date {
@@ -85,6 +189,7 @@
 
     .news-article-content {
       padding: 30px;
+      text-align: center;
     }
 
     .news-article-title {
@@ -97,18 +202,21 @@
 
     .news-article-image {
       width: 100%;
+      max-width: 800px;
       max-height: 400px;
       object-fit: cover;
       border-radius: 8px;
-      margin: 20px 0;
+      margin: 20px auto;
+      display: block;
     }
 
     .news-article-text {
       color: #cbd5e1;
       font-size: 1.05rem;
       line-height: 1.8;
-      text-align: justify;
-      margin-bottom: 20px;
+      text-align: center;
+      margin: 0 auto 20px auto;
+      max-width: 800px;
     }
 
     .news-article-footer {
@@ -174,6 +282,26 @@
         transform: rotate(360deg);
       }
     }
+
+    @media (max-width: 768px) {
+      .news-article {
+        margin: 0 10px 30px 10px;
+      }
+
+      .news-about-section,
+      .news-stats-section {
+        margin: 20px 10px;
+        padding: 20px;
+      }
+
+      .news-features {
+        grid-template-columns: 1fr;
+      }
+
+      .news-stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 
@@ -230,6 +358,63 @@
 
   <main>
     <div class="news-container">
+      <!-- Seção Sobre o Jornal -->
+      <div class="news-about-section">
+        <h2><i class="fa-solid fa-newspaper"></i> Sobre o Jornal Mare</h2>
+        <p>
+          O Jornal Mare é a publicação oficial da Central de Polícia de Revoada RJ. 
+          Nossa missão é manter a comunidade informada sobre as operações policiais, 
+          eventos importantes e notícias relevantes da corporação.
+        </p>
+        <p>
+          Publicamos regularmente reportagens sobre operações, recrutamentos, 
+          promoções e demais acontecimentos que fazem parte do dia a dia da polícia.
+        </p>
+        
+        <div class="news-features">
+          <div class="news-feature">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h3>Notícias Oficiais</h3>
+            <p>Informações verificadas e autorizadas pela alta cúpula da polícia</p>
+          </div>
+          <div class="news-feature">
+            <i class="fa-solid fa-clock"></i>
+            <h3>Atualizações Diárias</h3>
+            <p>Conteúdo atualizado regularmente para manter você informado</p>
+          </div>
+          <div class="news-feature">
+            <i class="fa-solid fa-users"></i>
+            <h3>Comunidade</h3>
+            <p>Conectando policiais e cidadãos através da informação</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="news-stats-section">
+        <h2 style="color: var(--accent-gold); font-size: 1.8rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <i class="fa-solid fa-chart-line"></i> Estatísticas do Jornal
+        </h2>
+        <div class="news-stats-grid">
+          <div class="news-stat-item">
+            <i class="fa-solid fa-newspaper"></i>
+            <h3 id="total-news">--</h3>
+            <p>Notícias Publicadas</p>
+          </div>
+          <div class="news-stat-item">
+            <i class="fa-solid fa-user-pen"></i>
+            <h3 id="total-authors">--</h3>
+            <p>Repórteres Ativos</p>
+          </div>
+          <div class="news-stat-item">
+            <i class="fa-solid fa-calendar-days"></i>
+            <h3 id="news-this-month">--</h3>
+            <p>Este Mês</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notícias -->
       <div id="news-content">
         <div class="loading-state">
           <i class="fa-solid fa-circle-notch fa-spin"></i>
@@ -272,8 +457,61 @@
 
         container.innerHTML = '';
 
+        // Atualiza estatísticas
+        document.getElementById('total-news').textContent = news.length;
+        const uniqueAuthors = new Set(news.map(n => n.author || 'Redação'));
+        document.getElementById('total-authors').textContent = uniqueAuthors.size;
+        
+        const now = new Date();
+        const thisMonth = news.filter(n => {
+          try {
+            // Tenta converter a data de diferentes formatos
+            let articleDate;
+            if (n.date) {
+              // Se for string no formato brasileiro (dd/mm/yyyy), converte
+              if (typeof n.date === 'string' && n.date.includes('/')) {
+                const parts = n.date.split('/');
+                if (parts.length === 3) {
+                  articleDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                  articleDate = new Date(n.date);
+                }
+              } else {
+                articleDate = new Date(n.date);
+              }
+            } else {
+              articleDate = new Date();
+            }
+            return articleDate.getMonth() === now.getMonth() && 
+                   articleDate.getFullYear() === now.getFullYear();
+          } catch (e) {
+            return false;
+          }
+        }).length;
+        document.getElementById('news-this-month').textContent = thisMonth;
+
         news.forEach((article, index) => {
-          const articleDate = new Date(article.date || Date.now());
+          let articleDate;
+          try {
+            if (article.date) {
+              // Tenta converter a data de diferentes formatos
+              if (typeof article.date === 'string' && article.date.includes('/')) {
+                const parts = article.date.split('/');
+                if (parts.length === 3) {
+                  articleDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                  articleDate = new Date(article.date);
+                }
+              } else {
+                articleDate = new Date(article.date);
+              }
+            } else {
+              articleDate = new Date();
+            }
+          } catch (e) {
+            articleDate = new Date();
+          }
+          
           const formattedDate = articleDate.toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: 'long',
@@ -298,7 +536,7 @@
                 <h2 class="news-article-title">${article.title}</h2>
                 
                 ${article.image ? `
-                  <img src="${article.image}" alt="${article.title}" class="news-article-image">
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400/1e293b/fbbf24?text=Imagem+Indisponível'; this.style.opacity='0.7';">
                 ` : ''}
                 
                 <div class="news-article-text">
