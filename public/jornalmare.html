@@ -10,12 +10,24 @@
   <link rel="stylesheet" href="../style/main.css">
 
   <style>
+    body {
+      padding-top: 90px; /* Espaço para a navbar fixa */
+    }
+
     .news-header {
       background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
       padding: 60px 20px;
       text-align: center;
       border-bottom: 3px solid var(--accent-gold);
       margin-bottom: 40px;
+      margin-top: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .news-container {
+      position: relative;
+      z-index: 1;
     }
 
     .news-header h1 {

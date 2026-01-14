@@ -1098,8 +1098,23 @@
       setInterval(loadOperationalStats, 60000);
     });
 
-    // Sistema de Carregamento
+    // Sistema de Carregamento (apenas na primeira visita)
     (function () {
+      // Verifica se já foi carregado antes
+      const hasLoadedBefore = localStorage.getItem('site_loaded_before');
+
+      if (hasLoadedBefore) {
+        // Se já carregou antes, esconde a tela imediatamente
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+          loadingScreen.style.display = 'none';
+          loadingScreen.classList.add('hidden');
+        }
+        document.body.classList.remove('loading', 'no-select');
+        document.body.style.overflow = '';
+        return; // Sai da função, não executa o resto
+      }
+
       const loadingScreen = document.getElementById('loadingScreen');
       const progressBar = document.getElementById('loadingProgress');
       let loadedImages = 0;
@@ -1210,6 +1225,8 @@
                 document.body.classList.remove('no-select', 'loading');
                 // Permite scroll novamente
                 document.body.style.overflow = '';
+                // Marca como carregado no localStorage
+                localStorage.setItem('site_loaded_before', 'true');
               }
             }, 500);
           }, 300);
@@ -1226,6 +1243,10 @@
         checkImagesLoaded();
       }, 500);
     })();
+
+    // Função para limpar cache (útil para testes - pode ser removida em produção)
+    // Para testar novamente a tela de carregamento, execute no console:
+    // localStorage.removeItem('site_loaded_before'); location.reload();
   </script>
 
 </body>
