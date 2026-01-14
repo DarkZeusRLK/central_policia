@@ -536,7 +536,7 @@
                 <h2 class="news-article-title">${article.title}</h2>
                 
                 ${article.image ? `
-                  <img src="${article.image}" alt="${article.title}" class="news-article-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400/1e293b/fbbf24?text=Imagem+Indisponível'; this.style.opacity='0.7';">
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 ` : ''}
                 
                 <div class="news-article-text">

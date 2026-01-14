@@ -428,7 +428,7 @@ async function loadNews() {
       grid.innerHTML += `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
-                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/1e293b/fbbf24?text=Imagem+Indisponível'; this.style.opacity='0.7';">
+                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
                     <i class="fa-solid fa-camera"></i> ${news.author}
                 </div>
