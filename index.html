@@ -11,6 +11,112 @@
   <link rel="stylesheet" href="style/main.css">
 
   <style>
+    /* Tela de Carregamento */
+    body.loading {
+      overflow: hidden;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0a0e17 0%, #1e293b 100%);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body:not(.loading) .loading-screen {
+      display: none;
+    }
+
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 30px;
+      animation: pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.6));
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(251, 191, 36, 0.2);
+      border-top: 4px solid var(--accent-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    .loading-text {
+      color: var(--accent-gold);
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 20px;
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+
+    .loading-progress {
+      width: 300px;
+      height: 4px;
+      background: rgba(251, 191, 36, 0.2);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .loading-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-gold), #fcd34d);
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeInOut {
+
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Proteção contra seleção de texto */
+    body.no-select {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
     /* CSS Extra para garantir que o 'select' fique igual aos inputs */
     .input-group select {
       width: 100%;
@@ -362,7 +468,17 @@
   </style>
 </head>
 
-<body>
+<body class="loading">
+
+  <!-- Tela de Carregamento -->
+  <div id="loadingScreen" class="loading-screen">
+    <img src="public/images/Logo_policia.png" alt="Logo" class="loading-logo">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Carregando...</div>
+    <div class="loading-progress">
+      <div class="loading-progress-bar" id="loadingProgress"></div>
+    </div>
+  </div>
 
   <nav class="navbar">
     <a href="#" class="logo">
@@ -697,6 +813,129 @@
   </div>
 
   <script src="scripts/app.js"></script>
+
+  <!-- Proteção contra Inspeção -->
+  <script>
+    // Desabilitar clique direito
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar seleção de texto
+    document.addEventListener('selectstart', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar arrastar imagens
+    document.addEventListener('dragstart', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar atalhos de teclado comuns
+    document.addEventListener('keydown', function (e) {
+      // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S
+      if (e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'S' || e.key === 'P'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Detectar abertura de DevTools (método mais sutil)
+    let devtools = { open: false };
+    const threshold = 160;
+
+    function detectDevTools() {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+      if (widthThreshold || heightThreshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          // Bloqueia a página
+          document.body.style.display = 'none';
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0e17;color:#fbbf24;font-size:2rem;text-align:center;padding:20px;position:fixed;top:0;left:0;width:100%;z-index:999999;"><div><i class="fa-solid fa-shield-halved" style="font-size:4rem;margin-bottom:20px;"></i><h1>Acesso Negado</h1><p>O uso de ferramentas de desenvolvedor não é permitido.</p><p style="font-size:1rem;margin-top:20px;color:#94a3b8;">Por favor, feche as ferramentas de desenvolvedor e recarregue a página.</p></div></div>';
+        }
+      } else {
+        devtools.open = false;
+      }
+    }
+
+    setInterval(detectDevTools, 500);
+
+    // Detecção adicional via console
+    let element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: function () {
+        detectDevTools();
+        document.body.style.display = 'none';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0e17;color:#fbbf24;font-size:2rem;text-align:center;padding:20px;position:fixed;top:0;left:0;width:100%;z-index:999999;"><div><i class="fa-solid fa-shield-halved" style="font-size:4rem;margin-bottom:20px;"></i><h1>Acesso Negado</h1><p>O uso de ferramentas de desenvolvedor não é permitido.</p></div></div>';
+      }
+    });
+
+    // Proteção adicional contra console
+    (function () {
+      const noop = function () { };
+      const methods = ['log', 'debug', 'info', 'warn', 'error', 'assert', 'dir', 'dirxml', 'group', 'groupEnd', 'time', 'timeEnd', 'count', 'trace', 'profile', 'profileEnd'];
+      methods.forEach(function (method) {
+        window.console[method] = noop;
+      });
+    })();
+
+    // Desabilitar cópia
+    document.addEventListener('copy', function (e) {
+      e.clipboardData.setData('text/plain', '');
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar colar
+    document.addEventListener('paste', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar cortar
+    document.addEventListener('cut', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Proteção contra print screen (F12, Print Screen)
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Adicionar classe no-select ao body
+    document.body.classList.add('no-select');
+
+    // Proteção adicional: desabilitar inspeção de elementos
+    document.addEventListener('keydown', function (e) {
+      // Ctrl+Shift+C (inspecionar elemento)
+      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Bloquear acesso ao objeto window.console após um tempo
+    setTimeout(function () {
+      Object.defineProperty(window, 'console', {
+        value: {},
+        writable: false,
+        configurable: false
+      });
+    }, 2000);
+  </script>
+
   <script>
     // Galeria de Fotos - Modal com Navegação
     let currentPhotoIndex = 0;
@@ -858,10 +1097,137 @@
       // Opcional: Atualiza a cada 60 segundos automaticamente
       setInterval(loadOperationalStats, 60000);
     });
+
+    // Sistema de Carregamento
+    (function () {
+      const loadingScreen = document.getElementById('loadingScreen');
+      const progressBar = document.getElementById('loadingProgress');
+      let loadedImages = 0;
+      let totalImages = 0;
+      let resourcesLoaded = false;
+      let imagesLoaded = false;
+
+      // Função para verificar se todas as imagens foram carregadas
+      function checkImagesLoaded() {
+        // Primeira verificação imediata
+        let images = document.querySelectorAll('img:not(.loading-logo)');
+        totalImages = images.length;
+        let loaded = 0;
+
+        if (totalImages === 0) {
+          // Se não houver imagens, aguarda um pouco e considera carregado
+          setTimeout(() => {
+            imagesLoaded = true;
+            checkAllLoaded();
+          }, 1000);
+          return;
+        }
+
+        function processImage(img) {
+          if (img.complete && img.naturalHeight !== 0) {
+            loaded++;
+            updateProgress(20 + (loaded / totalImages) * 50);
+            if (loaded === totalImages) {
+              imagesLoaded = true;
+              checkAllLoaded();
+            }
+          } else {
+            img.addEventListener('load', function () {
+              loaded++;
+              updateProgress(20 + (loaded / totalImages) * 50);
+              if (loaded === totalImages) {
+                imagesLoaded = true;
+                checkAllLoaded();
+              }
+            }, { once: true });
+
+            img.addEventListener('error', function () {
+              loaded++;
+              updateProgress(20 + (loaded / totalImages) * 50);
+              if (loaded === totalImages) {
+                imagesLoaded = true;
+                checkAllLoaded();
+              }
+            }, { once: true });
+          }
+        }
+
+        images.forEach(processImage);
+
+        // Verifica novamente após um tempo para imagens carregadas dinamicamente
+        setTimeout(() => {
+          images = document.querySelectorAll('img:not(.loading-logo)');
+          if (images.length > totalImages) {
+            const newImages = Array.from(images).slice(totalImages);
+            totalImages = images.length;
+            newImages.forEach(processImage);
+          }
+        }, 2000);
+
+        // Timeout de segurança (máximo 8 segundos)
+        setTimeout(() => {
+          if (!imagesLoaded) {
+            imagesLoaded = true;
+            updateProgress(70);
+            checkAllLoaded();
+          }
+        }, 8000);
+      }
+
+      // Função para verificar recursos
+      function checkResourcesLoaded() {
+        // Aguarda o carregamento completo da página
+        if (document.readyState === 'complete') {
+          resourcesLoaded = true;
+          updateProgress(30);
+          checkAllLoaded();
+        } else {
+          window.addEventListener('load', function () {
+            resourcesLoaded = true;
+            updateProgress(30);
+            checkAllLoaded();
+          });
+        }
+      }
+
+      // Função para atualizar a barra de progresso
+      function updateProgress(percent) {
+        if (progressBar) {
+          progressBar.style.width = Math.min(percent, 100) + '%';
+        }
+      }
+
+      // Função para verificar se tudo foi carregado
+      function checkAllLoaded() {
+        if (resourcesLoaded && imagesLoaded) {
+          // Aguarda um pouco mais para garantir que tudo está renderizado
+          setTimeout(() => {
+            updateProgress(100);
+            setTimeout(() => {
+              if (loadingScreen) {
+                loadingScreen.classList.add('hidden');
+                // Remove as classes após carregar
+                document.body.classList.remove('no-select', 'loading');
+                // Permite scroll novamente
+                document.body.style.overflow = '';
+              }
+            }, 500);
+          }, 300);
+        }
+      }
+
+      // Inicia o processo de carregamento
+      updateProgress(10);
+      checkResourcesLoaded();
+
+      // Aguarda um pouco antes de verificar imagens
+      setTimeout(() => {
+        updateProgress(20);
+        checkImagesLoaded();
+      }, 500);
+    })();
   </script>
 
 </body>
-
-</html>
 
 </html>
