@@ -11,61 +11,75 @@ export default async function handler(req, res) {
       `https://discord.com/api/v10/channels/${JORNAL_CH_ID}/messages?limit=10`,
       {
         headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
-      }
+      },
     );
 
     if (!response.ok) throw new Error("Erro ao buscar notícias");
 
     const messages = await response.json();
 
-    // Filtra e processa as mensagens (Parsing Manual do Texto)
     const newsData = messages
       .map((msg) => {
         const content = msg.content;
 
-        // Se a mensagem não tiver o formato padrão (ex: msg de sistema), ignora ou retorna null
+        // Filtro básico: só processa se tiver o emoji do jornal
         if (!content.includes("# 📰")) return null;
 
-        // 1. Extrair Título (Tudo depois de "# 📰 " até a quebra de linha)
+        // 1. Extrair Título
         const titleMatch = content.match(/# 📰 (.*)/);
         const title = titleMatch ? titleMatch[1] : "Manchete Policial";
 
-        // 2. Extrair Autor (ID do usuário na menção)
-        // Formato: > ✍️ *Reportagem por:* <@USER_ID>
+        // 2. Extrair Autor
         const authorMatch = content.match(/> ✍️.*?Reportagem por:.*?<@(\d+)>/);
         let author = "Redação";
-        
-        // Se encontrou o ID, tenta buscar o nome do usuário (opcional, pode manter apenas o ID)
-        if (authorMatch && msg.mentions && msg.mentions.length > 0) {
-          const mentionedUser = msg.mentions[0];
-          author = mentionedUser.username || mentionedUser.global_name || `<@${authorMatch[1]}>`;
-        } else if (authorMatch) {
-          // Se não tiver mencionado, usa apenas o ID formatado
-          author = `<@${authorMatch[1]}>`;
+
+        if (authorMatch) {
+          // Tenta achar o usuário na lista de menções para pegar o nome real
+          const mentioned = msg.mentions.find((u) => u.id === authorMatch[1]);
+          author = mentioned
+            ? mentioned.global_name || mentioned.username
+            : "Repórter";
         }
 
-        // 3. Extrair Imagem (A última linha que parece um link)
-        // Se o Discord gerou anexo (imagem upada), usamos ele. Se não, tentamos achar url no texto.
+        // --- CORREÇÃO PRINCIPAL AQUI ---
+        // 3. Extrair Imagem (Prioridade: Anexo > Embed > Link Externo)
         let image = "https://via.placeholder.com/400x200?text=Sem+Imagem";
 
+        // Caso 1: O usuário fez UPLOAD do arquivo (Anexo)
         if (msg.attachments && msg.attachments.length > 0) {
           image = msg.attachments[0].url;
-        } else {
-          // Pega a última "palavra" da mensagem que começa com http
+        }
+        // Caso 2: O usuário COLOU um link e o Discord gerou um Embed (Isso corrige o erro 403)
+        // A API renova o link dentro de msg.embeds, mas não dentro de msg.content
+        else if (msg.embeds && msg.embeds.length > 0 && msg.embeds[0].image) {
+          image = msg.embeds[0].image.url; // Link fresco gerado pela API
+        } else if (
+          msg.embeds &&
+          msg.embeds.length > 0 &&
+          msg.embeds[0].thumbnail
+        ) {
+          image = msg.embeds[0].thumbnail.url; // Às vezes o Discord joga no thumbnail
+        }
+        // Caso 3: Fallback (Links externos que não geraram embed, ex: imgur antigo)
+        else {
           const urls = content.match(/https?:\/\/\S+/g);
+          // Só usamos o link do texto se NÃO for um link do Discord (cdn.discordapp), pois esses expiram
           if (urls && urls.length > 0) {
-            image = urls[urls.length - 1]; // Assume que a imagem é o último link
+            const lastUrl = urls[urls.length - 1];
+            if (!lastUrl.includes("discordapp")) {
+              image = lastUrl;
+            }
           }
         }
 
-        // 4. Limpar o corpo do texto (Remove titulo, autor, imagem e menções)
+        // 4. Limpar o corpo do texto
         let cleanBody = content
-          .replace(/<@&\d+>/g, "") // Remove menções de roles
-          .replace(/<@\d+>/g, "") // Remove menções de usuários
-          .replace(/# 📰 .*\n?/g, "") // Remove titulo e quebra de linha
-          .replace(/> ✍️.*\n?/g, "") // Remove autor linha
-          .replace(/https?:\/\/\S+/g, "") // Remove URLs (incluindo imagem)
-          .replace(/\n\n+/g, "\n") // Remove quebras de linha duplas
+          .replace(/<@&\d+>/g, "")
+          .replace(/<@\d+>/g, "")
+          .replace(/# 📰 .*\n?/g, "")
+          .replace(/> ✍️.*\n?/g, "")
+          .replace(/https?:\/\/\S+/g, "") // Remove as URLs do texto para ficar limpo
+          .replace(/\n\n+/g, "\n")
           .trim();
 
         return {
@@ -77,7 +91,11 @@ export default async function handler(req, res) {
           author: author,
         };
       })
-      .filter((item) => item !== null); // Remove itens inválidos
+      .filter((item) => item !== null);
+
+    // Cache-Control: Importante para Serverless não bater no limite do Discord
+    // Diz para o Vercel/Navegador: "Pode guardar essa resposta por 60 segundos"
+    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
 
     return res.status(200).json(newsData);
   } catch (error) {
