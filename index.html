@@ -816,6 +816,56 @@
 
   <!-- Proteção contra Inspeção -->
   <script>
+    // Desabilitar clique direito
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar seleção de texto
+    document.addEventListener('selectstart', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar arrastar imagens
+    document.addEventListener('dragstart', function (e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Desabilitar atalhos de teclado comuns
+    document.addEventListener('keydown', function (e) {
+      // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S
+      if (e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'S' || e.key === 'P'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Detectar abertura de DevTools (método mais sutil)
+    let devtools = { open: false };
+    const threshold = 160;
+
+    function detectDevTools() {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+      if (widthThreshold || heightThreshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          // Bloqueia a página
+          document.body.style.display = 'none';
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0e17;color:#fbbf24;font-size:2rem;text-align:center;padding:20px;position:fixed;top:0;left:0;width:100%;z-index:999999;"><div><i class="fa-solid fa-shield-halved" style="font-size:4rem;margin-bottom:20px;"></i><h1>Acesso Negado</h1><p>O uso de ferramentas de desenvolvedor não é permitido.</p><p style="font-size:1rem;margin-top:20px;color:#94a3b8;">Por favor, feche as ferramentas de desenvolvedor e recarregue a página.</p></div></div>';
+        }
+      } else {
+        devtools.open = false;
+      }
+    }
+
+    setInterval(detectDevTools, 500);
     // CÓDIGO DO CLIQUE AQUI EMCIMA
     // Detecção adicional via console
     let element = new Image();
