@@ -805,7 +805,7 @@
             const fontFamily = formData.get("fontFamily") || "normal";
 
             // Envia para a API
-            const response = await fetch("/api/handler?type=publish_news", {
+            const response = await fetch("/api/publish-news", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -851,7 +851,7 @@
       const newsContainer = document.getElementById('latest-news-container');
       if (newsContainer) {
         try {
-          const response = await fetch('/api/handler?type=get_news');
+          const response = await fetch('/api/get-news');
           if (!response.ok) throw new Error("API Offline");
           const news = await response.json();
 

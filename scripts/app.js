@@ -316,7 +316,7 @@ async function handlePoliceAccess(e) {
   Notify.loading("Verificando credenciais...");
 
   try {
-    const response = await fetch("/api/handler?type=check_access", {
+    const response = await fetch("/api/check-access", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: Session.user.id }),
@@ -413,7 +413,7 @@ async function loadNews() {
   if (!grid) return;
 
   try {
-    const req = await fetch("/api/handler?type=get_news");
+    const req = await fetch("/api/get-news");
     if (!req.ok) throw new Error("Falha na API");
 
     const data = await req.json();
@@ -486,7 +486,7 @@ async function handleBOSubmit(e) {
   data.username = Session.user.username;
 
   try {
-    const response = await fetch("/api/handler?type=submit_bo", {
+    const response = await fetch("/api/submit-bo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -512,7 +512,7 @@ async function loadCommanders() {
   if (!container) return;
 
   try {
-    const req = await fetch("/api/handler?type=get_commanders");
+    const req = await fetch("/api/get-commanders");
     const commanders = await req.json();
 
     if (!req.ok || !commanders || commanders.length < 3) {
@@ -576,7 +576,7 @@ async function loadDepartmentLeadership() {
   // Configurações para cada página (ID do container no HTML : Configuração da API)
   const configs = {
     "pcerj-leadership": {
-      api: "/api/handler?type=get_pcerj",
+      api: "/api/get-pcerj",
       roles: [
         {
           title: "Delegado Geral",
@@ -593,7 +593,7 @@ async function loadDepartmentLeadership() {
       ],
     },
     "pmerj-leadership": {
-      api: "/api/handler?type=get_pmerj",
+      api: "/api/get-pmerj",
       roles: [
         { title: "Comandante", desc: "Responsável pelo batalhão." },
         { title: "Subcomandante", desc: "Gestão da tropa e disciplina." },
@@ -601,7 +601,7 @@ async function loadDepartmentLeadership() {
       ],
     },
     "pf-leadership": {
-      api: "/api/handler?type=get_pf",
+      api: "/api/get-pf",
       roles: [
         { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
         { title: "Vice-Diretor", desc: "Gestão administrativa." },
@@ -609,7 +609,7 @@ async function loadDepartmentLeadership() {
       ],
     },
     "prf-leadership": {
-      api: "/api/handler?type=get_prf",
+      api: "/api/get-prf",
       roles: [
         {
           title: "Diretor Geral",

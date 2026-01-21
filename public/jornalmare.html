@@ -448,7 +448,7 @@
       const container = document.getElementById('news-content');
 
       try {
-        const response = await fetch('/api/handler?type=get_news');
+        const response = await fetch('/api/get-news');
 
         if (!response.ok) {
           throw new Error('Erro ao carregar notícias');
