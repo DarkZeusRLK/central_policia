@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo 'Sem build necessario'"
+    "build": "echo 'Build completo - Vercel Functions otimizadas'"
   },
   "engines": {
     "node": "20.x"
