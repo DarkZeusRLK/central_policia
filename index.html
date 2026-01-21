@@ -1072,7 +1072,7 @@
     async function loadOperationalStats() {
       try {
         // Chama a API que criamos
-        const response = await fetch('/api/stats');
+        const response = await fetch('/api/handler?type=stats');
 
         if (response.ok) {
           const data = await response.json();
