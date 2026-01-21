@@ -8,12 +8,11 @@ O projeto estava ultrapassando o limite de 12 Serverless Functions do plano Hobb
 2. **Build script inadequado** no `package.json`
 3. **Falta de configuração** do Vercel para otimização
 
-## Solução Implementada abacate
+## Solução Implementada
 
 ### 1. Limpeza Radical da Pasta `api/`
 
 **Removidos (13 arquivos):**
-
 - ❌ `api/announce-course.js`
 - ❌ `api/check-access.js`
 - ❌ `api/get-commanders.js`
@@ -29,20 +28,17 @@ O projeto estava ultrapassando o limite de 12 Serverless Functions do plano Hobb
 - ❌ `api/submit-recruitment.js`
 
 **Mantidos (2 arquivos):**
-
 - ✅ `api/handler.js` - Handler consolidado com todas as ações
 - ✅ `api/auth.js` - OAuth requer endpoint específico
 
 ### 2. Ajuste do `package.json`
 
 **Antes:**
-
 ```json
 "build": "echo 'Sem build necessario'"
 ```
 
 **Depois:**
-
 ```json
 "build": "echo 'Build completo - Vercel Functions otimizadas'"
 ```
@@ -50,7 +46,6 @@ O projeto estava ultrapassando o limite de 12 Serverless Functions do plano Hobb
 ### 3. Criação do `vercel.json`
 
 Configuração otimizada para:
-
 - Roteamento correto das funções
 - Timeout adequado (30s)
 - Build otimizado
@@ -58,12 +53,10 @@ Configuração otimizada para:
 ## Resultado Final
 
 ### Antes da Correção
-
 - **14 funções serverless** (13 arquivos antigos + handler.js + auth.js)
 - ❌ **Acima do limite de 12**
 
 ### Depois da Correção
-
 - **2 funções serverless** (handler.js + auth.js)
 - ✅ **Bem abaixo do limite de 12**
 
@@ -100,7 +93,6 @@ A rota `/api/auth` continua separada porque OAuth do Discord requer um endpoint 
 ## Verificação no Dashboard Vercel
 
 Após o deploy, verifique em:
-
 - **Settings → Functions**
 - Deve mostrar apenas **2 funções**:
   - `api/handler.js`
