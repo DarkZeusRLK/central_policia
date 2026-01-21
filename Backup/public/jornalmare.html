@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jornal Mare | Central de Polícia</title>
+  <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style/main.css">
+
+  <style>
+    body {
+      padding-top: 90px; /* Espaço para a navbar fixa */
+    }
+
+    .news-header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 3px solid var(--accent-gold);
+      margin-bottom: 40px;
+      margin-top: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .news-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .news-header h1 {
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-weight: 700;
+    }
+
+    .news-header .subtitle {
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      font-style: italic;
+    }
+
+    .news-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .news-article {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      margin: 0 auto 30px auto;
+      max-width: 900px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .news-article:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.2);
+      border-color: var(--accent-gold);
+    }
+
+    .news-article-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .news-stats-section {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .news-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .news-stat-item {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .news-stat-item i {
+      font-size: 2rem;
+      color: var(--accent-gold);
+      margin-bottom: 10px;
+    }
+
+    .news-stat-item h3 {
+      color: white;
+      font-size: 1.5rem;
+      margin: 10px 0;
+    }
+
+    .news-stat-item p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .news-about-section {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .news-about-section h2 {
+      color: var(--accent-gold);
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .news-about-section p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .news-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .news-feature {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 25px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .news-feature i {
+      font-size: 2.5rem;
+      color: var(--accent-gold);
+      margin-bottom: 15px;
+    }
+
+    .news-feature h3 {
+      color: white;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .news-feature p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .news-article-date {
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .news-article-category {
+      background: var(--accent-gold);
+      color: #0f172a;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .news-article-content {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .news-article-title {
+      font-size: 1.8rem;
+      color: white;
+      margin-bottom: 15px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+
+    .news-article-image {
+      width: 100%;
+      max-width: 800px;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 20px auto;
+      display: block;
+    }
+
+    .news-article-text {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      text-align: center;
+      margin: 0 auto 20px auto;
+      max-width: 800px;
+    }
+
+    .news-article-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background: rgba(15, 23, 42, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .news-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .news-author img {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-gold);
+    }
+
+    .news-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      margin: 40px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--accent-gold);
+      opacity: 0.5;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--accent-gold);
+    }
+
+    .loading-state i {
+      font-size: 3rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .news-article {
+        margin: 0 10px 30px 10px;
+      }
+
+      .news-about-section,
+      .news-stats-section {
+        margin: 20px 10px;
+        padding: 20px;
+      }
+
+      .news-features {
+        grid-template-columns: 1fr;
+      }
+
+      .news-stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <img src="../public/images/Logo_policia.png" alt="Logo Revoada">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+
+      <li class="dropdown">
+        <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
+        <div class="dropdown-content">
+          <a href="departamentopcerj.html">
+            <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;"> PCERJ
+          </a>
+          <a href="batalhaopmerj.html">
+            <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;"> PMERJ
+          </a>
+          <a href="departamentoprf.html">
+            <img src="../public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
+          </a>
+          <a href="departamentopf.html">
+            <img src="../public/images/Policia-federal-logo.png" alt="PF" class="nav-icon" style="width: 25px; height: auto;"> PF
+          </a>
+        </div>
+      </li>
+      <li><a href="../index.html#boletim-section" id="nav-bo-link"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
+      <li><a href="jornalmare.html"><i class="fa-solid fa-newspaper"></i> Jornal Mare</a></li>
+
+      <li><a href="https://policia-revoada.vercel.app" target="_blank"><i class="fa-solid fa-gavel"></i> Código Penal</a></li>
+      <li><a href="https://discord.gg/uCBKjAt2vm" target="_blank"><i class="fa-solid fa-scale-balanced"></i> Corregedoria de Polícia</a></li>
+    </ul>
+
+    <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-lock"></i> Acesso Policial
+      </a>
+      <div id="user-area" class="user-area">
+        <button id="btn-login" class="btn-login" onclick="window.location.href='/api/auth'">
+          <i class="fa-brands fa-discord"></i> Login
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="news-header">
+    <h1><i class="fa-solid fa-newspaper"></i> JORNAL MARE</h1>
+    <p class="subtitle">Últimas Notícias da Polícia | Revoada RJ</p>
+  </header>
+
+  <main>
+    <div class="news-container">
+      <!-- Seção Sobre o Jornal -->
+      <div class="news-about-section">
+        <h2><i class="fa-solid fa-newspaper"></i> Sobre o Jornal Mare</h2>
+        <p>
+          O Jornal Mare é a publicação oficial da Central de Polícia de Revoada RJ. 
+          Nossa missão é manter a comunidade informada sobre as operações policiais, 
+          eventos importantes e notícias relevantes da corporação.
+        </p>
+        <p>
+          Publicamos regularmente reportagens sobre operações, recrutamentos, 
+          promoções e demais acontecimentos que fazem parte do dia a dia da polícia.
+        </p>
+        
+        <div class="news-features">
+          <div class="news-feature">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h3>Notícias Oficiais</h3>
+            <p>Informações verificadas e autorizadas pela alta cúpula da polícia</p>
+          </div>
+          <div class="news-feature">
+            <i class="fa-solid fa-clock"></i>
+            <h3>Atualizações Diárias</h3>
+            <p>Conteúdo atualizado regularmente para manter você informado</p>
+          </div>
+          <div class="news-feature">
+            <i class="fa-solid fa-users"></i>
+            <h3>Comunidade</h3>
+            <p>Conectando policiais e cidadãos através da informação</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="news-stats-section">
+        <h2 style="color: var(--accent-gold); font-size: 1.8rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <i class="fa-solid fa-chart-line"></i> Estatísticas do Jornal
+        </h2>
+        <div class="news-stats-grid">
+          <div class="news-stat-item">
+            <i class="fa-solid fa-newspaper"></i>
+            <h3 id="total-news">--</h3>
+            <p>Notícias Publicadas</p>
+          </div>
+          <div class="news-stat-item">
+            <i class="fa-solid fa-user-pen"></i>
+            <h3 id="total-authors">--</h3>
+            <p>Repórteres Ativos</p>
+          </div>
+          <div class="news-stat-item">
+            <i class="fa-solid fa-calendar-days"></i>
+            <h3 id="news-this-month">--</h3>
+            <p>Este Mês</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notícias -->
+      <div id="news-content">
+        <div class="loading-state">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <p>Carregando últimas notícias...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 Jornal Mare - Central de Polícia Revoada RJ. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="../scripts/app.js"></script>
+  <script>
+    async function loadMareNews() {
+      const container = document.getElementById('news-content');
+
+      try {
+        const response = await fetch('/api/get-news');
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar notícias');
+        }
+
+        const news = await response.json();
+
+        if (!news || news.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fa-solid fa-newspaper"></i>
+              <h3 style="color: white; margin-top: 20px;">Nenhuma notícia disponível</h3>
+              <p>As últimas notícias da polícia aparecerão aqui em breve.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+
+        // Atualiza estatísticas
+        document.getElementById('total-news').textContent = news.length;
+        const uniqueAuthors = new Set(news.map(n => n.author || 'Redação'));
+        document.getElementById('total-authors').textContent = uniqueAuthors.size;
+        
+        const now = new Date();
+        const thisMonth = news.filter(n => {
+          try {
+            // Tenta converter a data de diferentes formatos
+            let articleDate;
+            if (n.date) {
+              // Se for string no formato brasileiro (dd/mm/yyyy), converte
+              if (typeof n.date === 'string' && n.date.includes('/')) {
+                const parts = n.date.split('/');
+                if (parts.length === 3) {
+                  articleDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                  articleDate = new Date(n.date);
+                }
+              } else {
+                articleDate = new Date(n.date);
+              }
+            } else {
+              articleDate = new Date();
+            }
+            return articleDate.getMonth() === now.getMonth() && 
+                   articleDate.getFullYear() === now.getFullYear();
+          } catch (e) {
+            return false;
+          }
+        }).length;
+        document.getElementById('news-this-month').textContent = thisMonth;
+
+        news.forEach((article, index) => {
+          let articleDate;
+          try {
+            if (article.date) {
+              // Tenta converter a data de diferentes formatos
+              if (typeof article.date === 'string' && article.date.includes('/')) {
+                const parts = article.date.split('/');
+                if (parts.length === 3) {
+                  articleDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                  articleDate = new Date(article.date);
+                }
+              } else {
+                articleDate = new Date(article.date);
+              }
+            } else {
+              articleDate = new Date();
+            }
+          } catch (e) {
+            articleDate = new Date();
+          }
+          
+          const formattedDate = articleDate.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          const articleHTML = `
+            <article class="news-article">
+              <div class="news-article-header">
+                <div class="news-article-date">
+                  <i class="fa-regular fa-calendar"></i>
+                  ${formattedDate}
+                </div>
+                <div class="news-article-category">
+                  <i class="fa-solid fa-bullhorn"></i> Notícia Oficial
+                </div>
+              </div>
+              
+              <div class="news-article-content">
+                <h2 class="news-article-title">${article.title}</h2>
+                
+                ${article.image ? `
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                ` : ''}
+                
+                <div class="news-article-text">
+                  ${article.summary || article.content || 'Conteúdo não disponível.'}
+                </div>
+              </div>
+              
+              <div class="news-article-footer">
+                <div class="news-author">
+                  <i class="fa-solid fa-user-shield"></i>
+                  <span>Por: ${article.author || 'Redação Jornal Mare'}</span>
+                </div>
+                <div style="color: #64748b; font-size: 0.85rem;">
+                  <i class="fa-solid fa-eye"></i> Notícia Oficial
+                </div>
+              </div>
+            </article>
+          `;
+
+          container.innerHTML += articleHTML;
+
+          if (index < news.length - 1) {
+            container.innerHTML += '<div class="news-divider"></div>';
+          }
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar notícias:', error);
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <h3 style="color: white; margin-top: 20px;">Erro ao carregar notícias</h3>
+            <p>Não foi possível conectar ao servidor. Tente novamente mais tarde.</p>
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMareNews();
+
+      // Atualiza a cada 5 minutos
+      setInterval(loadMareNews, 300000);
+    });
+  </script>
+
+</body>
+
+</html>

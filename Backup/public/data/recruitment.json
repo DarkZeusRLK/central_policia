@@ -1,0 +1,30 @@
+{
+  "pcerj": {
+    "name": "Polícia Civil (PCERJ)",
+    "logo": "public/images/pcerj_logo.png",
+    "description": "Responsável pela investigação penal e inteligência.",
+    "uniform": "public/images/pcerj_uniform.png",
+    "studyMaterial": "https://docs.google.com/document/d/EXAMPLE"
+  },
+  "pmerj": {
+    "name": "Polícia Militar (PMERJ)",
+    "logo": "public/images/pmerj_logo.png",
+    "description": "Policiamento ostensivo e preservação da ordem pública.",
+    "uniform": "public/images/pmerj_uniform.png",
+    "studyMaterial": "#"
+  },
+  "prf": {
+    "name": "Polícia Rodoviária Federal",
+    "logo": "public/images/prf_logo.png",
+    "description": "Fiscalização e patrulhamento das rodovias.",
+    "uniform": "public/images/prf_uniform.png",
+    "studyMaterial": "#"
+  },
+  "pf": {
+    "name": "Polícia Federal",
+    "logo": "public/images/pf_logo.png",
+    "description": "Crimes federais e operações especiais.",
+    "uniform": "public/images/pf_uniform.png",
+    "studyMaterial": "#"
+  }
+}
