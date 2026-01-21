@@ -23,6 +23,22 @@ export default function Sidebar() {
     }
   }, []);
 
+  // Não mostrar Sidebar na home pública
+  useEffect(() => {
+    if (pathname === "/") {
+      document.body.classList.remove("with-sidebar");
+    } else {
+      document.body.classList.add("with-sidebar");
+    }
+    return () => {
+      document.body.classList.remove("with-sidebar");
+    };
+  }, [pathname]);
+
+  if (pathname === "/") {
+    return null;
+  }
+
   const isActive = (path: string) => {
     return pathname === path;
   };
@@ -42,8 +58,8 @@ export default function Sidebar() {
       <ul className="sidebar-menu">
         <li>
           <Link
-            href="/"
-            className={isActive("/") ? "active" : ""}
+            href="/dashboard"
+            className={isActive("/dashboard") ? "active" : ""}
           >
             <i className="fa-solid fa-gauge-high"></i> Painel Operacional
           </Link>

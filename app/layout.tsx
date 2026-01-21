@@ -26,7 +26,7 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
       </head>
-      <body className={inter.className} style={{ display: "flex", minHeight: "100vh", backgroundColor: "#0f172a", overflowX: "hidden", margin: 0 }}>
+      <body className={inter.className} style={{ minHeight: "100vh", backgroundColor: "#0f172a", overflowX: "hidden", margin: 0 }}>
         <Sidebar />
         {children}
       </body>
