@@ -5,6 +5,7 @@
 Para resolver o limite de 12 funções serverless da Vercel, consolidamos todas as APIs em uma única rota: `/api/handler.js`.
 
 ### Antes (14 funções serverless)
+
 - `/api/submit-bo.js`
 - `/api/publish-news.js`
 - `/api/get-news.js`
@@ -18,9 +19,10 @@ Para resolver o limite de 12 funções serverless da Vercel, consolidamos todas 
 - `/api/announce-course.js`
 - `/api/submit-course.js`
 - `/api/submit-recruitment.js`
-- `/api/auth.js` (mantido separado - OAuth requer endpoint específico)
+- `/api/auth.js` (mantido separado - OAuth requer endpoint específico) abacate
 
 ### Depois (2 funções serverless)
+
 - `/api/handler.js` - Handler consolidado com todas as ações
 - `/api/auth.js` - Mantido separado (OAuth)
 
@@ -28,58 +30,62 @@ Para resolver o limite de 12 funções serverless da Vercel, consolidamos todas 
 
 Todas as rotas antigas agora usam o parâmetro `?type=...`:
 
-| Rota Antiga | Nova Rota |
-|------------|-----------|
-| `/api/submit-bo` | `/api/handler?type=submit_bo` |
-| `/api/publish-news` | `/api/handler?type=publish_news` |
-| `/api/get-news` | `/api/handler?type=get_news` |
-| `/api/check-access` | `/api/handler?type=check_access` |
-| `/api/get-commanders` | `/api/handler?type=get_commanders` |
-| `/api/get-pcerj` | `/api/handler?type=get_pcerj` |
-| `/api/get-pmerj` | `/api/handler?type=get_pmerj` |
-| `/api/get-pf` | `/api/handler?type=get_pf` |
-| `/api/get-prf` | `/api/handler?type=get_prf` |
-| `/api/stats` | `/api/handler?type=stats` |
-| `/api/announce-course` | `/api/handler?type=announce_course` |
-| `/api/submit-course` | `/api/handler?type=submit_course` |
+| Rota Antiga               | Nova Rota                              |
+| ------------------------- | -------------------------------------- |
+| `/api/submit-bo`          | `/api/handler?type=submit_bo`          |
+| `/api/publish-news`       | `/api/handler?type=publish_news`       |
+| `/api/get-news`           | `/api/handler?type=get_news`           |
+| `/api/check-access`       | `/api/handler?type=check_access`       |
+| `/api/get-commanders`     | `/api/handler?type=get_commanders`     |
+| `/api/get-pcerj`          | `/api/handler?type=get_pcerj`          |
+| `/api/get-pmerj`          | `/api/handler?type=get_pmerj`          |
+| `/api/get-pf`             | `/api/handler?type=get_pf`             |
+| `/api/get-prf`            | `/api/handler?type=get_prf`            |
+| `/api/stats`              | `/api/handler?type=stats`              |
+| `/api/announce-course`    | `/api/handler?type=announce_course`    |
+| `/api/submit-course`      | `/api/handler?type=submit_course`      |
 | `/api/submit-recruitment` | `/api/handler?type=submit_recruitment` |
 
 ## Arquivos Atualizados
 
 ### Frontend
+
 - ✅ `scripts/app.js` - Todas as chamadas atualizadas
 - ✅ `public/central_policial.html` - Chamadas atualizadas
 - ✅ `public/jornalmare.html` - Chamadas atualizadas
 - ✅ `index.html` - Chamadas atualizadas
 
 ### Backend
+
 - ✅ `api/handler.js` - Handler consolidado criado
 - ⚠️ Arquivos antigos podem ser removidos após confirmação de funcionamento
 
 ## Como Testar
 
 1. **Teste de Rotas GET:**
+
    ```javascript
    // Antes
-   fetch('/api/get-news')
-   
+   fetch("/api/get-news");
+
    // Depois
-   fetch('/api/handler?type=get_news')
+   fetch("/api/handler?type=get_news");
    ```
 
 2. **Teste de Rotas POST:**
+
    ```javascript
    // Antes
-   fetch('/api/submit-bo', {
-     method: 'POST',
-     body: JSON.stringify(data)
-   })
-   
+   fetch("/api/submit-bo", {
+     method: "POST",
+     body: JSON.stringify(data),
+   });
+
    // Depois
-   fetch('/api/handler?type=submit_bo', {
-     method: 'POST',
-     body: JSON.stringify(data)
-   })
+   fetch("/api/handler?type=submit_bo", {
+     method: "POST",
+     body: JSON.stringify(data),
+   });
    ```
 
 ## Remoção de Arquivos Antigos (Após Testes)
