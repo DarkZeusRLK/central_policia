@@ -1,8 +1,10 @@
 // api/course-manager.js
 export default async function handler(req, res) {
+  // Pegamos as variáveis. Note que agora tentamos ler GUILD_ID ou DISCORD_GUILD_ID
+  const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+  const GUILD_ID = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID;
+
   const {
-    DISCORD_BOT_TOKEN,
-    DISCORD_GUILD_ID, // Necessário adicionar no .env para buscar membros
     // Canais Genéricos
     CHANNEL_CURSOS_ANUNCIADOS,
     MATRIZ_CURSOS_FINALIZADOS,
@@ -27,40 +29,53 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { action } = req.query;
 
-    // Ação 1: Retorna apenas a configuração de permissão (Leve e rápido)
+    // Ação 1: Configuração simples
     if (action === "config" || !action) {
       return res.status(200).json({
         instrutorRoleId: INSTRUTORES_ROLE_ID,
       });
     }
 
-    // Ação 2: Busca a lista completa de membros e cursos do Discord
+    // Ação 2: Busca dados do Discord
     if (action === "discord-data") {
-      if (!DISCORD_BOT_TOKEN || !DISCORD_GUILD_ID) {
+      // Debug: Mostra no log da Vercel o que está faltando (sem mostrar o token real por segurança)
+      if (!DISCORD_BOT_TOKEN)
+        console.error("ERRO: DISCORD_BOT_TOKEN não encontrado no .env");
+      if (!GUILD_ID)
+        console.error(
+          "ERRO: GUILD_ID ou DISCORD_GUILD_ID não encontrado no .env",
+        );
+
+      if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
         return res.status(500).json({
-          error: "Configuração de servidor (DISCORD_GUILD_ID) ausente.",
+          error:
+            "Configuração de servidor (Token ou ID) ausente. Verifique o console da Vercel.",
         });
       }
 
       try {
         const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
 
-        // Busca Cargos e Membros em paralelo
+        // Busca Cargos e Membros em paralelo usando a variável GUILD_ID unificada
         const [rolesRes, membersRes] = await Promise.all([
+          fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/roles`, {
+            headers,
+          }),
           fetch(
-            `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/roles`,
-            {
-              headers,
-            },
-          ),
-          fetch(
-            `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members?limit=1000`,
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
             { headers },
           ),
         ]);
 
-        if (!rolesRes.ok || !membersRes.ok) {
-          throw new Error("Erro ao comunicar com o Discord API");
+        if (!rolesRes.ok) {
+          const err = await rolesRes.text();
+          throw new Error(`Erro ao buscar cargos: ${rolesRes.status} - ${err}`);
+        }
+        if (!membersRes.ok) {
+          const err = await membersRes.text();
+          throw new Error(
+            `Erro ao buscar membros: ${membersRes.status} - ${err}`,
+          );
         }
 
         const roles = await rolesRes.json();
@@ -94,10 +109,10 @@ export default async function handler(req, res) {
           membros: membrosFormatados,
         });
       } catch (error) {
-        console.error(error);
+        console.error("ERRO DETALHADO:", error);
         return res
           .status(500)
-          .json({ error: "Falha ao buscar dados do Discord." });
+          .json({ error: "Falha ao buscar dados do Discord. Verifique Logs." });
       }
     }
   }
@@ -122,24 +137,17 @@ export default async function handler(req, res) {
 
     // --- LÓGICA DE DECISÃO DE CANAL ---
 
-    // Caso 1: ANÚNCIO
     if (data.type === "anuncio") {
       targetChannelId = CHANNEL_CURSOS_ANUNCIADOS;
       title = "📢 Anúncio de Curso";
       embedColor = 3447003; // Azul
       contentMessage = `Atenção: ${mencaoMatriz}`;
-    }
-
-    // Caso 2: CÓPIA PARA MATRIZ
-    else if (data.type === "matriz_copy") {
+    } else if (data.type === "matriz_copy") {
       targetChannelId = MATRIZ_CURSOS_FINALIZADOS;
       title = "📑 Cópia Oficial - Curso Finalizado";
       embedColor = 15105570; // Laranja
       contentMessage = `Cópia enviada por <@${data.authorId}>`;
-    }
-
-    // Caso 3: RELATÓRIO FINAL (Lógica Automática por Facção)
-    else if (data.type === "final") {
+    } else if (data.type === "final") {
       title = "📑 Relatório de Curso Finalizado";
       embedColor = 5763719; // Verde escuro
       contentMessage = `Relatório enviado por <@${data.authorId}>\nEnvolvidos: ${mencaoMatriz}`;
