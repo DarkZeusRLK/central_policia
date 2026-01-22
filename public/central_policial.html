@@ -1005,6 +1005,7 @@
    ========================================================================== */
 
     // 1. Verifica se o usuário é instrutor ao carregar
+    // ATUALIZADO: Suporte para múltiplos cargos de instrutor
     async function checkInstrutorPermission(user) {
       if (!user || !user.roles) return;
 
@@ -1012,8 +1013,14 @@
         const res = await fetch('/api/course-manager');
         const config = await res.json();
 
+        // Verifica se a configuração existe
         if (config.instrutorRoleId) {
-          const isInstrutor = user.roles.some(r => String(r) === String(config.instrutorRoleId));
+          // 1. Transforma a string "id1,id2,id3" em um Array ["id1", "id2", "id3"]
+          // O .split(',') quebra na vírgula e o .trim() remove espaços se houver
+          const allowedRoles = String(config.instrutorRoleId).split(',').map(id => id.trim());
+
+          // 2. Verifica se o usuário tem ALGUM (some) dos cargos permitidos
+          const isInstrutor = user.roles.some(userRole => allowedRoles.includes(String(userRole)));
 
           if (isInstrutor) {
             document.getElementById('tab-instrutor').classList.remove('hidden');
@@ -1055,12 +1062,17 @@
 
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
+
+      // --- ATUALIZAÇÃO IMPORTANTE ---
       data.type = type;
+
+      // Pegamos o usuário do LocalStorage
       const user = JSON.parse(localStorage.getItem("revoada_user"));
+
       data.authorId = user.id;
+      data.userRoles = user.roles; // <--- ENVIAMOS OS CARGOS AQUI PARA O BACKEND DECIDIR O CANAL
 
       try {
-        // MUDANÇA AQUI: Chama o course-manager via POST
         const res = await fetch('/api/course-manager', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1068,13 +1080,15 @@
         });
 
         if (res.ok) {
-          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Curso anunciado com sucesso!");
+          Notify.success(type === 'final' ? "Relatório enviado para a sua facção!" : "Curso anunciado!");
           form.reset();
         } else {
-          throw new Error("Erro no servidor");
+          // Se o backend retornar erro (ex: usuário sem facção), mostramos o alerta
+          const errData = await res.json();
+          throw new Error(errData.error || "Erro no servidor");
         }
       } catch (err) {
-        Notify.error("Erro ao enviar. Verifique o console.");
+        Notify.error(err.message); // Mostra a mensagem de erro específica
         console.error(err);
       } finally {
         btn.disabled = false;

@@ -2,29 +2,35 @@
 export default async function handler(req, res) {
   const {
     DISCORD_BOT_TOKEN,
-    CHANNEL_CURSOS_FINALIZADOS,
+    // Canais Genéricos
     CHANNEL_CURSOS_ANUNCIADOS,
-    MATRIZ_CURSOS_FINALIZADOS,
-    MATRIZES_ROLE_ID,
-    INSTRUTORES_ROLE_ID, // ID que o frontend precisa ler
+    MATRIZ_CURSOS_FINALIZADOS, // Canal genérico de matriz (cópia)
+
+    // Configurações de Cargos e Canais Específicos
+    ROLE_ID_PCERJ,
+    CH_PCERJ_FINALIZADOS,
+    ROLE_ID_PMERJ,
+    CH_PMERJ_FINALIZADOS,
+    ROLE_ID_PRF,
+    CH_PRF_FINALIZADOS,
+    ROLE_ID_PF,
+    CH_PF_FINALIZADOS,
+
+    MATRIZES_ROLE_ID, // Para menção no texto
+    INSTRUTORES_ROLE_ID,
   } = process.env;
 
-  // ======================================================
-  // MODO 1: GET (Serve para o site ler o ID do cargo)
-  // ======================================================
+  // GET: Retorna configuração para o Frontend
   if (req.method === "GET") {
     return res.status(200).json({
       instrutorRoleId: INSTRUTORES_ROLE_ID,
     });
   }
 
-  // ======================================================
-  // MODO 2: POST (Serve para enviar o relatório/anúncio)
-  // ======================================================
+  // POST: Envio do Relatório
   if (req.method === "POST") {
     const data = req.body;
 
-    // Decide para qual canal enviar baseado no tipo
     let targetChannelId = "";
     let embedColor = 0;
     let title = "";
@@ -37,24 +43,63 @@ export default async function handler(req, res) {
       ? `<@&${MATRIZES_ROLE_ID}>`
       : "@Matriz";
 
-    if (data.type === "final") {
-      targetChannelId = CHANNEL_CURSOS_FINALIZADOS;
-      title = "📑 Relatório de Curso Finalizado";
-      embedColor = 5763719; // Verde escuro
-      contentMessage = `Relatório enviado por <@${data.authorId}>\nEnvolvidos: ${mencaoMatriz}`;
-    } else if (data.type === "anuncio") {
+    // --- LÓGICA DE DECISÃO DE CANAL ---
+
+    // Caso 1: ANÚNCIO (Vai para o canal geral de anúncios)
+    if (data.type === "anuncio") {
       targetChannelId = CHANNEL_CURSOS_ANUNCIADOS;
       title = "📢 Anúncio de Curso";
       embedColor = 3447003; // Azul
       contentMessage = `Atenção: ${mencaoMatriz}`;
-    } else if (data.type === "matriz_copy") {
-      targetChannelId = MATRIZ_CURSOS_FINALIZADOS;
-      title = "📑 Cópia para Matriz - Curso Finalizado";
-      embedColor = 15105570; // Laranja
-      contentMessage = `Cópia oficial enviada por <@${data.authorId}>`;
     }
 
-    // Montagem dos Campos do Embed
+    // Caso 2: CÓPIA PARA MATRIZ (Botão específico)
+    else if (data.type === "matriz_copy") {
+      targetChannelId = MATRIZ_CURSOS_FINALIZADOS;
+      title = "📑 Cópia Oficial - Curso Finalizado";
+      embedColor = 15105570; // Laranja
+      contentMessage = `Cópia enviada por <@${data.authorId}>`;
+    }
+
+    // Caso 3: RELATÓRIO FINAL (Lógica Automática por Facção)
+    else if (data.type === "final") {
+      title = "📑 Relatório de Curso Finalizado";
+      embedColor = 5763719; // Verde escuro
+      contentMessage = `Relatório enviado por <@${data.authorId}>\nEnvolvidos: ${mencaoMatriz}`;
+
+      // AQUI ESTÁ A MÁGICA: Verifica os cargos do usuário para escolher o canal
+      const userRoles = data.userRoles || []; // Recebe os cargos do frontend
+
+      if (userRoles.includes(ROLE_ID_PCERJ)) {
+        targetChannelId = CH_PCERJ_FINALIZADOS;
+        title += " (PCERJ)";
+      } else if (userRoles.includes(ROLE_ID_PMERJ)) {
+        targetChannelId = CH_PMERJ_FINALIZADOS;
+        title += " (PMERJ)";
+      } else if (userRoles.includes(ROLE_ID_PRF)) {
+        targetChannelId = CH_PRF_FINALIZADOS;
+        title += " (PRF)";
+      } else if (userRoles.includes(ROLE_ID_PF)) {
+        targetChannelId = CH_PF_FINALIZADOS;
+        title += " (PF)";
+      } else {
+        // Fallback: Se o cara não tiver cargo de nenhuma facção, manda pro canal de anúncios ou log de erro
+        // Ou você pode definir um canal "Geral" de finalizados
+        console.warn("Usuário sem facção definida tentou enviar relatório.");
+        return res.status(400).json({
+          error: "Sua facção não foi identificada pelos seus cargos.",
+        });
+      }
+    }
+
+    // Se não definiu canal (erro de config), para tudo
+    if (!targetChannelId) {
+      return res
+        .status(500)
+        .json({ error: "Canal de destino não configurado no servidor." });
+    }
+
+    // --- MONTAGEM DO EMBED (Igual ao anterior) ---
     let fields = [];
     fields.push({
       name: "📚 Curso",
@@ -161,6 +206,5 @@ export default async function handler(req, res) {
     }
   }
 
-  // Se não for nem GET nem POST
   return res.status(405).json({ error: "Method Not Allowed" });
 }
