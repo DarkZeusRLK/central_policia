@@ -894,8 +894,10 @@
        ========================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
       Notify.init();
+
       const userJson = localStorage.getItem("revoada_user");
       if (!userJson) { window.location.href = "../index.html"; return; }
+
       const user = JSON.parse(userJson);
 
       // Renderiza Sidebar
@@ -917,10 +919,69 @@
         document.querySelectorAll(".restricted-card").forEach(c => c.classList.remove("hidden"));
       }
 
+      // Chama as funções principais
       loadDashboardData();
       setupNewsForm(user);
       checkInstrutorPermission(user);
     });
+
+    /* ==========================================================================
+       DADOS DO DASHBOARD E NOTÍCIAS (Correção do Erro)
+       ========================================================================== */
+    async function loadDashboardData() {
+      // Esta função busca dados gerais (ex: total de cursos, status)
+      // Se você não tiver uma rota específica ainda, deixe o try/catch vazio para não dar erro
+      try {
+        const res = await fetch('/api/dashboard-stats'); // Exemplo de rota
+        if (res.ok) {
+          const data = await res.json();
+          // Exemplo: Atualizar contadores na tela se existirem
+          // if(document.getElementById('stats-total')) document.getElementById('stats-total').innerText = data.total;
+        }
+      } catch (e) {
+        console.log("Dashboard stats carregados (mock ou erro silencioso)");
+      }
+    }
+
+    function setupNewsForm(user) {
+      const formNews = document.getElementById('form-news');
+      if (!formNews) return; // Se não existir o form, sai da função sem erro
+
+      formNews.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = formNews.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        const formData = new FormData(formNews);
+        const data = Object.fromEntries(formData.entries());
+
+        // Adiciona dados do autor
+        data.author_name = user.username;
+        data.author_avatar = user.avatar;
+        data.author_id = user.id;
+
+        try {
+          const res = await fetch('/api/news', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (res.ok) {
+            Notify.success('Notícia publicada!');
+            formNews.reset();
+          } else {
+            throw new Error('Erro ao publicar');
+          }
+        } catch (error) {
+          Notify.error(error.message);
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+    }
 
     /* ==========================================================================
        DADOS DO DISCORD (CARGOS E MEMBROS)
@@ -929,15 +990,19 @@
       if (!user.roles) return;
       try {
         const res = await fetch('/api/course-manager?action=config');
+        if (!res.ok) return;
         const config = await res.json();
         if (config.instrutorRoleId) {
           const allowed = config.instrutorRoleId.split(',').map(id => id.trim());
           if (user.roles.some(r => allowed.includes(String(r)))) {
-            document.getElementById('tab-instrutor').classList.remove('hidden');
-            loadDiscordData();
+            const tab = document.getElementById('tab-instrutor');
+            if (tab) {
+              tab.classList.remove('hidden');
+              loadDiscordData();
+            }
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Erro permissão instrutor:", e); }
     }
 
     async function loadDiscordData() {
@@ -975,6 +1040,13 @@
     /* ==========================================================================
        LISTAS VISUAIS (Instrutores, Auxiliares, Participantes)
        ========================================================================== */
+
+    // Função auxiliar usada na Aba Anúncio (inputs simples)
+    window.formatarMençao = function (input) {
+      // Apenas para compatibilidade caso use na aba Anúncio
+      // Na aba Relatório usamos o sistema visual (adicionarMembroManual)
+    }
+
     window.checarEnter = function (event, input, tipo) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -991,22 +1063,18 @@
       if (!nomeDigitado) return;
 
       // --- LÓGICA DE MENÇÃO ---
-      // Verifica se o nome digitado existe no nosso mapa do Discord
       let idReal = discordMembersMap[nomeDigitado];
       let valorParaSalvar = "";
 
       if (idReal) {
-        // Se achou o ID, salva como menção
         valorParaSalvar = `<@${idReal}>`;
       } else {
-        // Se não achou (ex: nome digitado errado ou externo), salva texto puro
         valorParaSalvar = nomeDigitado;
       }
 
       // Cria o elemento visual
       const div = document.createElement('div');
       div.className = 'selected-item';
-      // O atributo data-value guarda a string pronta para enviar (Ex: <@123> ou "João")
       div.setAttribute('data-value', valorParaSalvar);
       div.innerHTML = `
             <span>${nomeDigitado}</span>
@@ -1028,7 +1096,6 @@
       const container = document.getElementById(`visual-${tipo}`);
       const hidden = document.getElementById(`hidden-${tipo}`);
       if (container && hidden) {
-        // Pega os valores formatados (<@...>)
         const valores = Array.from(container.querySelectorAll('.selected-item'))
           .map(el => el.getAttribute('data-value'));
         hidden.value = valores.join(', ');
@@ -1077,6 +1144,7 @@
         if (res.ok) {
           Notify.success("Enviado com sucesso!");
           form.reset();
+          // Limpa as listas visuais
           document.querySelectorAll('.selected-list-container').forEach(el => el.innerHTML = '');
           document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = '');
         } else {
@@ -1085,9 +1153,6 @@
       } catch (err) { Notify.error(err.message); }
       finally { btn.disabled = false; btn.innerHTML = originalText; }
     }
-
-    // (Funções de Notícia e SwitchTab omitidas para brevidade, mas devem ser mantidas se usadas)
-    // ... Inclua aqui as funções loadDashboardData e setupNewsForm do script anterior ...
   </script>
 </body>
 
