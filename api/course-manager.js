@@ -16,7 +16,16 @@ export default async function handler(req, res) {
     CH_PF_FINALIZADOS,
     MATRIZES_ROLE_ID,
     INSTRUTORES_ROLE_ID,
+    CURSO_BASICO_ID,
+    CURSO_COMP_ID,
+    CURSO_ACOES_ID,
   } = process.env;
+
+  const parseIdList = (value) =>
+    (value || "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
 
   // --- MODO GET: Buscar Dados (Mantido igual) ---
   if (req.method === "GET") {
@@ -47,6 +56,17 @@ export default async function handler(req, res) {
         const roles = await rolesRes.json();
         const members = await membersRes.json();
 
+        const basicoIds = new Set(parseIdList(CURSO_BASICO_ID));
+        const complementarIds = new Set(parseIdList(CURSO_COMP_ID));
+        const acoesIds = new Set(parseIdList(CURSO_ACOES_ID));
+
+        const resolveTipoCurso = (id) => {
+          if (basicoIds.has(id)) return "basico";
+          if (complementarIds.has(id)) return "complementar";
+          if (acoesIds.has(id)) return "acoes";
+          return null;
+        };
+
         // Filtra Cursos
         const cursosFormatados = roles
           .filter((r) => {
@@ -67,7 +87,7 @@ export default async function handler(req, res) {
               nome.includes("habilitacao")
             );
           })
-          .map((r) => ({ id: r.id, name: r.name }))
+          .map((r) => ({ id: r.id, name: r.name, tipo: resolveTipoCurso(r.id) }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
         // Filtra Membros e envia ID para o front fazer a menção

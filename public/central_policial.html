@@ -633,25 +633,46 @@
       </div>
     </section>
     <section id="sec-instrutor" class="dash-section hidden">
+
+      <!-- CABEÇALHO -->
       <div style="margin-bottom: 20px;">
         <h1 style="color: white; font-size: 1.5rem; margin-bottom: 5px;">
           <i class="fa-solid fa-chalkboard-user"></i> Gestão de Cursos
         </h1>
-        <p style="color: #94a3b8; font-size: 0.9rem;">Ferramenta exclusiva para instrutores e comando.</p>
+        <p style="color: #94a3b8; font-size: 0.9rem;">
+          Ferramenta exclusiva para instrutores e comando.
+        </p>
       </div>
 
+      <!-- FILTRO DE TIPO DE CURSO (NOVO) -->
+      <div class="form-group" style="margin-bottom: 20px; max-width: 350px;">
+        <label style="color: #cbd5e1; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+          Tipo de Curso
+        </label>
+        <select id="filtro-tipo-curso" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;">
+          <option value="basico">Cursos Básicos</option>
+          <option value="complementar">Cursos Complementares</option>
+          <option value="acoes">Cursos de Ações</option>
+        </select>
+      </div>
+
+      <!-- DATALIST DISCORD -->
       <datalist id="lista-membros-discord"></datalist>
 
+      <!-- BOTÕES DE TABS -->
       <div style="display: flex; gap: 10px; margin-bottom: 25px;">
         <button onclick="toggleInstrutorTab('relatorio')" class="btn-primary" style="background: var(--accent-gold); color: #0f172a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1;">
           <i class="fa-solid fa-file-signature"></i> Relatório Final
         </button>
+
         <button onclick="toggleInstrutorTab('anuncio')" class="btn-primary" style="background: #334155; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1;">
           <i class="fa-solid fa-bullhorn"></i> Anunciar Curso
         </button>
       </div>
 
+      <!-- RELATÓRIO -->
       <div id="instrutor-relatorio" class="glass-panel" style="max-width: 100%;">
+
         <h3 style="color: var(--accent-gold); margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
           Emitir Relatório de Curso Finalizado
         </h3>
@@ -659,7 +680,9 @@
         <form id="form-curso-final" onsubmit="handleCourseSubmit(event, 'final')">
 
           <div class="form-group" style="margin-bottom: 15px;">
-            <label style="color: #cbd5e1; font-size: 0.85rem; display: block; margin-bottom: 5px;">Curso Ministrado</label>
+            <label style="color: #cbd5e1; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+              Curso Ministrado
+            </label>
             <select name="curso_nome" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" required>
               <option value="" disabled selected>Carregando lista de cursos...</option>
             </select>
@@ -667,14 +690,19 @@
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div class="form-group">
-              <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">Início</label>
+              <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+                Início
+              </label>
               <div style="display: flex; gap: 5px;">
                 <input type="date" name="data_inicio" class="form-dark-input" style="background: #1e293b; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; flex: 2;" required>
                 <input type="time" name="hora_inicio" class="form-dark-input" style="background: #1e293b; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; flex: 1;" required>
               </div>
             </div>
+
             <div class="form-group">
-              <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">Fim</label>
+              <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+                Fim
+              </label>
               <div style="display: flex; gap: 5px;">
                 <input type="date" name="data_fim" class="form-dark-input" style="background: #1e293b; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; flex: 2;" required>
                 <input type="time" name="hora_fim" class="form-dark-input" style="background: #1e293b; border: 1px solid #334155; color: white; padding: 8px; border-radius: 6px; flex: 1;" required>
@@ -682,10 +710,13 @@
             </div>
           </div>
 
+          <!-- INSTRUTORES -->
           <div class="form-group" style="margin-bottom: 15px;">
-            <label style="color: #60a5fa; font-size: 0.85rem; margin-bottom: 5px; display: block;">Instrutores Responsáveis</label>
+            <label style="color: #60a5fa; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+              Instrutores Responsáveis
+            </label>
             <div style="display: flex; gap: 5px;">
-              <input type="text" id="input-instrutores" list="lista-membros-discord" class="form-dark-input" placeholder="Digite o nome..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, this, 'instrutores')">
+              <input type="text" id="input-instrutores" list="lista-membros-discord" class="form-dark-input" placeholder="Digite o nome..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, 'instrutores')">
               <button type="button" onclick="adicionarMembroManual('instrutores')" style="background: #3b82f6; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
                 <i class="fa-solid fa-plus"></i>
               </button>
@@ -694,10 +725,13 @@
             <input type="hidden" name="instrutores" id="hidden-instrutores">
           </div>
 
+          <!-- AUXILIARES -->
           <div class="form-group" style="margin-bottom: 15px;">
-            <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; display: block;">Auxiliares (Opcional)</label>
+            <label style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+              Auxiliares (Opcional)
+            </label>
             <div style="display: flex; gap: 5px;">
-              <input type="text" id="input-auxiliares" list="lista-membros-discord" class="form-dark-input" placeholder="Digite o nome..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, this, 'auxiliares')">
+              <input type="text" id="input-auxiliares" list="lista-membros-discord" class="form-dark-input" placeholder="Digite o nome..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, 'auxiliares')">
               <button type="button" onclick="adicionarMembroManual('auxiliares')" style="background: #475569; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
                 <i class="fa-solid fa-plus"></i>
               </button>
@@ -706,23 +740,14 @@
             <input type="hidden" name="auxiliares" id="hidden-auxiliares">
           </div>
 
-          <div class="form-group" style="margin-bottom: 15px;">
-            <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">Todos os Participantes</label>
-            <div style="display: flex; gap: 5px;">
-              <input type="text" id="input-participantes" list="lista-membros-discord" class="form-dark-input" placeholder="Pesquise o membro..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, this, 'participantes')">
-              <button type="button" onclick="adicionarMembroManual('participantes')" style="background: #334155; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
-                <i class="fa-solid fa-plus"></i>
-              </button>
-            </div>
-            <div id="visual-participantes" class="selected-list-container"></div>
-            <input type="hidden" name="participantes" id="hidden-participantes">
-          </div>
-
+          <!-- APROVADOS / REPROVADOS -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div>
-              <label style="color: #4ade80; font-size: 0.85rem; margin-bottom: 5px; display: block;">✅ Aprovados</label>
+              <label style="color: #4ade80; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+                ✅ Aprovados
+              </label>
               <div style="display: flex; gap: 5px;">
-                <input type="text" id="input-aprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, this, 'aprovados')">
+                <input type="text" id="input-aprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, 'aprovados')">
                 <button type="button" onclick="adicionarMembroManual('aprovados')" style="background: #15803d; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -732,9 +757,11 @@
             </div>
 
             <div>
-              <label style="color: #f87171; font-size: 0.85rem; margin-bottom: 5px; display: block;">❌ Reprovados</label>
+              <label style="color: #f87171; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+                ❌ Reprovados
+              </label>
               <div style="display: flex; gap: 5px;">
-                <input type="text" id="input-reprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, this, 'reprovados')">
+                <input type="text" id="input-reprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, 'reprovados')">
                 <button type="button" onclick="adicionarMembroManual('reprovados')" style="background: #b91c1c; color: white; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -744,21 +771,33 @@
             </div>
           </div>
 
+          <!-- OBS -->
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">Observações</label>
-            <textarea name="obs" class="form-dark-input" rows="3" placeholder="Ocorrências relevantes..." style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; resize: vertical;"></textarea>
-            <small style="color: #64748b; font-size: 0.75rem;">*As Matrizes serão notificadas automaticamente no canal geral.</small>
+            <label style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 5px; display: block;">
+              Observações
+            </label>
+            <textarea name="obs" rows="3" class="form-dark-input" placeholder="Ocorrências relevantes..." style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; resize: vertical;"></textarea>
+            <small style="color: #64748b; font-size: 0.75rem;">
+              *As Matrizes serão notificadas automaticamente no canal geral.
+            </small>
           </div>
 
-          <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background: var(--accent-gold); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+          <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background: var(--accent-gold); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
             <i class="fa-solid fa-paper-plane"></i> ENVIAR RELATÓRIO
           </button>
+
         </form>
       </div>
 
+      <!-- ANÚNCIO -->
       <div id="instrutor-anuncio" class="glass-panel hidden" style="max-width: 800px;">
-        <h3 style="color: white; margin-bottom: 15px;">Anunciar Novo Curso</h3>
+
+        <h3 style="color: white; margin-bottom: 15px;">
+          Anunciar Novo Curso
+        </h3>
+
         <form id="form-curso-anuncio" onsubmit="handleCourseSubmit(event, 'anuncio')">
+
           <div class="form-grid" style="display: grid; gap: 15px;">
 
             <div class="form-group">
@@ -791,16 +830,20 @@
 
             <div class="form-group">
               <label style="color: #cbd5e1;">Link da Call (Discord)</label>
-              <input type="url" name="call_link" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" placeholder="https://discord.com/channels/..." value="https://discord.com/channels/1052430488205283449/1340166824461078619">
+              <input type="url" name="call_link" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" placeholder="https://discord.com/channels/...">
             </div>
+
           </div>
 
           <button type="submit" class="btn-primary" style="margin-top: 20px; width: 100%; padding: 12px; background: #3b82f6; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
             <i class="fa-solid fa-bullhorn"></i> Publicar Anúncio
           </button>
+
         </form>
       </div>
+
     </section>
+
     <section id="sec-jornalistas" class="dash-section hidden">
       <h1 style="color: white;"><i class="fa-solid fa-newspaper"></i> Sala de Imprensa</h1>
       <p style="color: #94a3b8;">Área exclusiva para redação e mídia.</p>
@@ -851,36 +894,30 @@
        ========================================================================== */
     const ALLOWED_ROLE_IDS = ["1053687224320933888", "1447060519726088212"];
     let discordMembersMap = {};
+    let allCursos = [];
 
     /* ==========================================================================
-       NAVEGAÇÃO (SWITCH TAB) - CORRIGIDA
+       NAVEGAÇÃO (SWITCH TAB)
        ========================================================================== */
     window.switchTab = function (sectionName, element) {
-      // 1. Esconde todas as seções
-      document.querySelectorAll('.dash-section').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll(".dash-section").forEach(sec => sec.classList.add("hidden"));
 
-      // 2. Mostra a seção desejada (Adiciona o prefixo 'sec-' automaticamente)
-      const targetId = 'sec-' + sectionName;
-      const target = document.getElementById(targetId);
+      const target = document.getElementById("sec-" + sectionName);
+      if (target) target.classList.remove("hidden");
+      else console.error("Seção não encontrada:", sectionName);
 
-      if (target) {
-        target.classList.remove('hidden');
-      } else {
-        console.error(`Erro: Seção '${targetId}' não encontrada.`);
-      }
-
-      // 3. Atualiza classe 'active' no menu lateral
       if (element) {
-        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-        element.classList.add('active');
+        document.querySelectorAll(".sidebar-menu a").forEach(a => a.classList.remove("active"));
+        element.classList.add("active");
       }
-    }
+    };
 
     /* ==========================================================================
        NOTIFICAÇÕES (TOAST)
        ========================================================================== */
     const Notify = {
       container: null,
+
       init() {
         if (!document.querySelector(".notification-container")) {
           this.container = document.createElement("div");
@@ -890,275 +927,328 @@
           this.container = document.querySelector(".notification-container");
         }
       },
+
       show(message, type = "info") {
         if (!this.container) this.init();
+
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
 
-        // Ícones baseados no tipo
         let icon = "fa-info-circle";
         if (type === "success") icon = "fa-check-circle";
         if (type === "error") icon = "fa-exclamation-triangle";
         if (type === "loading") icon = "fa-spinner fa-spin";
 
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
         this.container.appendChild(toast);
 
         if (type !== "loading") {
           setTimeout(() => {
-            toast.style.animation = "slideIn 0.3s reverse forwards";
+            toast.style.animation = "slideIn .3s reverse forwards";
             setTimeout(() => toast.remove(), 300);
           }, 4000);
         }
       },
+
       success(msg) { this.show(msg, "success"); },
       error(msg) { this.show(msg, "error"); },
-      loading(msg) { this.show(msg, "loading"); },
+      loading(msg) { this.show(msg, "loading"); }
     };
 
     /* ==========================================================================
-       INICIALIZAÇÃO DO SISTEMA
+       INICIALIZAÇÃO
        ========================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
       Notify.init();
 
       const userJson = localStorage.getItem("revoada_user");
-      if (!userJson) { window.location.href = "../index.html"; return; }
+      if (!userJson) {
+        window.location.href = "../index.html";
+        return;
+      }
 
       const user = JSON.parse(userJson);
 
-      // Renderiza Perfil na Sidebar
-      const sidebarUser = document.getElementById("sidebar-user");
-      if (sidebarUser) {
-        sidebarUser.innerHTML = `
-            <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" style="width: 40px; height: 40px; border-radius: 50%;">
-            <div>
-                <div style="font-weight: bold; font-size: 0.9rem;">${user.username}</div>
-                <div style="font-size: 0.75rem; color: #64748b;">Online</div>
-            </div>`;
-      }
+      renderSidebarUser(user);
+      checkSpecialPermissions(user);
+      loadDashboardData();
+      setupNewsForm(user);
+      checkInstrutorPermission(user);
+      setupCourseFilter();
+    });
 
-      // Verifica Permissões Especiais
+    /* ==========================================================================
+       SIDEBAR / PERMISSÕES
+       ========================================================================== */
+    function renderSidebarUser(user) {
+      const sidebarUser = document.getElementById("sidebar-user");
+      if (!sidebarUser) return;
+
+      sidebarUser.innerHTML = `
+    <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
+         style="width:40px;height:40px;border-radius:50%;">
+    <div>
+      <div style="font-weight:bold;font-size:.9rem;">${user.username}</div>
+      <div style="font-size:.75rem;color:#64748b;">Online</div>
+    </div>
+  `;
+    }
+
+    function checkSpecialPermissions(user) {
       if (localStorage.getItem("revoada_is_journalist") === "true") {
         document.getElementById("tab-jornalista")?.classList.remove("hidden");
       }
 
-      // Permissão para cursos restritos
       if (user.roles && user.roles.some(r => ALLOWED_ROLE_IDS.includes(String(r)))) {
         document.querySelectorAll(".restricted-card").forEach(c => {
           c.classList.remove("hidden");
-          c.style.display = "flex"; // Garante que o display:flex volte
+          c.style.display = "flex";
         });
       }
-
-      // Inicializa Módulos
-      loadDashboardData();
-      setupNewsForm(user);
-      checkInstrutorPermission(user);
-    });
+    }
 
     /* ==========================================================================
-       DADOS DO DASHBOARD
+       DASHBOARD
        ========================================================================== */
     async function loadDashboardData() {
-      // Placeholder para carregar dados iniciais sem gerar erro 404
       console.log("Dashboard inicializado.");
     }
 
+    /* ==========================================================================
+       FORMULÁRIO DE NOTÍCIAS
+       ========================================================================== */
     function setupNewsForm(user) {
-      const formNews = document.getElementById('form-news');
+      const formNews = document.getElementById("form-news");
       if (!formNews) return;
 
-      formNews.addEventListener('submit', async (e) => {
+      formNews.addEventListener("submit", async e => {
         e.preventDefault();
-        const btn = formNews.querySelector('button');
+
+        const btn = formNews.querySelector("button");
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+
         btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
-        const formData = new FormData(formNews);
-        const data = Object.fromEntries(formData.entries());
-
+        const data = Object.fromEntries(new FormData(formNews).entries());
         data.author_name = user.username;
         data.author_avatar = user.avatar;
         data.author_id = user.id;
 
         try {
-          // Ajuste a URL aqui para o seu endpoint de notícias real
-          const res = await fetch('/api/news', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const res = await fetch("/api/news", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
           });
 
           if (res.ok) {
-            Notify.success('Notícia publicada com sucesso!');
+            Notify.success("Notícia publicada com sucesso!");
             formNews.reset();
           } else {
-            // Em caso de teste sem backend de noticia configurado:
-            console.warn("API de notícias não respondeu, simulando sucesso.");
-            Notify.success('Notícia enviada (Simulação)');
+            Notify.success("Notícia enviada (Simulação)");
             formNews.reset();
           }
-        } catch (error) {
-          Notify.error("Erro de conexão ao publicar notícia.");
-          console.error(error);
+        } catch (err) {
+          Notify.error("Erro ao publicar notícia.");
+          console.error(err);
         } finally {
-          btn.innerHTML = originalText;
           btn.disabled = false;
+          btn.innerHTML = originalText;
         }
       });
     }
 
     /* ==========================================================================
-       GESTÃO DE CURSOS (INTEGRAÇÃO DISCORD)
+       PERMISSÃO DE INSTRUTOR
        ========================================================================== */
     async function checkInstrutorPermission(user) {
       if (!user.roles) return;
-      try {
-        const res = await fetch('/api/course-manager?action=config');
-        if (!res.ok) return;
-        const config = await res.json();
 
-        if (config.instrutorRoleId) {
-          const allowed = config.instrutorRoleId.split(',').map(id => id.trim());
-          // Verifica se tem algum cargo permitido
-          if (user.roles.some(r => allowed.includes(String(r)))) {
-            const tab = document.getElementById('tab-instrutor');
-            if (tab) {
-              tab.classList.remove('hidden');
-              loadDiscordData(); // Carrega dados apenas se for instrutor
-            }
+      try {
+        const res = await fetch("/api/course-manager?action=config");
+        if (!res.ok) return;
+
+        const config = await res.json();
+        if (!config.instrutorRoleId) return;
+
+        const allowed = config.instrutorRoleId.split(",").map(id => id.trim());
+        if (user.roles.some(r => allowed.includes(String(r)))) {
+          const tab = document.getElementById("tab-instrutor");
+          if (tab) {
+            tab.classList.remove("hidden");
+            loadDiscordData();
           }
         }
-      } catch (e) { console.error("Erro ao verificar permissão de instrutor:", e); }
-    }
-
-    async function loadDiscordData() {
-      try {
-        const res = await fetch('/api/course-manager?action=discord-data');
-        if (!res.ok) throw new Error("Erro API Discord");
-        const data = await res.json();
-
-        // 1. Popula Select de Cursos
-        const selects = document.querySelectorAll('select[name="curso_nome"]');
-        selects.forEach(sel => {
-          sel.innerHTML = '<option value="" disabled selected>Selecione o Curso...</option>';
-          data.cursos.forEach(c => {
-            sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-          });
-        });
-
-        // 2. Popula Datalist de Membros
-        const datalist = document.getElementById('lista-membros-discord');
-        discordMembersMap = {};
-
-        if (datalist) {
-          datalist.innerHTML = '';
-          data.membros.forEach(m => {
-            // Mapa: Nome Visual -> ID Real
-            discordMembersMap[m.name] = m.id;
-
-            const option = document.createElement('option');
-            option.value = m.name; // O que aparece na lista
-            datalist.appendChild(option);
-          });
-        }
-      } catch (e) { console.error("Falha ao carregar dados do Discord:", e); }
+      } catch (e) {
+        console.error("Erro ao verificar permissão de instrutor:", e);
+      }
     }
 
     /* ==========================================================================
-       INTERAÇÃO VISUAL (Listas de Membros)
+       DADOS DO DISCORD
        ========================================================================== */
+    async function loadDiscordData() {
+      try {
+        const res = await fetch("/api/course-manager?action=discord-data");
+        if (!res.ok) throw new Error("Erro API Discord");
 
-    // Função placeholder para inputs simples (caso usada na aba Anúncio)
-    window.formatarMençao = function (input) { }
+        const data = await res.json();
 
-    // Adicionar com Enter
-    window.checarEnter = function (event, input, tipo) {
+        allCursos = Array.isArray(data.cursos) ? data.cursos : [];
+        renderCursosPorTipo(getTipoCursoSelecionado());
+
+        const datalist = document.getElementById("lista-membros-discord");
+        discordMembersMap = {};
+
+        if (datalist) {
+          datalist.innerHTML = "";
+          data.membros.forEach(m => {
+            discordMembersMap[m.name] = m.id;
+            const opt = document.createElement("option");
+            opt.value = m.name;
+            datalist.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error("Falha ao carregar dados do Discord:", e);
+      }
+    }
+
+    function setupCourseFilter() {
+      const filtro = document.getElementById("filtro-tipo-curso");
+      if (!filtro) return;
+
+      filtro.addEventListener("change", () => {
+        if (!allCursos.length) return;
+        renderCursosPorTipo(filtro.value);
+      });
+    }
+
+    function getTipoCursoSelecionado() {
+      const filtro = document.getElementById("filtro-tipo-curso");
+      return filtro ? filtro.value : "basico";
+    }
+
+    function renderCursosPorTipo(tipo) {
+      const selects = document.querySelectorAll('select[name="curso_nome"]');
+      if (!selects.length) return;
+
+      const cursosFiltrados = allCursos.filter(curso => !curso.tipo || curso.tipo === tipo);
+      const placeholderTexto = cursosFiltrados.length
+        ? "Selecione o Curso..."
+        : "Nenhum curso neste filtro";
+
+      selects.forEach(sel => {
+        sel.innerHTML = "";
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.textContent = placeholderTexto;
+        sel.appendChild(placeholder);
+
+        cursosFiltrados.forEach(curso => {
+          const opt = document.createElement("option");
+          opt.value = curso.id;
+          opt.textContent = curso.name;
+          sel.appendChild(opt);
+        });
+      });
+    }
+
+    /* ==========================================================================
+       INTERAÇÃO VISUAL (LISTAS)
+       ========================================================================== */
+    window.formatarMençao = function () { };
+
+    window.checarEnter = function (event, tipo) {
       if (event.key === "Enter") {
         event.preventDefault();
         adicionarMembroManual(tipo);
       }
-    }
+    };
 
-    // Adicionar Membro na Lista Visual
     window.adicionarMembroManual = function (tipo) {
       const input = document.getElementById(`input-${tipo}`);
       const container = document.getElementById(`visual-${tipo}`);
       if (!input || !container) return;
 
-      let nomeDigitado = input.value.trim();
-      if (!nomeDigitado) return;
+      const nome = input.value.trim();
+      if (!nome) return;
 
-      // Converte Nome -> ID (<@...>) se existir no mapa
-      let idReal = discordMembersMap[nomeDigitado];
-      let valorParaSalvar = idReal ? `<@${idReal}>` : nomeDigitado;
+      const idReal = discordMembersMap[nome];
+      const valor = idReal ? `<@${idReal}>` : nome;
 
-      // Cria elemento visual (Card)
-      const div = document.createElement('div');
-      div.className = 'selected-item';
-      div.setAttribute('data-value', valorParaSalvar);
+      const div = document.createElement("div");
+      div.className = "selected-item";
+      div.dataset.value = valor;
+
       div.innerHTML = `
-            <span>${nomeDigitado}</span>
-            <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        `;
+    <span>${nome}</span>
+    <button type="button" class="btn-remove-item"
+            onclick="removerItem(this,'${tipo}')">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  `;
 
       container.appendChild(div);
       atualizarHiddenInput(tipo);
-      input.value = '';
+
+      input.value = "";
       input.focus();
-    }
+    };
 
-    // Remover Item
     window.removerItem = function (btn, tipo) {
-      btn.closest('.selected-item').remove();
+      btn.closest(".selected-item")?.remove();
       atualizarHiddenInput(tipo);
-    }
+    };
 
-    // Atualiza o Input Oculto (que vai pro Backend)
     function atualizarHiddenInput(tipo) {
       const container = document.getElementById(`visual-${tipo}`);
       const hidden = document.getElementById(`hidden-${tipo}`);
-      if (container && hidden) {
-        const valores = Array.from(container.querySelectorAll('.selected-item'))
-          .map(el => el.getAttribute('data-value'));
-        hidden.value = valores.join(', ');
-      }
+      if (!container || !hidden) return;
+
+      const valores = Array.from(container.querySelectorAll(".selected-item"))
+        .map(el => el.dataset.value);
+
+      hidden.value = valores.join(", ");
     }
 
     /* ==========================================================================
-       ENVIO DOS FORMULÁRIOS
+       TABS INSTRUTOR
        ========================================================================== */
     window.toggleInstrutorTab = function (t) {
-      const relatorio = document.getElementById('instrutor-relatorio');
-      const anuncio = document.getElementById('instrutor-anuncio');
+      const relatorio = document.getElementById("instrutor-relatorio");
+      const anuncio = document.getElementById("instrutor-anuncio");
 
-      if (t === 'relatorio') {
-        relatorio.classList.remove('hidden');
-        anuncio.classList.add('hidden');
+      if (t === "relatorio") {
+        relatorio.classList.remove("hidden");
+        anuncio.classList.add("hidden");
       } else {
-        relatorio.classList.add('hidden');
-        anuncio.classList.remove('hidden');
+        relatorio.classList.add("hidden");
+        anuncio.classList.remove("hidden");
       }
-    }
+    };
 
+    /* ==========================================================================
+       ENVIO DE CURSO / ANÚNCIO
+       ========================================================================== */
     window.handleCourseSubmit = async function (e, type) {
       e.preventDefault();
-      if (!confirm("Confirma o envio das informações?")) return;
+
+      Notify.loading("Processando envio...");
 
       const form = e.target;
       const btn = form.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
+
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+      const data = Object.fromEntries(new FormData(form).entries());
 
-      // Pega o nome do curso (texto) além do ID (valor)
       const cursoSelect = form.querySelector('select[name="curso_nome"]');
       if (cursoSelect && cursoSelect.selectedIndex >= 0) {
         data.curso_id = cursoSelect.value;
@@ -1166,27 +1256,29 @@
       }
 
       data.type = type;
+
       const user = JSON.parse(localStorage.getItem("revoada_user"));
       data.authorId = user.id;
       data.userRoles = user.roles;
 
       try {
-        const res = await fetch('/api/course-manager', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/course-manager", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
         });
 
         if (res.ok) {
-          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Anúncio publicado!");
-          form.reset();
+          Notify.success(type === "final"
+            ? "Relatório enviado com sucesso!"
+            : "Anúncio publicado!");
 
-          // Limpa as listas visuais e inputs ocultos
-          document.querySelectorAll('.selected-list-container').forEach(el => el.innerHTML = '');
-          document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = '');
+          form.reset();
+          document.querySelectorAll(".selected-list-container").forEach(el => el.innerHTML = "");
+          document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = "");
         } else {
-          const errData = await res.json();
-          throw new Error(errData.error || "Erro desconhecido no servidor");
+          const err = await res.json();
+          throw new Error(err.error || "Erro desconhecido");
         }
       } catch (err) {
         Notify.error(err.message);
@@ -1195,7 +1287,7 @@
         btn.disabled = false;
         btn.innerHTML = originalText;
       }
-    }
+    };
   </script>
 </body>
 
