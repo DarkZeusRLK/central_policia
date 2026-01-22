@@ -2,7 +2,7 @@
 export default async function handler(req, res) {
   const {
     DISCORD_BOT_TOKEN,
-    GUILD_ID, // Necessário adicionar no .env para buscar membros
+    DISCORD_GUILD_ID, // Necessário adicionar no .env para buscar membros
     // Canais Genéricos
     CHANNEL_CURSOS_ANUNCIADOS,
     MATRIZ_CURSOS_FINALIZADOS,
