@@ -850,28 +850,29 @@
        CONFIGURAÇÕES E ESTADO GLOBAL
        ========================================================================== */
     const ALLOWED_ROLE_IDS = ["1053687224320933888", "1447060519726088212"];
-
-    // Mapa para converter Nome -> ID para menções corretas
     let discordMembersMap = {};
 
     /* ==========================================================================
-       NAVEGAÇÃO (SWITCH TAB) - CORRIGIDO
+       NAVEGAÇÃO (SWITCH TAB) - CORRIGIDA
        ========================================================================== */
-    window.switchTab = function (sectionId) {
+    window.switchTab = function (sectionName, element) {
       // 1. Esconde todas as seções
       document.querySelectorAll('.dash-section').forEach(el => el.classList.add('hidden'));
 
-      // 2. Mostra a seção desejada
-      const target = document.getElementById(sectionId);
-      if (target) target.classList.remove('hidden');
+      // 2. Mostra a seção desejada (Adiciona o prefixo 'sec-' automaticamente)
+      const targetId = 'sec-' + sectionName;
+      const target = document.getElementById(targetId);
 
-      // 3. Atualiza classe 'active' no menu lateral (visual)
-      document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+      if (target) {
+        target.classList.remove('hidden');
+      } else {
+        console.error(`Erro: Seção '${targetId}' não encontrada.`);
+      }
 
-      // Tenta achar o link que foi clicado baseado no ID da seção
-      const activeLink = document.querySelector(`.sidebar a[onclick="switchTab('${sectionId}')"]`);
-      if (activeLink && activeLink.parentElement) {
-        activeLink.parentElement.classList.add('active');
+      // 3. Atualiza classe 'active' no menu lateral
+      if (element) {
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+        element.classList.add('active');
       }
     }
 
@@ -893,11 +894,16 @@
         if (!this.container) this.init();
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
-        let icon = type === "success" ? "fa-check-circle" : type === "error" ? "fa-exclamation-triangle" : "fa-info-circle";
+
+        // Ícones baseados no tipo
+        let icon = "fa-info-circle";
+        if (type === "success") icon = "fa-check-circle";
+        if (type === "error") icon = "fa-exclamation-triangle";
         if (type === "loading") icon = "fa-spinner fa-spin";
 
         toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
         this.container.appendChild(toast);
+
         if (type !== "loading") {
           setTimeout(() => {
             toast.style.animation = "slideIn 0.3s reverse forwards";
@@ -911,7 +917,7 @@
     };
 
     /* ==========================================================================
-       INICIALIZAÇÃO
+       INICIALIZAÇÃO DO SISTEMA
        ========================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
       Notify.init();
@@ -921,7 +927,7 @@
 
       const user = JSON.parse(userJson);
 
-      // Renderiza Sidebar
+      // Renderiza Perfil na Sidebar
       const sidebarUser = document.getElementById("sidebar-user");
       if (sidebarUser) {
         sidebarUser.innerHTML = `
@@ -932,15 +938,20 @@
             </div>`;
       }
 
-      // Permissões
+      // Verifica Permissões Especiais
       if (localStorage.getItem("revoada_is_journalist") === "true") {
         document.getElementById("tab-jornalista")?.classList.remove("hidden");
       }
+
+      // Permissão para cursos restritos
       if (user.roles && user.roles.some(r => ALLOWED_ROLE_IDS.includes(String(r)))) {
-        document.querySelectorAll(".restricted-card").forEach(c => c.classList.remove("hidden"));
+        document.querySelectorAll(".restricted-card").forEach(c => {
+          c.classList.remove("hidden");
+          c.style.display = "flex"; // Garante que o display:flex volte
+        });
       }
 
-      // Inicializa funções
+      // Inicializa Módulos
       loadDashboardData();
       setupNewsForm(user);
       checkInstrutorPermission(user);
@@ -950,8 +961,7 @@
        DADOS DO DASHBOARD
        ========================================================================== */
     async function loadDashboardData() {
-      // CORREÇÃO: Removi o fetch que causava 404. 
-      // Aqui você pode colocar lógica para atualizar contadores se tiver API no futuro.
+      // Placeholder para carregar dados iniciais sem gerar erro 404
       console.log("Dashboard inicializado.");
     }
 
@@ -963,7 +973,7 @@
         e.preventDefault();
         const btn = formNews.querySelector('button');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
         btn.disabled = true;
 
         const formData = new FormData(formNews);
@@ -974,21 +984,25 @@
         data.author_id = user.id;
 
         try {
+          // Ajuste a URL aqui para o seu endpoint de notícias real
           const res = await fetch('/api/news', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
           });
+
           if (res.ok) {
-            Notify.success('Notícia publicada!');
+            Notify.success('Notícia publicada com sucesso!');
             formNews.reset();
           } else {
-            // throw new Error('Erro ao publicar'); 
-            // Se nao tiver API de news ainda, apenas avisa:
-            Notify.success('Simulação: Notícia enviada (API pendente)');
+            // Em caso de teste sem backend de noticia configurado:
+            console.warn("API de notícias não respondeu, simulando sucesso.");
+            Notify.success('Notícia enviada (Simulação)');
+            formNews.reset();
           }
         } catch (error) {
-          Notify.error(error.message);
+          Notify.error("Erro de conexão ao publicar notícia.");
+          console.error(error);
         } finally {
           btn.innerHTML = originalText;
           btn.disabled = false;
@@ -997,7 +1011,7 @@
     }
 
     /* ==========================================================================
-       GESTÃO DE CURSOS (API DISCORD)
+       GESTÃO DE CURSOS (INTEGRAÇÃO DISCORD)
        ========================================================================== */
     async function checkInstrutorPermission(user) {
       if (!user.roles) return;
@@ -1005,17 +1019,19 @@
         const res = await fetch('/api/course-manager?action=config');
         if (!res.ok) return;
         const config = await res.json();
+
         if (config.instrutorRoleId) {
           const allowed = config.instrutorRoleId.split(',').map(id => id.trim());
+          // Verifica se tem algum cargo permitido
           if (user.roles.some(r => allowed.includes(String(r)))) {
             const tab = document.getElementById('tab-instrutor');
             if (tab) {
               tab.classList.remove('hidden');
-              loadDiscordData();
+              loadDiscordData(); // Carrega dados apenas se for instrutor
             }
           }
         }
-      } catch (e) { console.error("Erro permissão instrutor:", e); }
+      } catch (e) { console.error("Erro ao verificar permissão de instrutor:", e); }
     }
 
     async function loadDiscordData() {
@@ -1025,7 +1041,8 @@
         const data = await res.json();
 
         // 1. Popula Select de Cursos
-        document.querySelectorAll('select[name="curso_nome"]').forEach(sel => {
+        const selects = document.querySelectorAll('select[name="curso_nome"]');
+        selects.forEach(sel => {
           sel.innerHTML = '<option value="" disabled selected>Selecione o Curso...</option>';
           data.cursos.forEach(c => {
             sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
@@ -1039,22 +1056,25 @@
         if (datalist) {
           datalist.innerHTML = '';
           data.membros.forEach(m => {
+            // Mapa: Nome Visual -> ID Real
             discordMembersMap[m.name] = m.id;
+
             const option = document.createElement('option');
-            option.value = m.name;
+            option.value = m.name; // O que aparece na lista
             datalist.appendChild(option);
           });
         }
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Falha ao carregar dados do Discord:", e); }
     }
 
     /* ==========================================================================
-       LISTAS VISUAIS (Adicionar/Remover membros)
+       INTERAÇÃO VISUAL (Listas de Membros)
        ========================================================================== */
-    window.formatarMençao = function (input) {
-      // Função placeholder caso usada em inputs simples
-    }
 
+    // Função placeholder para inputs simples (caso usada na aba Anúncio)
+    window.formatarMençao = function (input) { }
+
+    // Adicionar com Enter
     window.checarEnter = function (event, input, tipo) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -1062,6 +1082,7 @@
       }
     }
 
+    // Adicionar Membro na Lista Visual
     window.adicionarMembroManual = function (tipo) {
       const input = document.getElementById(`input-${tipo}`);
       const container = document.getElementById(`visual-${tipo}`);
@@ -1070,17 +1091,19 @@
       let nomeDigitado = input.value.trim();
       if (!nomeDigitado) return;
 
-      // Lógica de Menção: Converte Nome -> <@ID>
+      // Converte Nome -> ID (<@...>) se existir no mapa
       let idReal = discordMembersMap[nomeDigitado];
       let valorParaSalvar = idReal ? `<@${idReal}>` : nomeDigitado;
 
-      // Cria elemento visual
+      // Cria elemento visual (Card)
       const div = document.createElement('div');
       div.className = 'selected-item';
       div.setAttribute('data-value', valorParaSalvar);
       div.innerHTML = `
             <span>${nomeDigitado}</span>
-            <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')">
+                <i class="fa-solid fa-trash"></i>
+            </button>
         `;
 
       container.appendChild(div);
@@ -1089,11 +1112,13 @@
       input.focus();
     }
 
+    // Remover Item
     window.removerItem = function (btn, tipo) {
       btn.closest('.selected-item').remove();
       atualizarHiddenInput(tipo);
     }
 
+    // Atualiza o Input Oculto (que vai pro Backend)
     function atualizarHiddenInput(tipo) {
       const container = document.getElementById(`visual-${tipo}`);
       const hidden = document.getElementById(`hidden-${tipo}`);
@@ -1105,27 +1130,35 @@
     }
 
     /* ==========================================================================
-       SUBMISSÃO DE FORMULÁRIOS
+       ENVIO DOS FORMULÁRIOS
        ========================================================================== */
     window.toggleInstrutorTab = function (t) {
-      document.getElementById('instrutor-relatorio').classList.toggle('hidden', t !== 'relatorio');
-      document.getElementById('instrutor-anuncio').classList.toggle('hidden', t !== 'anuncio');
+      const relatorio = document.getElementById('instrutor-relatorio');
+      const anuncio = document.getElementById('instrutor-anuncio');
+
+      if (t === 'relatorio') {
+        relatorio.classList.remove('hidden');
+        anuncio.classList.add('hidden');
+      } else {
+        relatorio.classList.add('hidden');
+        anuncio.classList.remove('hidden');
+      }
     }
 
     window.handleCourseSubmit = async function (e, type) {
       e.preventDefault();
-      if (!confirm("Confirma o envio?")) return;
+      if (!confirm("Confirma o envio das informações?")) return;
 
       const form = e.target;
       const btn = form.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      // Pega texto do select de curso
+      // Pega o nome do curso (texto) além do ID (valor)
       const cursoSelect = form.querySelector('select[name="curso_nome"]');
       if (cursoSelect && cursoSelect.selectedIndex >= 0) {
         data.curso_id = cursoSelect.value;
@@ -1145,17 +1178,23 @@
         });
 
         if (res.ok) {
-          Notify.success("Enviado com sucesso!");
+          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Anúncio publicado!");
           form.reset();
-          // Limpa listas visuais
+
+          // Limpa as listas visuais e inputs ocultos
           document.querySelectorAll('.selected-list-container').forEach(el => el.innerHTML = '');
           document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = '');
         } else {
           const errData = await res.json();
-          throw new Error(errData.error || "Erro desconhecido");
+          throw new Error(errData.error || "Erro desconhecido no servidor");
         }
-      } catch (err) { Notify.error(err.message); }
-      finally { btn.disabled = false; btn.innerHTML = originalText; }
+      } catch (err) {
+        Notify.error(err.message);
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
     }
   </script>
 </body>
