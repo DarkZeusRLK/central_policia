@@ -36,10 +36,10 @@ export default async function handler(req, res) {
 
     // Ação 2: Busca a lista completa de membros e cursos do Discord
     if (action === "discord-data") {
-      if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
-        return res
-          .status(500)
-          .json({ error: "Configuração de servidor (GUILD_ID) ausente." });
+      if (!DISCORD_BOT_TOKEN || !DISCORD_GUILD_ID) {
+        return res.status(500).json({
+          error: "Configuração de servidor (DISCORD_GUILD_ID) ausente.",
+        });
       }
 
       try {
@@ -47,11 +47,14 @@ export default async function handler(req, res) {
 
         // Busca Cargos e Membros em paralelo
         const [rolesRes, membersRes] = await Promise.all([
-          fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/roles`, {
-            headers,
-          }),
           fetch(
-            `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
+            `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/roles`,
+            {
+              headers,
+            },
+          ),
+          fetch(
+            `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members?limit=1000`,
             { headers },
           ),
         ]);

@@ -418,6 +418,65 @@
       object-fit: contain;
       filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
     }
+
+    /* Estilo da Lista de Selecionados (Igual Código Penal) */
+    .selected-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .selected-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.7);
+      /* Cor escura translúcida */
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      transition: all 0.2s ease;
+    }
+
+    .selected-item:hover {
+      border-color: var(--accent-gold);
+      background: rgba(30, 41, 59, 1);
+    }
+
+    .selected-item span {
+      font-weight: 500;
+    }
+
+    .btn-remove-item {
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      /* Vermelho */
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 5px;
+      transition: color 0.2s;
+    }
+
+    .btn-remove-item:hover {
+      color: #ff6b6b;
+    }
+
+    /* Scrollbar fina para a lista */
+    .selected-list-container::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .selected-list-container::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 3px;
+    }
   </style>
 </head>
 
@@ -612,25 +671,36 @@
             </div>
 
             <div class="input-group full-width">
-              <label style="color: #cbd5e1;">Participantes (Lista Geral)</label>
-              <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Pesquise o nome e dê Enter..." onchange="adicionarAbaixo(this, 'area-participantes')">
+              <label style="color: #cbd5e1;">Participantes</label>
+              <div style="display:flex; gap: 5px;">
+                <input type="text" id="input-participantes" list="lista-membros-discord" class="form-dark-input" placeholder="Pesquise o membro..." onkeydown="checarEnter(event, this, 'participantes')">
+                <button type="button" onclick="adicionarMembroManual('participantes')" class="btn-primary" style="padding: 0 15px; background: #334155;"><i class="fa-solid fa-plus"></i></button>
               </div>
-              <textarea name="participantes" id="area-participantes" class="form-dark-input" rows="3" required readonly style="background:#0f172a; color:#94a3b8; font-size:0.85rem;" placeholder="A lista aparecerá aqui..."></textarea>
+
+              <div id="visual-participantes" class="selected-list-container"></div>
+
+              <input type="hidden" name="participantes" id="hidden-participantes">
             </div>
 
             <div class="input-group">
-              <label style="color: #10b981;">Aprovados</label>
-              <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onchange="adicionarAbaixo(this, 'area-aprovados')">
-              <textarea name="aprovados" id="area-aprovados" class="form-dark-input" rows="3" readonly style="margin-top:5px; background:#0f172a; color:#94a3b8; font-size:0.85rem;"></textarea>
+              <label style="color: #10b981;">✅ Aprovados</label>
+              <div style="display:flex; gap: 5px;">
+                <input type="text" id="input-aprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onkeydown="checarEnter(event, this, 'aprovados')">
+                <button type="button" onclick="adicionarMembroManual('aprovados')" class="btn-primary" style="padding: 0 10px; background: #334155;"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <div id="visual-aprovados" class="selected-list-container"></div>
+              <input type="hidden" name="aprovados" id="hidden-aprovados">
             </div>
 
             <div class="input-group">
-              <label style="color: #ef4444;">Reprovados</label>
-              <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onchange="adicionarAbaixo(this, 'area-reprovados')">
-              <textarea name="reprovados" id="area-reprovados" class="form-dark-input" rows="3" readonly style="margin-top:5px; background:#0f172a; color:#94a3b8; font-size:0.85rem;"></textarea>
+              <label style="color: #ef4444;">❌ Reprovados</label>
+              <div style="display:flex; gap: 5px;">
+                <input type="text" id="input-reprovados" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onkeydown="checarEnter(event, this, 'reprovados')">
+                <button type="button" onclick="adicionarMembroManual('reprovados')" class="btn-primary" style="padding: 0 10px; background: #334155;"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <div id="visual-reprovados" class="selected-list-container"></div>
+              <input type="hidden" name="reprovados" id="hidden-reprovados">
             </div>
-
             <div class="input-group full-width">
               <label style="color: #cbd5e1;">Horário e Data</label>
               <div style="display: flex; gap: 10px;">
@@ -749,12 +819,10 @@
     </section>
 
   </main>
-
   <script>
     /* ==========================================================================
        CONFIGURAÇÕES GERAIS
        ========================================================================== */
-    // IDs dos cargos do Discord que podem ver os cursos de Perícia e Tráfico (PCERJ / PF)
     const ALLOWED_ROLE_IDS = [
       "1053687224320933888",
       "1447060519726088212"
@@ -977,7 +1045,6 @@
       if (!user || !user.roles) return;
 
       try {
-        // [MODIFICAÇÃO]: Usa ?action=config para ser mais leve
         const res = await fetch('/api/course-manager?action=config');
         const config = await res.json();
 
@@ -999,7 +1066,6 @@
     // 2. Carrega Dados do Discord (Selects e Datalist)
     async function loadDiscordData() {
       try {
-        // [MODIFICAÇÃO]: Endpoint unificado para buscar dados
         const res = await fetch('/api/course-manager?action=discord-data');
         if (!res.ok) throw new Error("Erro na API de dados");
 
@@ -1010,7 +1076,6 @@
         selects.forEach(sel => {
           sel.innerHTML = '<option value="" disabled selected>Selecione o Curso...</option>';
           data.cursos.forEach(c => {
-            // O value é o NOME do curso para o Embed
             sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
           });
         });
@@ -1020,7 +1085,6 @@
         if (datalist) {
           datalist.innerHTML = '';
           data.membros.forEach(m => {
-            // value é o ID formatado, label é o nome para busca visual
             const option = document.createElement('option');
             option.value = `<@${m.id}>`;
             option.label = m.name;
@@ -1030,35 +1094,91 @@
 
       } catch (err) {
         console.error("Erro ao carregar dados do Discord:", err);
-        // Fallback silencioso: inputs funcionam como texto normal se falhar
       }
     }
 
-    // 3. Helper: Adiciona seleção da lista ao Textarea e limpa o input
-    // Use no HTML: onchange="adicionarAbaixo(this, 'id-do-textarea')"
-    window.adicionarAbaixo = function (inputElement, targetId) {
-      const valor = inputElement.value;
+    /* ==========================================================================
+       LÓGICA DA LISTA VISUAL (ESTILO CÓDIGO PENAL) - NOVO!
+       ========================================================================== */
+
+    // Permite adicionar apertando ENTER
+    window.checarEnter = function (event, inputElement, tipo) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        adicionarMembroManual(tipo);
+      }
+    }
+
+    // Função Principal de Adicionar na Lista Visual
+    window.adicionarMembroManual = function (tipo) {
+      const inputId = `input-${tipo}`;
+      const visualId = `visual-${tipo}`;
+      const hiddenId = `hidden-${tipo}`;
+
+      const input = document.getElementById(inputId);
+      const containerVisual = document.getElementById(visualId);
+      const inputHidden = document.getElementById(hiddenId);
+      const datalist = document.getElementById('lista-membros-discord');
+
+      if (!input || !containerVisual || !inputHidden) return;
+
+      let valor = input.value.trim();
       if (!valor) return;
 
-      const textarea = document.getElementById(targetId);
-      if (textarea) {
-        // Se já tem texto, põe vírgula. Se não, só põe o valor.
-        if (textarea.value.trim().length > 0) {
-          textarea.value += `, ${valor}`;
-        } else {
-          textarea.value = valor;
+      // Tenta achar o nome amigável
+      let nomeExibicao = valor;
+      let idReal = valor;
+
+      if (datalist) {
+        const options = datalist.options;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value === valor) {
+            nomeExibicao = options[i].label;
+            break;
+          }
         }
       }
 
-      // Limpa o input de pesquisa e foca nele de novo
-      inputElement.value = "";
-      inputElement.focus();
+      // Cria o Card
+      const div = document.createElement('div');
+      div.className = 'selected-item';
+      div.setAttribute('data-value', idReal);
+      div.innerHTML = `
+            <span>${nomeExibicao} <small style="color:#64748b; font-size:0.7em;">${idReal}</small></span>
+            <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+      containerVisual.appendChild(div);
+
+      // Atualiza o hidden e limpa
+      atualizarHiddenInput(tipo);
+      input.value = '';
+      input.focus();
     }
 
-    // Função Opcional: Para formatar input simples (Ex: Instrutor Principal)
+    // Função de Remover da Lista Visual
+    window.removerItem = function (btn, tipo) {
+      const item = btn.closest('.selected-item');
+      item.remove();
+      atualizarHiddenInput(tipo);
+    }
+
+    // Atualiza o Input Hidden (que é enviado pro servidor)
+    function atualizarHiddenInput(tipo) {
+      const container = document.getElementById(`visual-${tipo}`);
+      const hiddenInput = document.getElementById(`hidden-${tipo}`);
+
+      const items = container.querySelectorAll('.selected-item');
+      const valores = Array.from(items).map(div => div.getAttribute('data-value'));
+
+      hiddenInput.value = valores.join(', ');
+    }
+
+    // Formata menção simples (para inputs únicos como Instrutor Principal)
     window.formatarMençao = function (input) {
-      // A datalist já insere <@ID>, então essa função serve apenas
-      // caso queira validar algo no futuro. Por enquanto vazia.
+      // Função placeholder caso precise de validação futura
     }
 
     // 4. Alternar UI (Relatório / Anúncio)
@@ -1096,7 +1216,6 @@
       data.userRoles = user.roles;
 
       try {
-        // [NOTA]: Aqui continua POST padrão, sem query params
         const res = await fetch('/api/course-manager', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1106,6 +1225,9 @@
         if (res.ok) {
           Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Curso anunciado!");
           form.reset();
+          // Limpa as listas visuais também
+          document.querySelectorAll('.selected-list-container').forEach(el => el.innerHTML = '');
+          document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = '');
         } else {
           const errData = await res.json();
           throw new Error(errData.error || "Erro no servidor");
@@ -1122,7 +1244,7 @@
     // 6. Enviar para Matriz (POST especial)
     window.enviarParaMatriz = async function () {
       const form = document.getElementById('form-curso-final');
-      if (!form.reportValidity()) return; // Valida se campos obrigatórios estão preenchidos
+      if (!form.reportValidity()) return;
 
       if (!confirm("Deseja enviar uma cópia deste relatório para o canal da MATRIZ?")) return;
 
