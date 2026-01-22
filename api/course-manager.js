@@ -203,16 +203,63 @@ export default async function handler(req, res) {
     try {
       // 1. ANÚNCIO
       if (data.type === "anuncio") {
-        const payload = createEmbed(
-          "📢 Anúncio de Curso",
-          3447003,
-          `Atenção: ${mencaoMatriz}`,
-          "Intranet Policial",
-          true,
-        );
-        // Sobrescreve campos específicos de anúncio se necessário, mas usando a base acima
-        // Para simplificar, vou manter a estrutura padrão, mas anúncio geralmente tem "Local" e "Call"
-        // Se quiser personalizar, pode editar aqui.
+        const missingFields = [];
+        if (!data.curso_id && !data.curso_nome) missingFields.push("curso");
+        if (!data.instrutores) missingFields.push("instrutores");
+        if (!data.data) missingFields.push("data");
+        if (!data.horario) missingFields.push("horÃ¡rio");
+
+        if (missingFields.length) {
+          return res.status(400).json({
+            error: `Campos obrigatÃ³rios ausentes: ${missingFields.join(", ")}.`,
+          });
+        }
+
+        const dataCurso = formatBr(data.data);
+        const horarioCurso = data.horario || "N/A";
+        const localCurso = data.local || "N/A";
+        const callLink = data.call_link
+          ? `[Entrar na call](${data.call_link})`
+          : "N/A";
+
+        const fields = [
+          { name: "📚 Curso", value: cursoDisplay, inline: true },
+          {
+            name: "🧑‍🏫 Instrutores",
+            value: data.instrutores || "N/A",
+            inline: true,
+          },
+          { name: "📅 Data", value: dataCurso || "N/A", inline: true },
+          { name: "⏰ Horário", value: horarioCurso, inline: true },
+          { name: "📍 Local", value: localCurso, inline: true },
+          { name: "🔗 Call", value: callLink, inline: false },
+        ];
+
+        if (mencaoMatriz) {
+          fields.push({
+            name: "🏢 Matrizes Envolvidas",
+            value: mencaoMatriz,
+            inline: false,
+          });
+        }
+
+        const autor = data.authorId ? `Anuncio por <@${data.authorId}>` : "";
+        const atencao = mencaoMatriz ? `AtenÃ§Ã£o: ${mencaoMatriz}` : "";
+        const contentParts = [atencao, autor].filter(Boolean).join("\n");
+
+        const payload = {
+          content: mencaoMatriz ? `Atenção: ${mencaoMatriz}` : null,
+          content: contentParts || null,
+          embeds: [
+            {
+              title: "📢 Anúncio de Curso",
+              color: 3447003,
+              fields,
+              footer: { text: "Intranet Policial" },
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        };
 
         await fetch(
           `https://discord.com/api/v10/channels/${CHANNEL_CURSOS_ANUNCIADOS}/messages`,
