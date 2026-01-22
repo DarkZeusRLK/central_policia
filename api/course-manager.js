@@ -166,11 +166,6 @@ export default async function handler(req, res) {
 
       fields.push(
         {
-          name: "👥 Participantes",
-          value: data.participantes || "Nenhum",
-          inline: false,
-        },
-        {
           name: "✅ Aprovados",
           value: data.aprovados || "Nenhum",
           inline: true,
@@ -244,8 +239,11 @@ export default async function handler(req, res) {
         }
 
         const autor = data.authorId ? `Anuncio por <@${data.authorId}>` : "";
-        const atencao = mencaoMatriz ? `AtenÃ§Ã£o: ${mencaoMatriz}` : "";
-        const contentParts = [atencao, autor].filter(Boolean).join("\n");
+        const atencao = mencaoMatriz ? `ATENCAO: ${mencaoMatriz}` : "";
+        const callLinkRaw = data.call_link ? data.call_link : "";
+        const contentParts = [atencao, autor, callLinkRaw]
+          .filter(Boolean)
+          .join("\n");
 
         const payload = {
           content: mencaoMatriz ? `Atenção: ${mencaoMatriz}` : null,

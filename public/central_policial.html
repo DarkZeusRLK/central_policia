@@ -813,8 +813,15 @@
             </div>
 
             <div class="form-group">
-              <label style="color: #cbd5e1;">Instrutor Responsável</label>
-              <input type="text" name="instrutores" list="lista-membros-discord" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" required placeholder="Busque seu nome...">
+              <label style="color: #cbd5e1;">Instrutores Responsáveis</label>
+              <div style="display: flex; gap: 5px;">
+                <input type="text" id="input-instrutores-anuncio" list="lista-membros-discord" class="form-dark-input" placeholder="Digite o nome..." style="flex: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px;" onkeypress="checarEnter(event, 'instrutores-anuncio')">
+                <button type="button" onclick="adicionarMembroManual('instrutores-anuncio')" style="background: var(--accent-gold); color: #0f172a; border: none; border-radius: 6px; width: 40px; cursor: pointer;">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div id="visual-instrutores-anuncio" class="selected-list-container"></div>
+              <input type="hidden" name="instrutores" id="hidden-instrutores-anuncio">
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -957,7 +964,11 @@
 
       success(msg) { this.show(msg, "success"); },
       error(msg) { this.show(msg, "error"); },
-      loading(msg) { this.show(msg, "loading"); }
+      loading(msg) { this.show(msg, "loading"); },
+      clearLoading() {
+        if (!this.container) return;
+        this.container.querySelectorAll(".toast.loading").forEach(t => t.remove());
+      }
     };
 
     /* ==========================================================================
@@ -1273,6 +1284,7 @@
           body: JSON.stringify(data)
         });
 
+        Notify.clearLoading();
         if (res.ok) {
           Notify.success(type === "final"
             ? "Relatório enviado com sucesso!"
@@ -1286,9 +1298,11 @@
           throw new Error(err.error || "Erro desconhecido");
         }
       } catch (err) {
+        Notify.clearLoading();
         Notify.error(err.message);
         console.error(err);
       } finally {
+        Notify.clearLoading();
         btn.disabled = false;
         btn.innerHTML = originalText;
       }
