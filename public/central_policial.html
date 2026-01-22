@@ -443,7 +443,11 @@
 
       <li class="sidebar-section-title">INTERNO</li>
       <li><a href="#" onclick="switchTab('cursos', this)"><i class="fa-solid fa-graduation-cap"></i> Cursos e Treinamentos</a></li>
+      <li><a href="#" onclick="switchTab('cursos', this)"><i class="fa-solid fa-graduation-cap"></i> Cursos e Treinamentos</a></li>
 
+      <li id="tab-instrutor" class="hidden">
+        <a href="#" onclick="switchTab('instrutor', this)"><i class="fa-solid fa-chalkboard-user"></i> Área do Instrutor</a>
+      </li>
       <li id="tab-jornalista" class="hidden">
         <a href="#" onclick="switchTab('jornalistas', this)"><i class="fa-solid fa-camera"></i> Área Jornalista</a>
       </li>
@@ -569,6 +573,122 @@
           </div>
         </div>
 
+      </div>
+    </section>
+    <section id="sec-instrutor" class="dash-section hidden">
+      <h1 style="color: white;"><i class="fa-solid fa-chalkboard-user"></i> Gestão de Cursos</h1>
+      <p style="color: #94a3b8;">Ferramenta exclusiva para instrutores e comando.</p>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px;">
+        <button onclick="toggleInstrutorTab('relatorio')" class="btn-primary" style="background: var(--accent-gold); color: #0f172a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+          <i class="fa-solid fa-file-signature"></i> Relatório Final
+        </button>
+        <button onclick="toggleInstrutorTab('anuncio')" class="btn-primary" style="background: #334155; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+          <i class="fa-solid fa-bullhorn"></i> Anunciar Curso
+        </button>
+      </div>
+
+      <div id="instrutor-relatorio" class="glass-panel" style="max-width: 800px;">
+        <h3 style="color: var(--accent-gold); margin-bottom: 15px;">Emitir Relatório de Curso Finalizado</h3>
+        <form id="form-curso-final" onsubmit="handleCourseSubmit(event, 'final')">
+
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Nome do Curso</label>
+              <input type="text" name="curso_nome" class="form-dark-input" required placeholder="Ex: Curso de Patrulhamento Tático">
+            </div>
+
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Instrutores (IDs ou Nomes)</label>
+              <input type="text" name="instrutores" class="form-dark-input" required placeholder="Ex: <@123456>">
+            </div>
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Auxiliares</label>
+              <input type="text" name="auxiliares" class="form-dark-input" placeholder="Opcional">
+            </div>
+
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Participantes (Lista Geral)</label>
+              <textarea name="participantes" class="form-dark-input" rows="3" required placeholder="Liste todos os presentes..."></textarea>
+            </div>
+
+            <div class="input-group">
+              <label style="color: #10b981;">Aprovados</label>
+              <textarea name="aprovados" class="form-dark-input" rows="3" placeholder="IDs dos aprovados..."></textarea>
+            </div>
+            <div class="input-group">
+              <label style="color: #ef4444;">Reprovados</label>
+              <textarea name="reprovados" class="form-dark-input" rows="3" placeholder="IDs dos reprovados..."></textarea>
+            </div>
+
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Horário e Data</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="date" name="data" class="form-dark-input" required>
+                <input type="time" name="horario" class="form-dark-input" required>
+              </div>
+            </div>
+
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Observações / Envolvidos (Matrizes)</label>
+              <textarea name="obs" class="form-dark-input" rows="2" placeholder="Observações adicionais..."></textarea>
+              <small style="color: #64748b;">*A menção às matrizes será adicionada automaticamente pelo sistema.</small>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; gap: 15px;">
+            <button type="submit" class="btn-primary" style="flex: 2; padding: 12px; background: var(--accent-gold); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
+              <i class="fa-solid fa-paper-plane"></i> Enviar Relatório
+            </button>
+            <button type="button" onclick="enviarParaMatriz()" class="btn-primary" style="flex: 1; padding: 12px; background: #0f172a; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-weight: bold; border-radius: 8px; cursor: pointer;">
+              <i class="fa-solid fa-share-nodes"></i> Enviar p/ Matriz
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="instrutor-anuncio" class="glass-panel hidden" style="max-width: 800px;">
+        <h3 style="color: white; margin-bottom: 15px;">Anunciar Novo Curso</h3>
+        <form id="form-curso-anuncio" onsubmit="handleCourseSubmit(event, 'anuncio')">
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Curso a ser aplicado</label>
+              <input type="text" name="curso_nome" class="form-dark-input" required placeholder="Ex: Curso de Formação Básica">
+            </div>
+
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Instrutor (ID)</label>
+              <input type="text" name="instrutores" class="form-dark-input" required placeholder="Seu ID ou Menção">
+            </div>
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Auxiliares</label>
+              <input type="text" name="auxiliares" class="form-dark-input" placeholder="Opcional">
+            </div>
+
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Data</label>
+              <input type="date" name="data" class="form-dark-input" required>
+            </div>
+            <div class="input-group">
+              <label style="color: #cbd5e1;">Horário</label>
+              <input type="time" name="horario" class="form-dark-input" required>
+            </div>
+
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Local da Formação</label>
+              <input type="text" name="local" class="form-dark-input" placeholder="Ex: Sala de Aula 1 ou N/A">
+            </div>
+
+            <div class="input-group full-width">
+              <label style="color: #cbd5e1;">Link da Call (Discord)</label>
+              <input type="url" name="call_link" class="form-dark-input" placeholder="https://discord.com/channels/..." value="https://discord.com/channels/1052430488205283449/1340166824461078619">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="margin-top: 20px; width: 100%; padding: 12px; background: #3b82f6; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
+            <i class="fa-solid fa-bullhorn"></i> Publicar Anúncio
+          </button>
+        </form>
       </div>
     </section>
 
@@ -880,7 +1000,119 @@
         }
       }
     }
+    /* ==========================================================================
+   LÓGICA DO INSTRUTOR
+   ========================================================================== */
 
+    // 1. Verifica se o usuário é instrutor ao carregar
+    async function checkInstrutorPermission(user) {
+      if (!user || !user.roles) return;
+
+      try {
+        const res = await fetch('/api/course-manager');
+        const config = await res.json();
+
+        if (config.instrutorRoleId) {
+          const isInstrutor = user.roles.some(r => String(r) === String(config.instrutorRoleId));
+
+          if (isInstrutor) {
+            document.getElementById('tab-instrutor').classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao verificar permissão de instrutor:", err);
+      }
+    }
+
+    // Adicione esta chamada dentro do seu "document.addEventListener" existente, logo após pegar o usuario:
+    // checkInstrutorPermission(user);
+
+    // 2. Alternar entre Abas de Relatório e Anúncio
+    function toggleInstrutorTab(tab) {
+      const relatorioDiv = document.getElementById('instrutor-relatorio');
+      const anuncioDiv = document.getElementById('instrutor-anuncio');
+
+      if (tab === 'relatorio') {
+        relatorioDiv.classList.remove('hidden');
+        anuncioDiv.classList.add('hidden');
+      } else {
+        relatorioDiv.classList.add('hidden');
+        anuncioDiv.classList.remove('hidden');
+      }
+    }
+
+    // 3. Enviar Formulários (Relatório ou Anúncio)
+    async function handleCourseSubmit(e, type) {
+      e.preventDefault();
+      if (!confirm("Confirma o envio dessas informações para o Discord?")) return;
+
+      const form = e.target;
+      const btn = form.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      data.type = type;
+      const user = JSON.parse(localStorage.getItem("revoada_user"));
+      data.authorId = user.id;
+
+      try {
+        // MUDANÇA AQUI: Chama o course-manager via POST
+        const res = await fetch('/api/course-manager', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Curso anunciado com sucesso!");
+          form.reset();
+        } else {
+          throw new Error("Erro no servidor");
+        }
+      } catch (err) {
+        Notify.error("Erro ao enviar. Verifique o console.");
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+    // 4. Botão Especial: Enviar para Matriz
+    async function enviarParaMatriz() {
+      const form = document.getElementById('form-curso-final');
+      if (!form.reportValidity()) return;
+
+      if (!confirm("Deseja enviar uma cópia deste relatório para o canal da MATRIZ?")) return;
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      data.type = 'matriz_copy';
+      const user = JSON.parse(localStorage.getItem("revoada_user"));
+      data.authorId = user.id;
+
+      try {
+        Notify.loading("Enviando cópia para Matriz...");
+        // MUDANÇA AQUI: Chama o course-manager via POST
+        const res = await fetch('/api/course-manager', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          Notify.success("Cópia enviada para a Matriz!");
+        } else {
+          Notify.error("Erro ao enviar para Matriz.");
+        }
+      } catch (err) {
+        console.error(err);
+        Notify.error("Erro de conexão.");
+      }
+    }
   </script>
 </body>
 
