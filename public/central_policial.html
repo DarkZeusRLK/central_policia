@@ -577,6 +577,8 @@
       <h1 style="color: white;"><i class="fa-solid fa-chalkboard-user"></i> Gestão de Cursos</h1>
       <p style="color: #94a3b8;">Ferramenta exclusiva para instrutores e comando.</p>
 
+      <datalist id="lista-membros-discord"></datalist>
+
       <div style="display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px;">
         <button onclick="toggleInstrutorTab('relatorio')" class="btn-primary" style="background: var(--accent-gold); color: #0f172a; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
           <i class="fa-solid fa-file-signature"></i> Relatório Final
@@ -591,32 +593,42 @@
         <form id="form-curso-final" onsubmit="handleCourseSubmit(event, 'final')">
 
           <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+
             <div class="input-group full-width">
               <label style="color: #cbd5e1;">Nome do Curso</label>
-              <input type="text" name="curso_nome" class="form-dark-input" required placeholder="Ex: Curso de Patrulhamento Tático">
+              <select name="curso_nome" class="form-dark-input" required>
+                <option value="" disabled selected>Carregando lista de cursos...</option>
+              </select>
             </div>
 
             <div class="input-group">
-              <label style="color: #cbd5e1;">Instrutores (IDs ou Nomes)</label>
-              <input type="text" name="instrutores" class="form-dark-input" required placeholder="Ex: <@123456>">
+              <label style="color: #cbd5e1;">Instrutor Principal</label>
+              <input type="text" name="instrutores" list="lista-membros-discord" class="form-dark-input" required placeholder="Digite para buscar..." onchange="formatarMençao(this)">
             </div>
+
             <div class="input-group">
               <label style="color: #cbd5e1;">Auxiliares</label>
-              <input type="text" name="auxiliares" class="form-dark-input" placeholder="Opcional">
+              <input type="text" name="auxiliares" list="lista-membros-discord" class="form-dark-input" placeholder="Opcional - Digite para buscar..." onchange="formatarMençao(this)">
             </div>
 
             <div class="input-group full-width">
               <label style="color: #cbd5e1;">Participantes (Lista Geral)</label>
-              <textarea name="participantes" class="form-dark-input" rows="3" required placeholder="Liste todos os presentes..."></textarea>
+              <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Pesquise o nome e dê Enter..." onchange="adicionarAbaixo(this, 'area-participantes')">
+              </div>
+              <textarea name="participantes" id="area-participantes" class="form-dark-input" rows="3" required readonly style="background:#0f172a; color:#94a3b8; font-size:0.85rem;" placeholder="A lista aparecerá aqui..."></textarea>
             </div>
 
             <div class="input-group">
               <label style="color: #10b981;">Aprovados</label>
-              <textarea name="aprovados" class="form-dark-input" rows="3" placeholder="IDs dos aprovados..."></textarea>
+              <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onchange="adicionarAbaixo(this, 'area-aprovados')">
+              <textarea name="aprovados" id="area-aprovados" class="form-dark-input" rows="3" readonly style="margin-top:5px; background:#0f172a; color:#94a3b8; font-size:0.85rem;"></textarea>
             </div>
+
             <div class="input-group">
               <label style="color: #ef4444;">Reprovados</label>
-              <textarea name="reprovados" class="form-dark-input" rows="3" placeholder="IDs dos reprovados..."></textarea>
+              <input type="text" list="lista-membros-discord" class="form-dark-input" placeholder="Adicionar..." onchange="adicionarAbaixo(this, 'area-reprovados')">
+              <textarea name="reprovados" id="area-reprovados" class="form-dark-input" rows="3" readonly style="margin-top:5px; background:#0f172a; color:#94a3b8; font-size:0.85rem;"></textarea>
             </div>
 
             <div class="input-group full-width">
@@ -630,7 +642,7 @@
             <div class="input-group full-width">
               <label style="color: #cbd5e1;">Observações / Envolvidos (Matrizes)</label>
               <textarea name="obs" class="form-dark-input" rows="2" placeholder="Observações adicionais..."></textarea>
-              <small style="color: #64748b;">*A menção às matrizes será adicionada automaticamente pelo sistema.</small>
+              <small style="color: #64748b;">*A menção às matrizes será adicionada automaticamente.</small>
             </div>
           </div>
 
@@ -649,18 +661,22 @@
         <h3 style="color: white; margin-bottom: 15px;">Anunciar Novo Curso</h3>
         <form id="form-curso-anuncio" onsubmit="handleCourseSubmit(event, 'anuncio')">
           <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+
             <div class="input-group full-width">
               <label style="color: #cbd5e1;">Curso a ser aplicado</label>
-              <input type="text" name="curso_nome" class="form-dark-input" required placeholder="Ex: Curso de Formação Básica">
+              <select name="curso_nome" class="form-dark-input" required>
+                <option value="" disabled selected>Carregando lista...</option>
+              </select>
             </div>
 
             <div class="input-group">
               <label style="color: #cbd5e1;">Instrutor (ID)</label>
-              <input type="text" name="instrutores" class="form-dark-input" required placeholder="Seu ID ou Menção">
+              <input type="text" name="instrutores" list="lista-membros-discord" class="form-dark-input" required placeholder="Busque seu nome..." onchange="formatarMençao(this)">
             </div>
+
             <div class="input-group">
               <label style="color: #cbd5e1;">Auxiliares</label>
-              <input type="text" name="auxiliares" class="form-dark-input" placeholder="Opcional">
+              <input type="text" name="auxiliares" list="lista-membros-discord" class="form-dark-input" placeholder="Opcional..." onchange="formatarMençao(this)">
             </div>
 
             <div class="input-group">
@@ -689,7 +705,6 @@
         </form>
       </div>
     </section>
-
     <section id="sec-jornalistas" class="dash-section hidden">
       <h1 style="color: white;"><i class="fa-solid fa-newspaper"></i> Sala de Imprensa</h1>
       <p style="color: #94a3b8;">Área exclusiva para redação e mídia.</p>
