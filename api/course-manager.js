@@ -239,7 +239,7 @@ export default async function handler(req, res) {
         }
 
         const autor = data.authorId ? `Anuncio por <@${data.authorId}>` : "";
-        const atencao = mencaoMatriz ? `ATENCAO: ${mencaoMatriz}` : "";
+        const atencao = mencaoMatriz ? `Aten\u00e7\u00e3o: ${mencaoMatriz}` : "";
         const callLinkRaw = data.call_link ? data.call_link : "";
         const contentParts = [atencao, autor, callLinkRaw]
           .filter(Boolean)

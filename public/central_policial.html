@@ -86,6 +86,13 @@
       font-size: 0.95rem;
     }
 
+    .dept-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+    }
+
     .sidebar-menu li a:hover,
     .sidebar-menu li a.active {
       background: rgba(251, 191, 36, 0.05);
@@ -497,10 +504,10 @@
       <li><a href="#" onclick="switchTab('home', this)" class="active"><i class="fa-solid fa-gauge-high"></i> Painel Operacional</a></li>
 
       <li class="sidebar-section-title">DEPARTAMENTOS</li>
-      <li><a href="departamentopcerj.html"><i class="fa-solid fa-magnifying-glass"></i> PCERJ</a></li>
-      <li><a href="batalhaopmerj.html"><i class="fa-solid fa-person-military-rifle"></i> PMERJ</a></li>
-      <li><a href="departamentoprf.html"><i class="fa-solid fa-road"></i> PRF</a></li>
-      <li><a href="departamentopf.html"><i class="fa-solid fa-building-shield"></i> PF</a></li>
+      <li><a href="#" onclick="switchTab('dev', this)"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro%20(1).png" alt="PCERJ"> PCERJ</a></li>
+      <li><a href="#" onclick="switchTab('dev', this)"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ"> PMERJ</a></li>
+      <li><a href="#" onclick="switchTab('dev', this)"><img class="dept-logo" src="images/PRF_new.png" alt="PRF"> PRF</a></li>
+      <li><a href="#" onclick="switchTab('dev', this)"><img class="dept-logo" src="images/Policia-federal-logo.png" alt="PF"> PF</a></li>
 
       <li class="sidebar-section-title">SERVIÇOS</li>
       <li><a href="../index.html#boletim"><i class="fa-solid fa-clipboard"></i> Registrar B.O.</a></li>
@@ -550,6 +557,16 @@
             <p style="color: #64748b; font-size: 0.9rem;">Buscando notícias...</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="sec-dev" class="dash-section hidden">
+      <h1 style="color: white; margin-bottom: 10px;">Em desenvolvimento</h1>
+      <p style="color: #94a3b8;">Esta seção ainda está em construção. Em breve teremos novidades.</p>
+
+      <div style="margin-top: 20px; background: rgba(239, 68, 68, 0.1); padding: 20px; border-radius: 12px; border-left: 5px solid #ef4444;">
+        <h4 style="color: #ef4444; margin: 0;"><i class="fa-solid fa-triangle-exclamation"></i> Aviso</h4>
+        <p style="color: #cbd5e1; margin-top: 5px; font-size: 0.9rem;">Funcionalidade temporariamente indisponível.</p>
       </div>
     </section>
 
