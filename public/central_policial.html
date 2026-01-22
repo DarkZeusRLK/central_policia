@@ -818,7 +818,12 @@
         const tabJornalista = document.getElementById("tab-jornalista");
         if (tabJornalista) tabJornalista.classList.remove("hidden");
       }
+      loadDashboardData();
 
+      // 6. Configura o formulário de notícias
+      setupNewsForm(user);
+
+      checkInstrutorPermission(user);
       // ================================================================
       // 4. LÓGICA DE PERMISSÃO (CURSOS ESPECIAIS)
       // ================================================================
