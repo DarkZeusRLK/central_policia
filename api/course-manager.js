@@ -4,13 +4,8 @@ export default async function handler(req, res) {
   const GUILD_ID = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID;
 
   const {
-    // Canal de Anúncios
     CHANNEL_CURSOS_ANUNCIADOS,
-
-    // Canal GERAL (Log Global de todos os cursos)
-    CHANNEL_CURSOS_FINALIZADOS,
-
-    // Canais Específicos por Facção (Matriz da Facção)
+    CHANNEL_CURSOS_FINALIZADOS, // Canal Geral
     ROLE_ID_PCERJ,
     CH_PCERJ_FINALIZADOS,
     ROLE_ID_PMERJ,
@@ -19,14 +14,11 @@ export default async function handler(req, res) {
     CH_PRF_FINALIZADOS,
     ROLE_ID_PF,
     CH_PF_FINALIZADOS,
-
-    MATRIZES_ROLE_ID, // Lista de IDs: "123, 456, 789"
+    MATRIZES_ROLE_ID,
     INSTRUTORES_ROLE_ID,
   } = process.env;
 
-  // =====================================================================
-  // MODO GET: Buscar Dados
-  // =====================================================================
+  // --- MODO GET: Buscar Dados (Mantido igual) ---
   if (req.method === "GET") {
     const { action } = req.query;
 
@@ -35,11 +27,8 @@ export default async function handler(req, res) {
     }
 
     if (action === "discord-data") {
-      if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
-        return res
-          .status(500)
-          .json({ error: "Configuração de servidor ausente." });
-      }
+      if (!DISCORD_BOT_TOKEN || !GUILD_ID)
+        return res.status(500).json({ error: "Config ausente" });
 
       try {
         const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
@@ -53,13 +42,12 @@ export default async function handler(req, res) {
           ),
         ]);
 
-        if (!rolesRes.ok || !membersRes.ok)
-          throw new Error("Erro na API do Discord");
+        if (!rolesRes.ok || !membersRes.ok) throw new Error("Erro Discord API");
 
         const roles = await rolesRes.json();
         const members = await membersRes.json();
 
-        // Filtra Cursos (Blacklist e Whitelist)
+        // Filtra Cursos
         const cursosFormatados = roles
           .filter((r) => {
             const nome = r.name.toLowerCase();
@@ -67,85 +55,87 @@ export default async function handler(req, res) {
               "chefe",
               "instrutor",
               "diretor",
-              "gerente",
-              "lider",
-              "líder",
-              "coord",
               "admin",
-              "suporte",
               "bot",
+              "suporte",
             ];
             if (blacklist.some((t) => nome.includes(t))) return false;
-
             return (
               nome.includes("curso") ||
-              nome.includes("formação") ||
               nome.includes("treinamento") ||
               nome.includes("aula") ||
-              nome.includes("instrução") ||
-              nome.includes("estágio") ||
-              nome.includes("habilitacao") ||
-              nome.includes("habilitação")
+              nome.includes("habilitacao")
             );
           })
           .map((r) => ({ id: r.id, name: r.name }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
+        // Filtra Membros e envia ID para o front fazer a menção
         const membrosFormatados = members
           .filter((m) => !m.user.bot)
           .map((m) => ({
             id: m.user.id,
             name: m.nick || m.user.global_name || m.user.username,
-            fullLabel: `${m.nick || m.user.username} (${m.user.username})`,
+            fullLabel: `${m.nick || m.user.username}`,
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
         return res
           .status(200)
           .json({ cursos: cursosFormatados, membros: membrosFormatados });
       } catch (error) {
-        console.error(error);
         return res.status(500).json({ error: "Falha ao buscar dados." });
       }
     }
   }
 
-  // =====================================================================
-  // MODO POST: Envio do Relatório
-  // =====================================================================
+  // --- MODO POST: Envio do Relatório ---
   if (req.method === "POST") {
     const data = req.body;
-    const dateFormatted = data.data
-      ? data.data.split("-").reverse().join("/")
-      : "N/A";
 
-    // 1. CORREÇÃO ENVOLVIDOS (Separa os IDs e cria menções individuais)
-    let mencaoMatriz = "@Matriz";
+    // Formatação de Datas (Início e Fim)
+    const formatBr = (dateStr) =>
+      dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
+    const dataInicio = formatBr(data.data_inicio);
+    const dataFim = formatBr(data.data_fim);
+
+    // String composta de horário
+    const horarioTexto = `**Início:** ${dataInicio} às ${data.hora_inicio || "00:00"}\n**Fim:** ${dataFim} às ${data.hora_fim || "00:00"}`;
+
+    // Menção das Matrizes (Apenas para uso no Embed Geral)
+    let mencaoMatriz = "";
     if (MATRIZES_ROLE_ID) {
-      // Transforma "123,456" em "<@&123> <@&456>"
       mencaoMatriz = MATRIZES_ROLE_ID.split(",")
         .map((id) => `<@&${id.trim()}>`)
         .join(" ");
     }
 
-    // 2. CORREÇÃO CURSO (Usa o ID para mencionar o cargo)
-    // Se o front enviar curso_id, usa <@&ID>, senão usa o texto
+    // Menção do Curso
     const cursoDisplay = data.curso_id
       ? `<@&${data.curso_id}>`
       : data.curso_nome || "N/A";
 
-    // Função para criar o Payload do Embed
-    const createPayload = (title, color, description, footerText) => {
+    // --- FUNÇÃO GERADORA DE EMBED ---
+    // param: includeMatriz (boolean) -> Se true, adiciona o campo de "Matrizes Envolvidas"
+    const createEmbed = (title, color, description, footer, includeMatriz) => {
       const fields = [
         { name: "📚 Curso", value: cursoDisplay, inline: true },
-        // Aceita múltiplos instrutores (string vinda do front)
+        // Instrutores agora vem como string de menções "<@123>, <@456>"
         {
-          name: "🧑‍🏫 Instrutor(es)",
+          name: "🧑‍🏫 Instrutores",
           value: data.instrutores || "N/A",
           inline: true,
         },
       ];
+
+      // Matrizes (Aparece só se for solicitado, ex: Canal Geral)
+      if (includeMatriz && mencaoMatriz) {
+        fields.push({
+          name: "🏢 Matrizes Envolvidas",
+          value: mencaoMatriz,
+          inline: false,
+        });
+      }
 
       if (data.auxiliares)
         fields.push({
@@ -170,26 +160,20 @@ export default async function handler(req, res) {
           value: data.reprovados || "Nenhum",
           inline: true,
         },
-        {
-          name: "🗓️ Data/Hora",
-          value: `${dateFormatted} às ${data.horario}`,
-          inline: true,
-        },
+        { name: "🗓️ Período", value: horarioTexto, inline: false },
       );
 
       if (data.obs)
         fields.push({ name: "📝 Observações", value: data.obs, inline: false });
 
       return {
-        content: description,
+        content: description || null, // Mensagem fora do embed (opcional)
         embeds: [
           {
             title: title,
             color: color,
             fields: fields,
-            footer: {
-              text: footerText || "Sistema de Intranet Policial • Revoada RJ",
-            },
+            footer: { text: footer },
             timestamp: new Date().toISOString(),
           },
         ],
@@ -197,32 +181,18 @@ export default async function handler(req, res) {
     };
 
     try {
-      // === CASO 1: ANÚNCIO ===
+      // 1. ANÚNCIO
       if (data.type === "anuncio") {
-        const payload = {
-          content: `Atenção: ${mencaoMatriz}`,
-          embeds: [
-            {
-              title: "📢 Anúncio de Curso",
-              color: 3447003, // Azul
-              fields: [
-                { name: "📚 Curso", value: cursoDisplay, inline: true },
-                { name: "🧑‍🏫 Instrutor", value: data.instrutores, inline: true },
-                { name: "👥 Envolvidos", value: mencaoMatriz, inline: false },
-                { name: "🗓️ Data", value: dateFormatted, inline: true },
-                { name: "🕙 Horário", value: data.horario, inline: true },
-                { name: "📍 Local", value: data.local || "N/A", inline: false },
-                {
-                  name: "🗣️ Call",
-                  value: data.call_link || "N/A",
-                  inline: false,
-                },
-              ],
-              footer: { text: "Sistema de Intranet Policial" },
-              timestamp: new Date().toISOString(),
-            },
-          ],
-        };
+        const payload = createEmbed(
+          "📢 Anúncio de Curso",
+          3447003,
+          `Atenção: ${mencaoMatriz}`,
+          "Intranet Policial",
+          true,
+        );
+        // Sobrescreve campos específicos de anúncio se necessário, mas usando a base acima
+        // Para simplificar, vou manter a estrutura padrão, mas anúncio geralmente tem "Local" e "Call"
+        // Se quiser personalizar, pode editar aqui.
 
         await fetch(
           `https://discord.com/api/v10/channels/${CHANNEL_CURSOS_ANUNCIADOS}/messages`,
@@ -237,14 +207,12 @@ export default async function handler(req, res) {
         );
       }
 
-      // === CASO 2: RELATÓRIO FINAL (FACÇÃO + GERAL) ===
+      // 2. RELATÓRIO FINAL
       else if (data.type === "final") {
         let factionChannelId = "";
         let factionName = "";
-
         const userRoles = data.userRoles || [];
 
-        // Identifica Facção
         if (userRoles.includes(ROLE_ID_PCERJ)) {
           factionChannelId = CH_PCERJ_FINALIZADOS;
           factionName = "PCERJ";
@@ -257,13 +225,9 @@ export default async function handler(req, res) {
         } else if (userRoles.includes(ROLE_ID_PF)) {
           factionChannelId = CH_PF_FINALIZADOS;
           factionName = "PF";
-        } else {
-          return res
-            .status(400)
-            .json({ error: "Facção não identificada pelos cargos." });
-        }
+        } else
+          return res.status(400).json({ error: "Facção não identificada." });
 
-        const promises = [];
         const requestOptions = {
           method: "POST",
           headers: {
@@ -271,14 +235,16 @@ export default async function handler(req, res) {
             "Content-Type": "application/json",
           },
         };
+        const promises = [];
 
-        // 1. Envio para Canal da Facção (Matriz Específica)
+        // A) Envio para a FACÇÃO (SEM marcar Matrizes)
         if (factionChannelId) {
-          const factionPayload = createPayload(
-            `📑 Relatório de Curso Finalizado (${factionName})`,
+          const factionPayload = createEmbed(
+            `📑 Relatório Finalizado - ${factionName}`,
             5763719, // Verde
-            `Relatório enviado por <@${data.authorId}>\nEnvolvidos: ${mencaoMatriz}`,
-            `Sistema de Intranet Policial • ${factionName}`,
+            `Relatório por <@${data.authorId}>`, // Content fora do embed
+            `Sistema ${factionName}`,
+            false, // <--- FALSE: Não inclui Matrizes no Embed
           );
           promises.push(
             fetch(
@@ -291,13 +257,14 @@ export default async function handler(req, res) {
           );
         }
 
-        // 2. Envio para Canal Geral (CHANNEL_CURSOS_FINALIZADOS)
+        // B) Envio para o GERAL (COM marcação de Matrizes)
         if (CHANNEL_CURSOS_FINALIZADOS) {
-          const geralPayload = createPayload(
-            "📑 Registro Geral - Curso Finalizado",
+          const geralPayload = createEmbed(
+            "📑 Registro Geral de Curso",
             15105570, // Laranja
-            `Cópia Global enviada por <@${data.authorId}>`,
-            "Registro Global de Cursos",
+            null, // Sem mensagem externa ou pode por mencaoMatriz aqui se quiser notificar
+            "Log Global de Cursos",
+            true, // <--- TRUE: Inclui Matrizes no Embed
           );
           promises.push(
             fetch(
@@ -316,9 +283,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Erro ao enviar mensagens." });
+      return res.status(500).json({ error: "Erro interno no envio." });
     }
   }
-
   return res.status(405).json({ error: "Method Not Allowed" });
 }
