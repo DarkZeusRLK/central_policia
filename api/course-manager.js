@@ -19,6 +19,7 @@ export default async function handler(req, res) {
     CURSO_BASICO_ID,
     CURSO_COMP_ID,
     CURSO_ACOES_ID,
+    CALLS_PERMITIDAS,
   } = process.env;
 
   const parseIdList = (value) =>
@@ -105,8 +106,10 @@ export default async function handler(req, res) {
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
+        const callsPermitidas = new Set(parseIdList(CALLS_PERMITIDAS));
         const callsFormatadas = channels
           .filter((c) => c.type === 2 || c.type === 13)
+          .filter((c) => !callsPermitidas.size || callsPermitidas.has(c.id))
           .map((c) => ({ id: c.id, name: c.name }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
