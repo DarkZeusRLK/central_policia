@@ -680,6 +680,7 @@
 
       <!-- DATALIST DISCORD -->
       <datalist id="lista-membros-discord"></datalist>
+      <datalist id="lista-calls-discord"></datalist>
 
       <!-- BOTÕES DE TABS -->
       <div style="display: flex; gap: 10px; margin-bottom: 25px;">
@@ -858,8 +859,8 @@
             </div>
 
             <div class="form-group">
-              <label style="color: #cbd5e1;">Link da Call (Discord)</label>
-              <input type="url" name="call_link" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" placeholder="https://discord.com/channels/...">
+              <label style="color: #cbd5e1;">Call (Discord)</label>
+              <input type="text" name="call_channel" list="lista-calls-discord" class="form-dark-input" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px;" placeholder="Digite o nome da call...">
             </div>
 
           </div>
@@ -923,6 +924,8 @@
        ========================================================================== */
     const ALLOWED_ROLE_IDS = ["1053687224320933888", "1447060519726088212"];
     let discordMembersMap = {};
+    let discordCallsMap = {};
+    let discordGuildId = "";
     let allCursos = [];
 
     /* ==========================================================================
@@ -1143,6 +1146,20 @@
             datalist.appendChild(opt);
           });
         }
+
+        const callsDatalist = document.getElementById("lista-calls-discord");
+        discordCallsMap = {};
+        discordGuildId = data.guildId || "";
+
+        if (callsDatalist) {
+          callsDatalist.innerHTML = "";
+          (data.calls || []).forEach(c => {
+            discordCallsMap[c.name] = c.id;
+            const opt = document.createElement("option");
+            opt.value = c.name;
+            callsDatalist.appendChild(opt);
+          });
+        }
       } catch (e) {
         console.error("Falha ao carregar dados do Discord:", e);
       }
@@ -1286,6 +1303,19 @@
       if (cursoSelect && cursoSelect.selectedIndex >= 0) {
         data.curso_id = cursoSelect.value;
         data.curso_nome = cursoSelect.options[cursoSelect.selectedIndex].text;
+      }
+
+      if (data.call_channel) {
+        const callNome = data.call_channel.trim();
+        if (/^https?:\/\//i.test(callNome)) {
+          data.call_link = callNome;
+        } else {
+          const callId = discordCallsMap[callNome];
+          if (callId && discordGuildId) {
+            data.call_link = `https://discord.com/channels/${discordGuildId}/${callId}`;
+          }
+        }
+        delete data.call_channel;
       }
 
       data.type = type;

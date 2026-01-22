@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
       try {
         const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
-        const [rolesRes, membersRes] = await Promise.all([
+        const [rolesRes, membersRes, channelsRes] = await Promise.all([
           fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/roles`, {
             headers,
           }),
@@ -49,12 +49,17 @@ export default async function handler(req, res) {
             `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
             { headers },
           ),
+          fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/channels`, {
+            headers,
+          }),
         ]);
 
-        if (!rolesRes.ok || !membersRes.ok) throw new Error("Erro Discord API");
+        if (!rolesRes.ok || !membersRes.ok || !channelsRes.ok)
+          throw new Error("Erro Discord API");
 
         const roles = await rolesRes.json();
         const members = await membersRes.json();
+        const channels = await channelsRes.json();
 
         const basicoIds = new Set(parseIdList(CURSO_BASICO_ID));
         const complementarIds = new Set(parseIdList(CURSO_COMP_ID));
@@ -100,9 +105,17 @@ export default async function handler(req, res) {
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        return res
-          .status(200)
-          .json({ cursos: cursosFormatados, membros: membrosFormatados });
+        const callsFormatadas = channels
+          .filter((c) => c.type === 2 || c.type === 13)
+          .map((c) => ({ id: c.id, name: c.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        return res.status(200).json({
+          cursos: cursosFormatados,
+          membros: membrosFormatados,
+          calls: callsFormatadas,
+          guildId: GUILD_ID,
+        });
       } catch (error) {
         return res.status(500).json({ error: "Falha ao buscar dados." });
       }
