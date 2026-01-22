@@ -1134,7 +1134,7 @@
       const selects = document.querySelectorAll('select[name="curso_nome"]');
       if (!selects.length) return;
 
-      const cursosFiltrados = allCursos.filter(curso => !curso.tipo || curso.tipo === tipo);
+      const cursosFiltrados = allCursos.filter(curso => curso.tipo === tipo);
       const placeholderTexto = cursosFiltrados.length
         ? "Selecione o Curso..."
         : "Nenhum curso neste filtro";
