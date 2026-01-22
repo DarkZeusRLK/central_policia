@@ -2,9 +2,10 @@
 export default async function handler(req, res) {
   const {
     DISCORD_BOT_TOKEN,
+    GUILD_ID, // Necessário adicionar no .env para buscar membros
     // Canais Genéricos
     CHANNEL_CURSOS_ANUNCIADOS,
-    MATRIZ_CURSOS_FINALIZADOS, // Canal genérico de matriz (cópia)
+    MATRIZ_CURSOS_FINALIZADOS,
 
     // Configurações de Cargos e Canais Específicos
     ROLE_ID_PCERJ,
@@ -16,18 +17,91 @@ export default async function handler(req, res) {
     ROLE_ID_PF,
     CH_PF_FINALIZADOS,
 
-    MATRIZES_ROLE_ID, // Para menção no texto
+    MATRIZES_ROLE_ID,
     INSTRUTORES_ROLE_ID,
   } = process.env;
 
-  // GET: Retorna configuração para o Frontend
+  // =====================================================================
+  // MODO GET: Buscar Dados (Configuração ou Lista do Discord)
+  // =====================================================================
   if (req.method === "GET") {
-    return res.status(200).json({
-      instrutorRoleId: INSTRUTORES_ROLE_ID,
-    });
+    const { action } = req.query;
+
+    // Ação 1: Retorna apenas a configuração de permissão (Leve e rápido)
+    if (action === "config" || !action) {
+      return res.status(200).json({
+        instrutorRoleId: INSTRUTORES_ROLE_ID,
+      });
+    }
+
+    // Ação 2: Busca a lista completa de membros e cursos do Discord
+    if (action === "discord-data") {
+      if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
+        return res
+          .status(500)
+          .json({ error: "Configuração de servidor (GUILD_ID) ausente." });
+      }
+
+      try {
+        const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
+
+        // Busca Cargos e Membros em paralelo
+        const [rolesRes, membersRes] = await Promise.all([
+          fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/roles`, {
+            headers,
+          }),
+          fetch(
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
+            { headers },
+          ),
+        ]);
+
+        if (!rolesRes.ok || !membersRes.ok) {
+          throw new Error("Erro ao comunicar com o Discord API");
+        }
+
+        const roles = await rolesRes.json();
+        const members = await membersRes.json();
+
+        // Filtra Cargos: Começam com "Curso" ou "Formação"
+        const cursosFormatados = roles
+          .filter(
+            (r) =>
+              r.name.toLowerCase().startsWith("curso") ||
+              r.name.toLowerCase().startsWith("formação"),
+          )
+          .map((r) => ({ id: r.id, name: r.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        // Filtra Membros: Remove bots e formata
+        const membrosFormatados = members
+          .filter((m) => !m.user.bot)
+          .map((m) => ({
+            id: m.user.id,
+            name: m.nick || m.user.global_name || m.user.username,
+            fullLabel: `${m.nick || m.user.username} (${m.user.username})`,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        // Cacheia por 60s
+        res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
+
+        return res.status(200).json({
+          cursos: cursosFormatados,
+          membros: membrosFormatados,
+        });
+      } catch (error) {
+        console.error(error);
+        return res
+          .status(500)
+          .json({ error: "Falha ao buscar dados do Discord." });
+      }
+    }
   }
 
-  // POST: Envio do Relatório
+  // =====================================================================
+  // MODO POST: Envio do Relatório
+  // =====================================================================
   if (req.method === "POST") {
     const data = req.body;
 
@@ -45,7 +119,7 @@ export default async function handler(req, res) {
 
     // --- LÓGICA DE DECISÃO DE CANAL ---
 
-    // Caso 1: ANÚNCIO (Vai para o canal geral de anúncios)
+    // Caso 1: ANÚNCIO
     if (data.type === "anuncio") {
       targetChannelId = CHANNEL_CURSOS_ANUNCIADOS;
       title = "📢 Anúncio de Curso";
@@ -53,7 +127,7 @@ export default async function handler(req, res) {
       contentMessage = `Atenção: ${mencaoMatriz}`;
     }
 
-    // Caso 2: CÓPIA PARA MATRIZ (Botão específico)
+    // Caso 2: CÓPIA PARA MATRIZ
     else if (data.type === "matriz_copy") {
       targetChannelId = MATRIZ_CURSOS_FINALIZADOS;
       title = "📑 Cópia Oficial - Curso Finalizado";
@@ -67,8 +141,7 @@ export default async function handler(req, res) {
       embedColor = 5763719; // Verde escuro
       contentMessage = `Relatório enviado por <@${data.authorId}>\nEnvolvidos: ${mencaoMatriz}`;
 
-      // AQUI ESTÁ A MÁGICA: Verifica os cargos do usuário para escolher o canal
-      const userRoles = data.userRoles || []; // Recebe os cargos do frontend
+      const userRoles = data.userRoles || [];
 
       if (userRoles.includes(ROLE_ID_PCERJ)) {
         targetChannelId = CH_PCERJ_FINALIZADOS;
@@ -83,8 +156,6 @@ export default async function handler(req, res) {
         targetChannelId = CH_PF_FINALIZADOS;
         title += " (PF)";
       } else {
-        // Fallback: Se o cara não tiver cargo de nenhuma facção, manda pro canal de anúncios ou log de erro
-        // Ou você pode definir um canal "Geral" de finalizados
         console.warn("Usuário sem facção definida tentou enviar relatório.");
         return res.status(400).json({
           error: "Sua facção não foi identificada pelos seus cargos.",
@@ -92,14 +163,13 @@ export default async function handler(req, res) {
       }
     }
 
-    // Se não definiu canal (erro de config), para tudo
     if (!targetChannelId) {
       return res
         .status(500)
         .json({ error: "Canal de destino não configurado no servidor." });
     }
 
-    // --- MONTAGEM DO EMBED (Igual ao anterior) ---
+    // --- MONTAGEM DO EMBED ---
     let fields = [];
     fields.push({
       name: "📚 Curso",

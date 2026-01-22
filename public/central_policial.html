@@ -792,15 +792,14 @@
       Notify.init();
 
       // 1. Verifica Sessão
-      // Tenta ler o usuário salvo no login
       const userJson = localStorage.getItem("revoada_user");
       if (!userJson) {
-        window.location.href = "../index.html"; // Manda de volta pro login se não tiver usuário
+        window.location.href = "../index.html";
         return;
       }
       const user = JSON.parse(userJson);
 
-      // 2. Preenche a Sidebar com a foto e nome
+      // 2. Preenche a Sidebar
       const sidebarUser = document.getElementById("sidebar-user");
       if (sidebarUser) {
         sidebarUser.innerHTML = `
@@ -818,61 +817,36 @@
         const tabJornalista = document.getElementById("tab-jornalista");
         if (tabJornalista) tabJornalista.classList.remove("hidden");
       }
-      loadDashboardData();
 
-      // 6. Configura o formulário de notícias
-      setupNewsForm(user);
-
-      checkInstrutorPermission(user);
-      // ================================================================
-      // 4. LÓGICA DE PERMISSÃO (CURSOS ESPECIAIS)
-      // ================================================================
-
-      // DEBUG: Mostra no console o que o usuário tem
-      console.log("👤 [DEBUG] Dados do Usuário:", user);
-      console.log("🔑 [DEBUG] Cargos do Usuário:", user.roles);
-
-      // Verifica se a propriedade 'roles' existe no usuário
+      // 4. Lógica de Permissão (Cursos Especiais - Perícia/Tráfico)
       if (user.roles && Array.isArray(user.roles)) {
-
-        // Verifica se ALGUM cargo do usuário bate com a lista permitida
-        // Convertemos para String para garantir (ex: "123" == 123)
         const hasAccess = user.roles.some(userRoleId =>
           ALLOWED_ROLE_IDS.includes(String(userRoleId))
         );
 
         if (hasAccess) {
-          console.log("✅ Permissão Concedida! Liberando cursos restritos...");
-
-          // Seleciona todos os cards com a classe .restricted-card e mostra eles
           const restrictedCards = document.querySelectorAll(".restricted-card");
           restrictedCards.forEach(card => {
-            card.style.display = "flex"; // Remove o display:none
+            card.style.display = "flex";
             card.classList.remove("hidden");
           });
-
-          // Opcional: Avisa o usuário visualmente
-          // Notify.success("Acesso a cursos especiais liberado.");
-        } else {
-          console.log("❌ Permissão Negada. Nenhum cargo compatível encontrado.");
         }
-
-      } else {
-        console.warn("⚠️ [AVISO] O usuário logado não tem a lista de cargos (user.roles). Verifique o código de login (auth.js).");
       }
 
-      // 5. Carrega Dados da Dashboard (Simulação)
+      // 5. Carrega Dados da Dashboard
       loadDashboardData();
 
       // 6. Configura o formulário de notícias
       setupNewsForm(user);
+
+      // 7. Verifica Permissão de Instrutor (E carrega dados do Discord se for)
+      checkInstrutorPermission(user);
     });
 
     /* ==========================================================================
-       FUNÇÕES AUXILIARES
+       FUNÇÕES AUXILIARES (UI e Formulários)
        ========================================================================== */
 
-    // Função global para trocar de aba (chamada pelos onlick no HTML)
     window.switchTab = function (tabName, element) {
       document.querySelectorAll(".dash-section").forEach(el => el.classList.add("hidden"));
       document.querySelectorAll(".sidebar-menu a").forEach(el => el.classList.remove("active"));
@@ -880,27 +854,22 @@
       element.classList.add("active");
     }
 
-    // Configura o envio do formulário de notícias
     function setupNewsForm(user) {
       const formNews = document.getElementById("form-news");
       if (formNews) {
         const fontFamilySelect = document.getElementById("fontFamily");
         const newsContentTextarea = document.getElementById("newsContent");
 
-        // Aplica visualmente o estilo de fonte no textarea
         if (fontFamilySelect && newsContentTextarea) {
           fontFamilySelect.addEventListener("change", function () {
             const selectedFont = this.value;
-            // Remove estilos anteriores
             newsContentTextarea.style.fontWeight = "normal";
             newsContentTextarea.style.fontStyle = "normal";
             newsContentTextarea.style.fontFamily = "inherit";
 
-            if (selectedFont === "bold") {
-              newsContentTextarea.style.fontWeight = "bold";
-            } else if (selectedFont === "italic") {
-              newsContentTextarea.style.fontStyle = "italic";
-            } else if (selectedFont === "bold-italic") {
+            if (selectedFont === "bold") newsContentTextarea.style.fontWeight = "bold";
+            else if (selectedFont === "italic") newsContentTextarea.style.fontStyle = "italic";
+            else if (selectedFont === "bold-italic") {
               newsContentTextarea.style.fontWeight = "bold";
               newsContentTextarea.style.fontStyle = "italic";
             } else if (selectedFont === "code") {
@@ -911,8 +880,6 @@
 
         formNews.addEventListener("submit", async (e) => {
           e.preventDefault();
-
-          // Feedback visual no botão
           const btn = formNews.querySelector("button");
           const originalText = btn.innerHTML;
           btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Enviando...";
@@ -920,46 +887,30 @@
           btn.style.opacity = "0.7";
 
           try {
-            // Coleta os dados do formulário
             const formData = new FormData(formNews);
-            const title = formData.get("title");
-            const content = formData.get("content");
-            const imageUrl = formData.get("imageUrl");
-            const fontFamily = formData.get("fontFamily") || "normal";
-
-            // Envia para a API
             const response = await fetch("/api/publish-news", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                title: title,
-                content: content,
-                imageUrl: imageUrl,
-                fontFamily: fontFamily,
-                userId: user.id, // ID do Discord do usuário
+                title: formData.get("title"),
+                content: formData.get("content"),
+                imageUrl: formData.get("imageUrl"),
+                fontFamily: formData.get("fontFamily") || "normal",
+                userId: user.id,
               }),
             });
 
             const result = await response.json();
-
             if (response.ok && result.success) {
-              Notify.success("Notícia publicada com sucesso no Discord!");
+              Notify.success("Notícia publicada!");
               formNews.reset();
-
-              // Opcional: recarrega as notícias após publicar
-              setTimeout(() => {
-                loadDashboardData();
-              }, 1000);
+              setTimeout(() => loadDashboardData(), 1000);
             } else {
-              throw new Error(result.error || "Erro ao publicar notícia");
+              throw new Error(result.error || "Erro ao publicar");
             }
           } catch (error) {
-            console.error("Erro ao publicar notícia:", error);
-            Notify.error(error.message || "Erro ao publicar notícia. Verifique sua conexão.");
+            Notify.error(error.message);
           } finally {
-            // Restaura o botão
             btn.innerHTML = originalText;
             btn.disabled = false;
             btn.style.opacity = "1";
@@ -968,9 +919,7 @@
       }
     }
 
-    // Carrega dados do dashboard
     async function loadDashboardData() {
-      // Carrega notícias
       const newsContainer = document.getElementById('latest-news-container');
       if (newsContainer) {
         try {
@@ -996,37 +945,35 @@
             <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
               <div class="news-overlay">
                 <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
-                <small style="color: #cbd5e1;">Aguardando conexão com o servidor...</small>
+                <small style="color: #cbd5e1;">Aguardando conexão...</small>
               </div>
             </div>
           `;
         }
       }
     }
-    /* ==========================================================================
-   LÓGICA DO INSTRUTOR
-   ========================================================================== */
 
-    // 1. Verifica se o usuário é instrutor ao carregar
-    // ATUALIZADO: Suporte para múltiplos cargos de instrutor
+    /* ==========================================================================
+       LÓGICA DO INSTRUTOR & INTEGRAÇÃO DISCORD
+       ========================================================================== */
+
+    // 1. Verifica permissão e Carrega listas (Cursos/Membros)
     async function checkInstrutorPermission(user) {
       if (!user || !user.roles) return;
 
       try {
-        const res = await fetch('/api/course-manager');
+        // [MODIFICAÇÃO]: Usa ?action=config para ser mais leve
+        const res = await fetch('/api/course-manager?action=config');
         const config = await res.json();
 
-        // Verifica se a configuração existe
         if (config.instrutorRoleId) {
-          // 1. Transforma a string "id1,id2,id3" em um Array ["id1", "id2", "id3"]
-          // O .split(',') quebra na vírgula e o .trim() remove espaços se houver
           const allowedRoles = String(config.instrutorRoleId).split(',').map(id => id.trim());
-
-          // 2. Verifica se o usuário tem ALGUM (some) dos cargos permitidos
           const isInstrutor = user.roles.some(userRole => allowedRoles.includes(String(userRole)));
 
           if (isInstrutor) {
             document.getElementById('tab-instrutor').classList.remove('hidden');
+            // Se for instrutor, carrega a lista de nomes e cursos do Discord
+            loadDiscordData();
           }
         }
       } catch (err) {
@@ -1034,11 +981,73 @@
       }
     }
 
-    // Adicione esta chamada dentro do seu "document.addEventListener" existente, logo após pegar o usuario:
-    // checkInstrutorPermission(user);
+    // 2. Carrega Dados do Discord (Selects e Datalist)
+    async function loadDiscordData() {
+      try {
+        // [MODIFICAÇÃO]: Endpoint unificado para buscar dados
+        const res = await fetch('/api/course-manager?action=discord-data');
+        if (!res.ok) throw new Error("Erro na API de dados");
 
-    // 2. Alternar entre Abas de Relatório e Anúncio
-    function toggleInstrutorTab(tab) {
+        const data = await res.json();
+
+        // A. Popula os Selects de Curso
+        const selects = document.querySelectorAll('select[name="curso_nome"]');
+        selects.forEach(sel => {
+          sel.innerHTML = '<option value="" disabled selected>Selecione o Curso...</option>';
+          data.cursos.forEach(c => {
+            // O value é o NOME do curso para o Embed
+            sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+          });
+        });
+
+        // B. Popula a Datalist de Membros (Pesquisa)
+        const datalist = document.getElementById('lista-membros-discord');
+        if (datalist) {
+          datalist.innerHTML = '';
+          data.membros.forEach(m => {
+            // value é o ID formatado, label é o nome para busca visual
+            const option = document.createElement('option');
+            option.value = `<@${m.id}>`;
+            option.label = m.name;
+            datalist.appendChild(option);
+          });
+        }
+
+      } catch (err) {
+        console.error("Erro ao carregar dados do Discord:", err);
+        // Fallback silencioso: inputs funcionam como texto normal se falhar
+      }
+    }
+
+    // 3. Helper: Adiciona seleção da lista ao Textarea e limpa o input
+    // Use no HTML: onchange="adicionarAbaixo(this, 'id-do-textarea')"
+    window.adicionarAbaixo = function (inputElement, targetId) {
+      const valor = inputElement.value;
+      if (!valor) return;
+
+      const textarea = document.getElementById(targetId);
+      if (textarea) {
+        // Se já tem texto, põe vírgula. Se não, só põe o valor.
+        if (textarea.value.trim().length > 0) {
+          textarea.value += `, ${valor}`;
+        } else {
+          textarea.value = valor;
+        }
+      }
+
+      // Limpa o input de pesquisa e foca nele de novo
+      inputElement.value = "";
+      inputElement.focus();
+    }
+
+    // Função Opcional: Para formatar input simples (Ex: Instrutor Principal)
+    window.formatarMençao = function (input) {
+      // A datalist já insere <@ID>, então essa função serve apenas
+      // caso queira validar algo no futuro. Por enquanto vazia.
+    }
+
+    // 4. Alternar UI (Relatório / Anúncio)
+    window.toggleInstrutorTab = function (tab) {
       const relatorioDiv = document.getElementById('instrutor-relatorio');
       const anuncioDiv = document.getElementById('instrutor-anuncio');
 
@@ -1051,8 +1060,8 @@
       }
     }
 
-    // 3. Enviar Formulários (Relatório ou Anúncio)
-    async function handleCourseSubmit(e, type) {
+    // 5. Enviar Formulários (POST)
+    window.handleCourseSubmit = async function (e, type) {
       e.preventDefault();
       if (!confirm("Confirma o envio dessas informações para o Discord?")) return;
 
@@ -1066,16 +1075,13 @@
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      // --- ATUALIZAÇÃO IMPORTANTE ---
       data.type = type;
-
-      // Pegamos o usuário do LocalStorage
       const user = JSON.parse(localStorage.getItem("revoada_user"));
-
       data.authorId = user.id;
-      data.userRoles = user.roles; // <--- ENVIAMOS OS CARGOS AQUI PARA O BACKEND DECIDIR O CANAL
+      data.userRoles = user.roles;
 
       try {
+        // [NOTA]: Aqui continua POST padrão, sem query params
         const res = await fetch('/api/course-manager', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1083,25 +1089,25 @@
         });
 
         if (res.ok) {
-          Notify.success(type === 'final' ? "Relatório enviado para a sua facção!" : "Curso anunciado!");
+          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Curso anunciado!");
           form.reset();
         } else {
-          // Se o backend retornar erro (ex: usuário sem facção), mostramos o alerta
           const errData = await res.json();
           throw new Error(errData.error || "Erro no servidor");
         }
       } catch (err) {
-        Notify.error(err.message); // Mostra a mensagem de erro específica
+        Notify.error(err.message);
         console.error(err);
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
       }
     }
-    // 4. Botão Especial: Enviar para Matriz
-    async function enviarParaMatriz() {
+
+    // 6. Enviar para Matriz (POST especial)
+    window.enviarParaMatriz = async function () {
       const form = document.getElementById('form-curso-final');
-      if (!form.reportValidity()) return;
+      if (!form.reportValidity()) return; // Valida se campos obrigatórios estão preenchidos
 
       if (!confirm("Deseja enviar uma cópia deste relatório para o canal da MATRIZ?")) return;
 
@@ -1113,7 +1119,6 @@
 
       try {
         Notify.loading("Enviando cópia para Matriz...");
-        // MUDANÇA AQUI: Chama o course-manager via POST
         const res = await fetch('/api/course-manager', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
