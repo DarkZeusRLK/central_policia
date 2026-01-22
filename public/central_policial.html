@@ -720,9 +720,6 @@
             <button type="submit" class="btn-primary" style="flex: 2; padding: 12px; background: var(--accent-gold); color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
               <i class="fa-solid fa-paper-plane"></i> Enviar Relatório
             </button>
-            <button type="button" onclick="enviarParaMatriz()" class="btn-primary" style="flex: 1; padding: 12px; background: #0f172a; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-weight: bold; border-radius: 8px; cursor: pointer;">
-              <i class="fa-solid fa-share-nodes"></i> Enviar p/ Matriz
-            </button>
           </div>
         </form>
       </div>
@@ -821,8 +818,8 @@
   </main>
   <script>
     /* ==========================================================================
-       CONFIGURAÇÕES GERAIS
-       ========================================================================== */
+    CONFIGURAÇÕES GERAIS
+    ========================================================================== */
     const ALLOWED_ROLE_IDS = [
       "1053687224320933888",
       "1447060519726088212"
@@ -886,12 +883,12 @@
       const sidebarUser = document.getElementById("sidebar-user");
       if (sidebarUser) {
         sidebarUser.innerHTML = `
-            <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" style="width: 40px; height: 40px; border-radius: 50%;">
-            <div>
-                <div style="font-weight: bold; font-size: 0.9rem;">${user.username}</div>
-                <div style="font-size: 0.75rem; color: #64748b;">Online</div>
-            </div>
-        `;
+        <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" style="width: 40px; height: 40px; border-radius: 50%;">
+        <div>
+            <div style="font-weight: bold; font-size: 0.9rem;">${user.username}</div>
+            <div style="font-size: 0.75rem; color: #64748b;">Online</div>
+        </div>
+    `;
       }
 
       // 3. Verifica Acesso Jornalista
@@ -1013,25 +1010,25 @@
           if (news && news.length > 0) {
             const latest = news[0];
             newsContainer.innerHTML = `
-              <div class="news-widget-content" style="background-image: url('${latest.image || 'https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg'}');">
-                <div class="news-overlay">
-                  <h4 style="margin: 0; font-size: 1rem;">${latest.title}</h4>
-                  <small style="color: #cbd5e1;">${latest.date || 'Data não disponível'}</small>
-                </div>
-              </div>
-            `;
+          <div class="news-widget-content" style="background-image: url('${latest.image || 'https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg'}');">
+            <div class="news-overlay">
+              <h4 style="margin: 0; font-size: 1rem;">${latest.title}</h4>
+              <small style="color: #cbd5e1;">${latest.date || 'Data não disponível'}</small>
+            </div>
+          </div>
+        `;
           } else {
             throw new Error("Sem notícias");
           }
         } catch (error) {
           newsContainer.innerHTML = `
-            <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
-              <div class="news-overlay">
-                <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
-                <small style="color: #cbd5e1;">Aguardando conexão...</small>
-              </div>
-            </div>
-          `;
+        <div class="news-widget-content" style="background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/299/370/original/world-breaking-news-digital-earth-hud-rotating-globe-rotating-free-video.jpg');">
+          <div class="news-overlay">
+            <h4 style="margin: 0; font-size: 1rem;">Sistema de Notícias</h4>
+            <small style="color: #cbd5e1;">Aguardando conexão...</small>
+          </div>
+        </div>
+      `;
         }
       }
     }
@@ -1076,7 +1073,8 @@
         selects.forEach(sel => {
           sel.innerHTML = '<option value="" disabled selected>Selecione o Curso...</option>';
           data.cursos.forEach(c => {
-            sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            // ATENÇÃO: Agora o VALUE é o ID, e o TEXTO é o Nome.
+            sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
           });
         });
 
@@ -1086,8 +1084,12 @@
           datalist.innerHTML = '';
           data.membros.forEach(m => {
             const option = document.createElement('option');
-            option.value = `<@${m.id}>`;
-            option.label = m.name;
+            // Mantemos o valor como texto para a busca visual, mas idealmente usaríamos o ID se possível
+            option.value = m.fullLabel || m.name;
+            option.label = m.name; // Usado para exibição
+
+            // Truque para guardar o ID real se precisar no futuro (o datalist puro não suporta data-attributes bem)
+            // Por enquanto, o sistema de lista visual usa o texto do input
             datalist.appendChild(option);
           });
         }
@@ -1098,7 +1100,7 @@
     }
 
     /* ==========================================================================
-       LÓGICA DA LISTA VISUAL (ESTILO CÓDIGO PENAL) - NOVO!
+       LÓGICA DA LISTA VISUAL (MÚLTIPLOS INSTRUTORES / PARTICIPANTES)
        ========================================================================== */
 
     // Permite adicionar apertando ENTER
@@ -1111,6 +1113,7 @@
 
     // Função Principal de Adicionar na Lista Visual
     window.adicionarMembroManual = function (tipo) {
+      // IDs esperados no HTML: input-instrutores, visual-instrutores, hidden-instrutores
       const inputId = `input-${tipo}`;
       const visualId = `visual-${tipo}`;
       const hiddenId = `hidden-${tipo}`;
@@ -1118,41 +1121,29 @@
       const input = document.getElementById(inputId);
       const containerVisual = document.getElementById(visualId);
       const inputHidden = document.getElementById(hiddenId);
-      const datalist = document.getElementById('lista-membros-discord');
 
-      if (!input || !containerVisual || !inputHidden) return;
+      if (!input || !containerVisual || !inputHidden) {
+        console.warn(`Elementos não encontrados para o tipo: ${tipo}`);
+        return;
+      }
 
       let valor = input.value.trim();
       if (!valor) return;
 
-      // Tenta achar o nome amigável
-      let nomeExibicao = valor;
-      let idReal = valor;
-
-      if (datalist) {
-        const options = datalist.options;
-        for (let i = 0; i < options.length; i++) {
-          if (options[i].value === valor) {
-            nomeExibicao = options[i].label;
-            break;
-          }
-        }
-      }
-
-      // Cria o Card
+      // Cria o Card Visual
       const div = document.createElement('div');
       div.className = 'selected-item';
-      div.setAttribute('data-value', idReal);
+      div.setAttribute('data-value', valor);
       div.innerHTML = `
-            <span>${nomeExibicao} <small style="color:#64748b; font-size:0.7em;">${idReal}</small></span>
-            <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        `;
+        <span>${valor}</span>
+        <button type="button" class="btn-remove-item" onclick="removerItem(this, '${tipo}')">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    `;
 
       containerVisual.appendChild(div);
 
-      // Atualiza o hidden e limpa
+      // Atualiza o hidden e limpa o input visível
       atualizarHiddenInput(tipo);
       input.value = '';
       input.focus();
@@ -1170,15 +1161,12 @@
       const container = document.getElementById(`visual-${tipo}`);
       const hiddenInput = document.getElementById(`hidden-${tipo}`);
 
+      if (!container || !hiddenInput) return;
+
       const items = container.querySelectorAll('.selected-item');
       const valores = Array.from(items).map(div => div.getAttribute('data-value'));
 
       hiddenInput.value = valores.join(', ');
-    }
-
-    // Formata menção simples (para inputs únicos como Instrutor Principal)
-    window.formatarMençao = function (input) {
-      // Função placeholder caso precise de validação futura
     }
 
     // 4. Alternar UI (Relatório / Anúncio)
@@ -1207,9 +1195,19 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
 
+      // Coleta os dados do formulário
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
+      // === TRATAMENTO ESPECIAL PARA O CURSO (ID vs NOME) ===
+      // O select tem o ID no value. Precisamos pegar o texto também.
+      const cursoSelect = form.querySelector('select[name="curso_nome"]');
+      if (cursoSelect && cursoSelect.selectedIndex >= 0) {
+        data.curso_id = cursoSelect.value; // ID do cargo
+        data.curso_nome = cursoSelect.options[cursoSelect.selectedIndex].text; // Nome do curso
+      }
+
+      // Adiciona metadados do usuário
       data.type = type;
       const user = JSON.parse(localStorage.getItem("revoada_user"));
       data.authorId = user.id;
@@ -1223,11 +1221,14 @@
         });
 
         if (res.ok) {
-          Notify.success(type === 'final' ? "Relatório enviado com sucesso!" : "Curso anunciado!");
+          Notify.success(type === 'final' ? "Relatório enviado (Matriz + Geral)!" : "Curso anunciado!");
           form.reset();
-          // Limpa as listas visuais também
+
+          // Limpa as listas visuais
           document.querySelectorAll('.selected-list-container').forEach(el => el.innerHTML = '');
+          // Limpa inputs hidden manuais
           document.querySelectorAll('input[type="hidden"]').forEach(el => el.value = '');
+
         } else {
           const errData = await res.json();
           throw new Error(errData.error || "Erro no servidor");
@@ -1238,38 +1239,6 @@
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
-      }
-    }
-
-    // 6. Enviar para Matriz (POST especial)
-    window.enviarParaMatriz = async function () {
-      const form = document.getElementById('form-curso-final');
-      if (!form.reportValidity()) return;
-
-      if (!confirm("Deseja enviar uma cópia deste relatório para o canal da MATRIZ?")) return;
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      data.type = 'matriz_copy';
-      const user = JSON.parse(localStorage.getItem("revoada_user"));
-      data.authorId = user.id;
-
-      try {
-        Notify.loading("Enviando cópia para Matriz...");
-        const res = await fetch('/api/course-manager', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        if (res.ok) {
-          Notify.success("Cópia enviada para a Matriz!");
-        } else {
-          Notify.error("Erro ao enviar para Matriz.");
-        }
-      } catch (err) {
-        console.error(err);
-        Notify.error("Erro de conexão.");
       }
     }
   </script>
