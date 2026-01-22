@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
     // Ação 2: Busca dados do Discord
     if (action === "discord-data") {
-      // Debug: Mostra no log da Vercel o que está faltando (sem mostrar o token real por segurança)
+      // Debug: Mostra no log da Vercel o que está faltando
       if (!DISCORD_BOT_TOKEN)
         console.error("ERRO: DISCORD_BOT_TOKEN não encontrado no .env");
       if (!GUILD_ID)
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       try {
         const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
 
-        // Busca Cargos e Membros em paralelo usando a variável GUILD_ID unificada
+        // Busca Cargos e Membros em paralelo
         const [rolesRes, membersRes] = await Promise.all([
           fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/roles`, {
             headers,
@@ -81,15 +81,51 @@ export default async function handler(req, res) {
         const roles = await rolesRes.json();
         const members = await membersRes.json();
 
-        // Filtra Cargos: Começam com "Curso" ou "Formação"
+        // --- FILTRO INTELIGENTE DE CURSOS ---
         const cursosFormatados = roles
-          .filter(
-            (r) =>
-              r.name.toLowerCase().startsWith("curso") ||
-              r.name.toLowerCase().startsWith("formação"),
-          )
+          .filter((r) => {
+            const nome = r.name.toLowerCase();
+
+            // 1. LISTA NEGRA: Se tiver qualquer uma dessas palavras, IGNORA.
+            // Isso remove cargos hierárquicos como "Chefe de Cursos", "Instrutor", etc.
+            const termosProibidos = [
+              "chefe",
+              "instrutor",
+              "diretor",
+              "gerente",
+              "lider",
+              "líder",
+              "coordenador",
+              "coord",
+              "administrador",
+              "moderador",
+              "suporte",
+              "bot",
+            ];
+
+            // Se o nome contiver algum termo proibido, retorna false (remove da lista)
+            if (termosProibidos.some((termo) => nome.includes(termo))) {
+              return false;
+            }
+
+            // 2. LISTA BRANCA: Se passou pelo filtro acima, verifica se é um curso válido
+            return (
+              nome.includes("curso") ||
+              nome.includes("formação") ||
+              nome.includes("treinamento") ||
+              nome.includes("aula") ||
+              nome.includes("instrução") ||
+              nome.includes("estágio") ||
+              nome.includes("habilitacao") ||
+              nome.includes("habilitação")
+            );
+          })
           .map((r) => ({ id: r.id, name: r.name }))
           .sort((a, b) => a.name.localeCompare(b.name));
+
+        console.log(
+          `Cursos filtrados: ${cursosFormatados.length} encontrados.`,
+        );
 
         // Filtra Membros: Remove bots e formata
         const membrosFormatados = members
