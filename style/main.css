@@ -748,6 +748,68 @@ body {
 }
 
 /* ==========================================================================
+   8.1 PAGE LOADER
+   ========================================================================== */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+      circle at top,
+      rgba(15, 23, 42, 0.92),
+      rgba(5, 8, 15, 0.98)
+    ),
+    #05080f;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+body.page-loaded .page-loader {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.page-loader-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.page-loader-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
+}
+
+.page-loader-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--accent-gold);
+  animation: loaderSpin 1s linear infinite;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.25);
+}
+
+.page-loader-text {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
    9. RESPONSIVIDADE
    ========================================================================== */
 @media (max-width: 1024px) {

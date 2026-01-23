@@ -37,6 +37,45 @@ const Session = {
 };
 
 /* ==========================================================================
+   1.1 PAGE LOADER
+   ========================================================================== */
+function initPageLoader() {
+  if (document.querySelector(".page-loader")) return;
+
+  const isPublicPage = window.location.pathname.includes("/public/");
+  const logoPath = isPublicPage
+    ? "../public/images/Logo_policia.png"
+    : "public/images/Logo_policia.png";
+
+  const loader = document.createElement("div");
+  loader.className = "page-loader";
+  loader.innerHTML = `
+    <div class="page-loader-content">
+      <img src="${logoPath}" alt="Logo Policia" class="page-loader-logo">
+      <div class="page-loader-ring"></div>
+      <div class="page-loader-text">Carregando...</div>
+    </div>
+  `;
+
+  document.body.appendChild(loader);
+}
+
+function hidePageLoader() {
+  document.body.classList.add("page-loaded");
+  const loader = document.querySelector(".page-loader");
+  if (!loader) return;
+  setTimeout(() => loader.remove(), 600);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initPageLoader();
+});
+
+window.addEventListener("load", () => {
+  hidePageLoader();
+});
+
+/* ==========================================================================
    2. CAPTURA DO LOGIN (QUANDO VOLTA DO DISCORD)
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {

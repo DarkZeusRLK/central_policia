@@ -14,6 +14,23 @@
     :root {
       --accent-gold: #94a3b8;
       --primary-blue: #1f2937;
+      --bg-color: #0b0f19;
+      --glass-bg: rgba(12, 18, 28, 0.8);
+      --glass-border: rgba(148, 163, 184, 0.22);
+    }
+
+    body {
+      background: radial-gradient(
+          circle at 20% 0%,
+          rgba(148, 163, 184, 0.2),
+          transparent 55%
+        ),
+        radial-gradient(
+          circle at 80% 15%,
+          rgba(30, 41, 59, 0.45),
+          transparent 60%
+        ),
+        #0b0f19;
     }
 
     .dept-title {
@@ -29,6 +46,12 @@
       height: 40px;
       object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .hero-content h1 {
+      background: linear-gradient(to right, #ffffff 0%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     /* --- ESTILOS ESPECÍFICOS PF (CINZA/PRETO) --- */
@@ -206,8 +229,8 @@
 
         <p>📢 <span class="discord-highlight">Processo Seletivo</span></p>
         <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Status: <span style="color: #facc15; font-weight: bold;">SOB ANÁLISE</span></li>
-          <li>Método: Indicação ou Concurso Público.</li>
+          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
+          <li>Horário: Todos os dias em qualquer horário</li>
         </ul>
 
         <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">

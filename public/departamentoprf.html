@@ -17,6 +17,19 @@
       --prf-blue: #1e3a8a;
       --accent-gold: #facc15;
       --primary-blue: #1e3a8a;
+      --bg-color: #0a0f1a;
+      --glass-bg: rgba(12, 18, 28, 0.8);
+      --glass-border: rgba(250, 204, 21, 0.22);
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 0%,
+          rgba(250, 204, 21, 0.18),
+          transparent 55%),
+        radial-gradient(circle at 80% 10%,
+          rgba(30, 58, 138, 0.35),
+          transparent 60%),
+        #0a0f1a;
     }
 
     .dept-title {
@@ -32,6 +45,12 @@
       height: 40px;
       object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .hero-content h1 {
+      background: linear-gradient(to right, #ffffff 0%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .discord-code {
@@ -162,7 +181,7 @@
     </div>
   </nav>
 
-  <header class="hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(15, 23, 42, 1)), url('https://s2-g1.glbimg.com/s6n7Sj0tQ8WvvfA-pX_YFqUgeRc=/0x0:1600x1066/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2021/A/9/8O00rBSa2XAg5lnv5oAA/whatsapp-image-2021-05-24-at-15.54.40.jpeg'); background-size: cover; background-position: center;">
+  <header class="hero" style="background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(15, 23, 42, 1)), url('images/Mural_prf.png'); background-size: cover; background-position: center;">
     <div class="hero-content">
       <h1 class="glitch-effect" data-text="POLÍCIA RODOVIÁRIA">POLÍCIA RODOVIÁRIA</h1>
       <p>PRF: ontem, hoje, sempre</p>
@@ -205,13 +224,16 @@
         <h3 class="gallery-title">📸 Galeria Rodoviária</h3>
         <div class="gallery-grid">
           <div class="gallery-item">
-            <img src="https://static.poder360.com.br/2021/12/prf-viatura-848x477.jpg" alt="Viatura PRF">
+            <img src="images/speed_cmd.png" alt="Viatura PRF">
           </div>
           <div class="gallery-item">
-            <img src="https://agenciaja.com/wp-content/uploads/2019/07/Harley-Davidson-Road-King-Police-PRF-696x464.jpg" alt="Motos Batedor">
+            <img src="images/Comandos_prf.png" alt="Motos Batedor">
           </div>
           <div class="gallery-item">
-            <img src="https://www.gov.br/prf/pt-br/noticias/estaduais/rio-grande-do-sul/2022/junho/prf-realiza-transporte-aeromedico-de-orgao-para-transplante/0b5107e3-5182-41ba-ac77-96a12b69472e.jpg/@@images/image" alt="DOA Helicóptero">
+            <img src="images/batedor_prf.png">
+          </div>
+          <div class="gallery-item">
+            <img src="images/doa_cmd.png">
           </div>
         </div>
 
