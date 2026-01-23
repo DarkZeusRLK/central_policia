@@ -69,11 +69,56 @@ function hidePageLoader() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initPageLoader();
+  initInteractionGuards();
 });
 
 window.addEventListener("load", () => {
   hidePageLoader();
 });
+
+/* ==========================================================================
+   1.2 INTERACTION GUARDS
+   ========================================================================== */
+function initInteractionGuards() {
+  document.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("dragstart", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("selectstart", (event) => {
+    const target = event.target;
+    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
+      return;
+    }
+    event.preventDefault();
+  });
+
+  document.addEventListener("copy", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("cut", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    const isCtrl = event.ctrlKey || event.metaKey;
+    const isShift = event.shiftKey;
+
+    if (
+      key === "f12" ||
+      (isCtrl && key === "u") ||
+      (isCtrl && key === "s") ||
+      (isCtrl && isShift && ["i", "j", "c"].includes(key))
+    ) {
+      event.preventDefault();
+    }
+  });
+}
 
 /* ==========================================================================
    2. CAPTURA DO LOGIN (QUANDO VOLTA DO DISCORD)
