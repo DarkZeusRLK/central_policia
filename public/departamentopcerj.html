@@ -11,6 +11,25 @@
   <link rel="stylesheet" href="../style/main.css">
 
   <style>
+    :root {
+      --accent-gold: #fbbf24;
+      --primary-blue: #1e3a8a;
+    }
+
+    .dept-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .dept-title-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
     /* Estilos Específicos desta página */
     .discord-code {
       background-color: #2b2d31;
@@ -138,7 +157,11 @@
 
         <div style="text-align: center; margin-bottom: 30px;">
           <h2 style="color: white; text-transform: uppercase;">
-            <i class="fa-solid fa-shield-cat"></i> Departamento de Polícia Civil
+            <span class="dept-title">
+              <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Logo PCERJ" class="dept-title-logo">
+              Departamento de Polícia Civil
+              <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Logo PCERJ" class="dept-title-logo">
+            </span>
           </h2>
         </div>
 

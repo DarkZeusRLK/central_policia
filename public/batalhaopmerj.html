@@ -11,6 +11,25 @@
   <link rel="stylesheet" href="../style/main.css">
 
   <style>
+    :root {
+      --accent-gold: #3b82f6;
+      --primary-blue: #1d4ed8;
+    }
+
+    .dept-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .dept-title-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
     /* --- ESTILOS ESPECÍFICOS PMERJ (AZUL) --- */
 
     .discord-code {
@@ -157,7 +176,11 @@
 
         <div style="text-align: center; margin-bottom: 30px;">
           <h2 style="color: white; text-transform: uppercase;">
-            <i class="fa-solid fa-star" style="color: #3b82f6;"></i> POLÍCIA MILITAR <i class="fa-solid fa-star" style="color: #3b82f6;"></i>
+            <span class="dept-title">
+              <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Logo PMERJ" class="dept-title-logo">
+              POLÍCIA MILITAR
+              <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Logo PMERJ" class="dept-title-logo">
+            </span>
           </h2>
           <p style="font-size: 0.9rem; color: #94a3b8; letter-spacing: 1px;">ESTADO DO RIO DE JANEIRO</p>
         </div>
