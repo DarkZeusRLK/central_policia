@@ -70,6 +70,7 @@ function hidePageLoader() {
 document.addEventListener("DOMContentLoaded", () => {
   initPageLoader();
   initInteractionGuards();
+  optimizeImages();
 });
 
 window.addEventListener("load", () => {
@@ -116,6 +117,23 @@ function initInteractionGuards() {
       (isCtrl && isShift && ["i", "j", "c"].includes(key))
     ) {
       event.preventDefault();
+    }
+  });
+}
+
+function optimizeImages() {
+  const images = document.querySelectorAll("img");
+  images.forEach((img) => {
+    if (img.closest(".navbar") || img.closest(".hero") || img.closest(".page-loader")) {
+      if (!img.hasAttribute("decoding")) img.setAttribute("decoding", "async");
+      if (!img.hasAttribute("loading")) img.setAttribute("loading", "eager");
+      return;
+    }
+
+    if (!img.hasAttribute("loading")) img.setAttribute("loading", "lazy");
+    if (!img.hasAttribute("decoding")) img.setAttribute("decoding", "async");
+    if (!img.hasAttribute("fetchpriority")) {
+      img.setAttribute("fetchpriority", "low");
     }
   });
 }
