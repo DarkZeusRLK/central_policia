@@ -655,7 +655,7 @@ async function loadDepartmentLeadership() {
           desc: "Chefe da Polícia Rodoviária Federal.",
         },
         { title: "Vice-Diretor", desc: "Coordenação regional." },
-        { title: "Chefe de Policiamento", desc: "Fiscalização nas rodovias." },
+        { title: "Vice-Diretor", desc: "Fiscalização nas rodovias." },
       ],
     },
   };
