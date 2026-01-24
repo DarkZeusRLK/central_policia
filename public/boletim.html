@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boletim de Ocorrência | Central de Polícia</title>
+  <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style/main.css">
+
+  <style>
+    :root {
+      --boletim-accent: #fbbf24;
+      --boletim-dark: #0b0f17;
+    }
+
+    body {
+      background: radial-gradient(circle at 12% 10%, rgba(251, 191, 36, 0.2), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(30, 58, 138, 0.25), transparent 60%),
+        var(--boletim-dark);
+    }
+
+    .boletim-hero {
+      background: linear-gradient(120deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.7)),
+        radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.25), transparent 55%);
+      min-height: 40vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .boletim-tags {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .boletim-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: #f8fafc;
+      font-size: 0.9rem;
+    }
+
+    .boletim-panel {
+      max-width: 980px;
+      margin: 0 auto;
+      border: 1px solid rgba(251, 191, 36, 0.25);
+    }
+
+    .boletim-panel .section-title {
+      justify-content: flex-start;
+    }
+
+    .form-actions {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .boletim-hero {
+        min-height: 32vh;
+        padding-top: 2rem;
+      }
+
+      .form-actions {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <img src="../public/images/Logo_policia.png" alt="Logo Revoada">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+
+      <li class="dropdown">
+        <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
+        <div class="dropdown-content">
+          <a href="departamentopcerj.html">
+            <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;"> PCERJ
+          </a>
+          <a href="batalhaopmerj.html">
+            <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;"> PMERJ
+          </a>
+          <a href="departamentoprf.html">
+            <img src="../public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
+          </a>
+          <a href="departamentopf.html">
+            <img src="../public/images/Policia-federal-logo.png" alt="PF" class="nav-icon" style="width: 25px; height: auto;"> PF
+          </a>
+        </div>
+      </li>
+      <li><a href="boletim.html" class="active"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
+      <li><a href="jornalmare.html"><i class="fa-solid fa-newspaper"></i> Jornal Mare</a></li>
+
+      <li><a href="https://policia-revoada.vercel.app" target="_blank"><i class="fa-solid fa-gavel"></i> Código Penal</a></li>
+      <li><a href="https://discord.gg/uCBKjAt2vm" target="_blank"><i class="fa-solid fa-scale-balanced"></i> Corregedoria de Polícia</a></li>
+    </ul>
+
+    <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-lock"></i> Acesso Policial
+      </a>
+      <div id="user-area" class="user-area">
+        <button id="btn-login" class="btn-login" onclick="localStorage.setItem('pending_action','open_boletim'); proceedToLogin();">
+          <i class="fa-brands fa-discord"></i> Login
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero boletim-hero">
+    <div class="hero-content">
+      <h1 class="glitch-effect" data-text="BOLETIM DE OCORRÊNCIA">BOLETIM DE OCORRÊNCIA</h1>
+      <p>Registre sua ocorrência com apoio oficial e acompanhamento da Central.</p>
+      <div class="boletim-tags">
+        <span class="boletim-tag"><i class="fa-solid fa-user-shield"></i> Identificação obrigatória</span>
+        <span class="boletim-tag"><i class="fa-solid fa-clock"></i> Preenchimento rápido</span>
+        <span class="boletim-tag"><i class="fa-solid fa-shield-halved"></i> Atendimento seguro</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="container">
+      <div class="glass-panel form-panel boletim-panel">
+        <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
+        <form id="form-bo">
+          <div class="user-badge">
+            <img id="form-avatar" src="" alt="Avatar">
+            <div>
+              <span id="form-username">Usuário</span>
+              <small>Identidade Confirmada</small>
+            </div>
+          </div>
+          <div class="form-grid">
+
+            <div class="input-group">
+              <label>Nome do Cidadão**</label>
+              <input type="text" name="nome" required placeholder="Ex: João da Silva">
+            </div>
+            <div class="input-group">
+              <label>Passaporte (ID)**</label>
+              <input type="number" name="passaporte" required placeholder="Ex: 1234">
+            </div>
+
+            <div class="input-group">
+              <label>Profissão (Opcional)</label>
+              <input type="text" name="profissao" placeholder="Ex: Mecânico, Entregador...">
+            </div>
+            <div class="input-group">
+              <label>Sexo**</label>
+              <select name="sexo" required>
+                <option value="" disabled selected>Selecione...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Telefone**</label>
+              <input type="text" name="telefone" required placeholder="Ex: 555-0100">
+            </div>
+            <div class="input-group">
+              <label>Horário Aproximado**</label>
+              <input type="datetime-local" name="horario" required>
+            </div>
+            <div class="input-group full-width">
+              <label>Local do Ocorrido**</label>
+              <input type="text" name="local" required placeholder="Ex: Praça Central, ao lado do banco">
+            </div>
+            <div class="input-group full-width">
+              <label>Ocorrência**</label>
+              <input type="text" name="ocorrencia" required placeholder="Ex: Roubo de Veículo">
+            </div>
+            <div class="input-group full-width">
+              <label>Itens Perdidos**</label>
+              <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
+            </div>
+            <div class="input-group full-width">
+              <label><i class="fa-brands fa-youtube" style="color: #ff0000; margin-right:5px;"></i> Link de Provas (YouTube/Medal)</label>
+              <input type="url" name="video_link" placeholder="Cole o link do vídeo aqui (Opcional)">
+            </div>
+
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">
+              <i class="fa-solid fa-paper-plane"></i> Enviar Ocorrência
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-col">
+        <h4><i class="fa-solid fa-shield-halved"></i> REVOADA RJ</h4>
+        <p>Central oficial de segurança pública. Servindo com honra e coragem.</p>
+        <p>Developed by Dark and Tonin</p>
+      </div>
+      <div class="footer-col">
+        <h4>Acesso Rápido</h4>
+        <ul>
+          <li><a href="../index.html">Início</a></li>
+          <li><a href="#">Recrutamentos</a></li>
+          <li><a href="boletim.html">Registrar B.O.</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Emergência</h4>
+        <ul class="emergency-contacts">
+          <li><i class="fa-solid fa-phone"></i> 190 - Polícia Militar</li>
+          <li><i class="fa-solid fa-phone"></i> 191 - Polícia Rodoviária Federal</li>
+          <li><i class="fa-solid fa-phone "></i> 194 - Polícia Federal</li>
+          <li><i class="fa-solid fa-phone"></i> 197 - Polícia Civil</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Polícia Revoada RJ. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <div id="login-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon"><i class="fa-solid fa-user-shield"></i></div>
+      <h2>Identificação Necessária</h2>
+      <p>Para registrar um Boletim de Ocorrência ou acessar a Área Policial, você precisa se identificar primeiro.</p>
+      <div class="modal-actions">
+        <button class="btn-close-modal" onclick="closeLoginModal()">Entendi</button>
+        <button class="btn-login-modal" onclick="proceedToLogin()">Fazer Login Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../scripts/app.js"></script>
+  <script>
+    const inputTelefone = document.querySelector('input[name="telefone"]');
+
+    if (inputTelefone) {
+      inputTelefone.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+
+        if (value.length > 6) value = value.slice(0, 6);
+
+        if (value.length > 3) {
+          value = value.replace(/^(\d{3})(\d+)/, '$1-$2');
+        }
+
+        e.target.value = value;
+      });
+    }
+  </script>
+</body>
+
+</html>

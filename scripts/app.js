@@ -231,18 +231,22 @@ const Notify = {
 /* ==========================================================================
    3. CONTROLE DOS MODAIS
    ========================================================================== */
-function openLoginModal() {
+function openLoginModal(action) {
+  if (action) {
+    localStorage.setItem("pending_action", action);
+  }
+
   const modal = document.getElementById("login-modal");
   if (modal) modal.classList.remove("hidden");
 }
 
 function closeLoginModal() {
+  localStorage.removeItem("pending_action");
   const modal = document.getElementById("login-modal");
   if (modal) modal.classList.add("hidden");
 }
 
 function proceedToLogin() {
-  localStorage.setItem("pending_action", "open_boletim");
   window.location.href = "/api/auth";
 }
 
@@ -304,6 +308,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("login-modal");
     if (e.target === modal) closeLoginModal();
   });
+
+  if (window.location.pathname.includes("boletim.html")) {
+    if (!Session.isLoggedIn()) {
+      openLoginModal("open_boletim");
+    } else {
+      updateFormAvatar();
+    }
+  }
 });
 
 // Função de Atualizar Data e Hora (Chamada a cada segundo)
@@ -335,7 +347,7 @@ function setupNavigation() {
     newBtn.addEventListener("click", (e) => {
       e.preventDefault();
       if (!Session.isLoggedIn()) {
-        openLoginModal();
+        openLoginModal("open_boletim");
       } else {
         showSection("boletim-section");
         updateFormAvatar();
@@ -399,10 +411,23 @@ function checkUrlLogin() {
 
   if (Session.isLoggedIn()) {
     const pendingAction = localStorage.getItem("pending_action");
+    if (!pendingAction) return;
+
+    localStorage.removeItem("pending_action");
+
     if (pendingAction === "open_boletim") {
-      localStorage.removeItem("pending_action");
-      showSection("boletim-section");
+      const isBoletimPage = window.location.pathname.includes("boletim.html");
+      if (!isBoletimPage) {
+        const redirectPath = window.location.pathname.includes("/public/")
+          ? "boletim.html"
+          : "public/boletim.html";
+        window.location.href = redirectPath;
+        return;
+      }
+      closeLoginModal();
       updateFormAvatar();
+    } else if (pendingAction === "access_police") {
+      handlePoliceAccess({ preventDefault: () => {} });
     }
   }
 }
@@ -411,7 +436,7 @@ async function handlePoliceAccess(e) {
   e.preventDefault();
 
   if (!Session.isLoggedIn()) {
-    openLoginModal();
+    openLoginModal("access_police");
     return;
   }
 
