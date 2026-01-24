@@ -393,6 +393,13 @@
       animation: pulse 2s ease-in-out infinite;
     }
 
+    .commanders-banner-logo {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.6));
+    }
+
     @keyframes pulse {
 
       0%,
@@ -458,6 +465,11 @@
 
       .commanders-banner-title i {
         font-size: 2.5rem;
+      }
+
+      .commanders-banner-logo {
+        width: 32px;
+        height: 32px;
       }
 
       .commanders-banner-subtitle {
@@ -649,7 +661,7 @@
         <div class="commanders-banner-overlay"></div>
         <div class="commanders-banner-content">
           <h2 class="commanders-banner-title">
-            <img src="public/images/Logo_policia.png" width="25px" height="25px" alt=""> COMANDO GERAL
+            <img src="public/images/Logo_policia.png" class="commanders-banner-logo" alt="Logo Polícia"> COMANDO GERAL
           </h2>
           <p class="commanders-banner-subtitle">Liderança da Polícia Revoada RJ</p>
         </div>

@@ -91,7 +91,10 @@ function initInteractionGuards() {
 
   document.addEventListener("selectstart", (event) => {
     const target = event.target;
-    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
+    if (
+      target &&
+      (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+    ) {
       return;
     }
     event.preventDefault();
@@ -124,7 +127,11 @@ function initInteractionGuards() {
 function optimizeImages() {
   const images = document.querySelectorAll("img");
   images.forEach((img) => {
-    if (img.closest(".navbar") || img.closest(".hero") || img.closest(".page-loader")) {
+    if (
+      img.closest(".navbar") ||
+      img.closest(".hero") ||
+      img.closest(".page-loader")
+    ) {
       if (!img.hasAttribute("decoding")) img.setAttribute("decoding", "async");
       if (!img.hasAttribute("loading")) img.setAttribute("loading", "eager");
       return;
@@ -731,7 +738,10 @@ async function loadDepartmentLeadership() {
       api: "/api/get-pf",
       roles: [
         { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
-        { title: "Vice-Diretor", desc: "Gestão administrativa." },
+        {
+          title: "Vice-Diretor",
+          desc: "Gestão Administrativa - para gestão tática, operacional",
+        },
         { title: "Vice-Diretor", desc: "Fiscalização e conduta." },
       ],
     },
