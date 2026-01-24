@@ -218,11 +218,11 @@ export default async function handler(req, res) {
         if (!data.curso_id && !data.curso_nome) missingFields.push("curso");
         if (!data.instrutores) missingFields.push("instrutores");
         if (!data.data) missingFields.push("data");
-        if (!data.horario) missingFields.push("horÃ¡rio");
+        if (!data.horario) missingFields.push("horário");
 
         if (missingFields.length) {
           return res.status(400).json({
-            error: `Campos obrigatÃ³rios ausentes: ${missingFields.join(", ")}.`,
+            error: `Campos obrigatórios ausentes: ${missingFields.join(", ")}.`,
           });
         }
 
