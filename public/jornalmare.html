@@ -11,7 +11,8 @@
 
   <style>
     body {
-      padding-top: 90px; /* Espaço para a navbar fixa */
+      padding-top: 90px;
+      /* Espaço para a navbar fixa */
     }
 
     .news-header {
@@ -339,9 +340,6 @@
           <a href="departamentoprf.html">
             <img src="../public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
           </a>
-          <a href="departamentopf.html">
-            <img src="../public/images/Policia-federal-logo.png" alt="PF" class="nav-icon" style="width: 25px; height: auto;"> PF
-          </a>
         </div>
       </li>
       <li><a href="boletim.html"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
@@ -374,15 +372,15 @@
       <div class="news-about-section">
         <h2><i class="fa-solid fa-newspaper"></i> Sobre o Jornal Mare</h2>
         <p>
-          O Jornal Mare é a publicação oficial da Central de Polícia de Revoada RJ. 
-          Nossa missão é manter a comunidade informada sobre as operações policiais, 
+          O Jornal Mare é a publicação oficial da Central de Polícia de Revoada RJ.
+          Nossa missão é manter a comunidade informada sobre as operações policiais,
           eventos importantes e notícias relevantes da corporação.
         </p>
         <p>
-          Publicamos regularmente reportagens sobre operações, recrutamentos, 
+          Publicamos regularmente reportagens sobre operações, recrutamentos,
           promoções e demais acontecimentos que fazem parte do dia a dia da polícia.
         </p>
-        
+
         <div class="news-features">
           <div class="news-feature">
             <i class="fa-solid fa-shield-halved"></i>
@@ -473,7 +471,7 @@
         document.getElementById('total-news').textContent = news.length;
         const uniqueAuthors = new Set(news.map(n => n.author || 'Redação'));
         document.getElementById('total-authors').textContent = uniqueAuthors.size;
-        
+
         const now = new Date();
         const thisMonth = news.filter(n => {
           try {
@@ -494,8 +492,8 @@
             } else {
               articleDate = new Date();
             }
-            return articleDate.getMonth() === now.getMonth() && 
-                   articleDate.getFullYear() === now.getFullYear();
+            return articleDate.getMonth() === now.getMonth() &&
+              articleDate.getFullYear() === now.getFullYear();
           } catch (e) {
             return false;
           }
@@ -523,7 +521,7 @@
           } catch (e) {
             articleDate = new Date();
           }
-          
+
           const formattedDate = articleDate.toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: 'long',
