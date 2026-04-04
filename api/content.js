@@ -49,6 +49,22 @@ function textDisplay(content) {
   };
 }
 
+function separator(spacing = 1, divider = true) {
+  return {
+    type: 14,
+    spacing,
+    divider,
+  };
+}
+
+function container(accentColor, components) {
+  return {
+    type: 17,
+    accent_color: accentColor,
+    components,
+  };
+}
+
 async function sendDiscordMultipartMessage(channelId, botToken, payload, attachments) {
   const form = new FormData();
   const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
@@ -152,6 +168,14 @@ function buildPericiaTemplate(data) {
   }
 
   throw new Error("Tipo de perícia inválido.");
+}
+
+function getPericiaAccentColor(tipo) {
+  if (tipo === "caminhao") return 0xd97706;
+  if (tipo === "veiculo") return 0x2563eb;
+  if (tipo === "corpo") return 0x059669;
+  if (tipo === "facorg") return 0x7c3aed;
+  return 0xd4af37;
 }
 
 function validatePericiaPayload(data) {
@@ -457,29 +481,39 @@ async function handleSubmitPericia(req, res, env) {
   const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
   const qraMentions = Array.isArray(data.qra_participantes) ? data.qra_participantes : [];
   const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
+  const mainCard = container(getPericiaAccentColor(data.tipo_pericia), [
+    textDisplay([
+      `## ${reportTemplate.title}`,
+      `**👮 Enviado por:** ${reporter}`,
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 👥 QRA",
+      qraMentions.length ? qraMentions.map((mention) => `- ${mention}`).join("\n") : "- N/A",
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 📋 Detalhes da Perícia",
+      reportTemplate.sections.join("\n"),
+    ].join("\n")),
+  ]);
+
+  const attachmentCard = container(0x475569, [
+    textDisplay(
+      attachments.length
+        ? "### 🖼️ Anexos\nAs imagens da perícia foram enviadas em anexo nesta mensagem."
+        : Array.isArray(data.imagens) && data.imagens.length
+          ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
+          : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.",
+    ),
+  ]);
+
   const payload = {
     flags: 32768,
     allowed_mentions: {
       parse: ["users", "roles"],
     },
-    components: [
-      textDisplay([
-        `## ${reportTemplate.title}`,
-        `**👮 Enviado por:** ${reporter}`,
-        `**👥 QRA:** ${qraMentions.length ? qraMentions.join(", ") : "N/A"}`,
-      ].join("\n")),
-      textDisplay([
-        "### 📋 Detalhes da Perícia",
-        reportTemplate.sections.join("\n"),
-      ].join("\n")),
-      textDisplay(
-        attachments.length
-          ? "### 🖼️ Anexos\nAs imagens da perícia foram enviadas em anexo nesta mensagem."
-          : Array.isArray(data.imagens) && data.imagens.length
-            ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
-            : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.",
-      ),
-    ],
+    components: [mainCard, attachmentCard],
   };
 
   if (attachments.length) {
