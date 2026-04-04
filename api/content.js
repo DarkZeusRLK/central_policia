@@ -42,11 +42,18 @@ async function sendDiscordMessage(channelId, botToken, payload) {
   return response;
 }
 
-async function sendDiscordMultipartMessage(channelId, botToken, content, attachments) {
+function textDisplay(content) {
+  return {
+    type: 10,
+    content,
+  };
+}
+
+async function sendDiscordMultipartMessage(channelId, botToken, payload, attachments) {
   const form = new FormData();
   const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
 
-  form.append("payload_json", JSON.stringify({ content }));
+  form.append("payload_json", JSON.stringify(payload));
 
   files.forEach((attachment, index) => {
     const match = String(attachment.dataUrl || "").match(/^data:(.+?);base64,(.+)$/);
@@ -81,47 +88,63 @@ async function sendDiscordMultipartMessage(channelId, botToken, content, attachm
 }
 
 function buildPericiaTemplate(data) {
-    const tipo = data.tipo_pericia;
+  const tipo = data.tipo_pericia;
 
   if (tipo === "caminhao") {
-    return `----PERÃCIA VEICULO CAMINHÃƒO----
-MODELO: ${data.modelo || "N/A"}
-PLACA: ${data.placa || "N/A"}
-PROPRIETÃRIO: ${data.proprietario || "N/A"}
-PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
-ID DE QUEM TROUXE: ${data.id_referencia || "N/A"}
-OCORRIDO: ${data.ocorrido || "N/A"}
-ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-RegiÃ£o: ${data.regiao || "N/A"}`;
+    return {
+      title: "🚛 Perícia Veículo Caminhão",
+      sections: [
+        `- **Modelo:** ${data.modelo || "N/A"}`,
+        `- **Placa:** ${data.placa || "N/A"}`,
+        `- **Proprietário:** ${data.proprietario || "N/A"}`,
+        `- **Passaporte:** ${data.rg_passaporte_vitima || "N/A"}`,
+        `- **ID de Quem Trouxe:** ${data.id_referencia || "N/A"}`,
+        `- **Ocorrido:** ${data.ocorrido || "N/A"}`,
+        `- **Itens Encontrados:** ${data.itens_encontrados || "N/A"}`,
+        `- **Região:** ${data.regiao || "N/A"}`,
+      ],
+    };
   }
 
   if (tipo === "veiculo") {
-    return `---- PERÃCIA VEICULO ----
-MODELO: ${data.modelo || "N/A"}
-PLACA: ${data.placa || "N/A"}
-PROPRIETÃRIO: ${data.proprietario || "N/A"}
-PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
-ID DO DENUNCIANTE (Caso o veÃ­culo tenha sido entregue por terceiros): ${data.id_referencia || "N/A"}
-OCORRIDO: ${data.ocorrido || "N/A"}
-ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-RegiÃ£o: ${data.regiao || "N/A"}`;
+    return {
+      title: "🚓 Perícia Veículo",
+      sections: [
+        `- **Modelo:** ${data.modelo || "N/A"}`,
+        `- **Placa:** ${data.placa || "N/A"}`,
+        `- **Proprietário:** ${data.proprietario || "N/A"}`,
+        `- **Passaporte:** ${data.rg_passaporte_vitima || "N/A"}`,
+        `- **ID do Denunciante:** ${data.id_referencia || "N/A"}`,
+        `- **Ocorrido:** ${data.ocorrido || "N/A"}`,
+        `- **Itens Encontrados:** ${data.itens_encontrados || "N/A"}`,
+        `- **Região:** ${data.regiao || "N/A"}`,
+      ],
+    };
   }
 
   if (tipo === "corpo") {
-    return `----- PERICIA DE CORPO ----
-NOME: ${data.nome || "N/A"}
-PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
-ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-RegiÃ£o: ${data.regiao || "N/A"}`;
+    return {
+      title: "🧍 Perícia de Corpo",
+      sections: [
+        `- **Nome:** ${data.nome || "N/A"}`,
+        `- **Passaporte:** ${data.rg_passaporte_vitima || "N/A"}`,
+        `- **Itens Encontrados:** ${data.itens_encontrados || "N/A"}`,
+        `- **Região:** ${data.regiao || "N/A"}`,
+      ],
+    };
   }
 
   if (tipo === "facorg") {
-    return `----- PESSOAS ARMADAS DENTRO DE FAC/ORG ----
-FAC/ORG: ${data.fac_org || data.nome_fac || "N/A"}
-PROVAS: ${data.provas || "N/A"}`;
+    return {
+      title: "🏴 Pessoas Armadas em FAC/ORG",
+      sections: [
+        `- **FAC/ORG:** ${data.fac_org || data.nome_fac || "N/A"}`,
+        `- **Provas:** ${data.provas || "N/A"}`,
+      ],
+    };
   }
 
-  throw new Error("Tipo de perÃ­cia invÃ¡lido.");
+  throw new Error("Tipo de perícia inválido.");
 }
 
 function validatePericiaPayload(data) {
@@ -423,21 +446,39 @@ async function handleSubmitPericia(req, res, env) {
     return res.status(400).json({ error: validationError });
   }
 
-  const reportBody = buildPericiaTemplate(data);
+  const reportTemplate = buildPericiaTemplate(data);
   const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
   const qraMentions = Array.isArray(data.qra_participantes) ? data.qra_participantes : [];
-  const qraHeader = qraMentions.length ? `QRA: ${qraMentions.join(", ")}` : "QRA: N/A";
   const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
-  const attachmentNames =
-    !attachments.length && Array.isArray(data.imagens) && data.imagens.length
-      ? `\nAnexos: ${data.imagens.join(", ")}`
-      : "";
-  const content = `ðŸ‘® Enviado por: ${reporter}\n${qraHeader}\n\`\`\`\n${reportBody}${attachmentNames}\n\`\`\``;
+  const payload = {
+    flags: 32768,
+    allowed_mentions: {
+      parse: ["users", "roles"],
+    },
+    components: [
+      textDisplay([
+        `## ${reportTemplate.title}`,
+        `**👮 Enviado por:** ${reporter}`,
+        `**👥 QRA:** ${qraMentions.length ? qraMentions.join(", ") : "N/A"}`,
+      ].join("\n")),
+      textDisplay([
+        "### 📋 Detalhes da Perícia",
+        reportTemplate.sections.join("\n"),
+      ].join("\n")),
+      textDisplay(
+        attachments.length
+          ? "### 🖼️ Anexos\nAs imagens da perícia foram enviadas em anexo nesta mensagem."
+          : Array.isArray(data.imagens) && data.imagens.length
+            ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
+            : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.",
+      ),
+    ],
+  };
 
   if (attachments.length) {
-    await sendDiscordMultipartMessage(channelId, botToken, content, attachments);
+    await sendDiscordMultipartMessage(channelId, botToken, payload, attachments);
   } else {
-    await sendDiscordMessage(channelId, botToken, { content });
+    await sendDiscordMessage(channelId, botToken, payload);
   }
 
   return res.status(200).json({ success: true });

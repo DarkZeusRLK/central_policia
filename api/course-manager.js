@@ -31,107 +31,121 @@ function resolveCourseMentions(data) {
   return courseNames.length ? courseNames : ["N/A"];
 }
 
-function buildAnnouncementEmbed(data, env) {
-  const courseMentions = resolveCourseMentions(data);
-  const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
-  const callLink = data.call_link ? `[Entrar na call](${data.call_link})` : "N/A";
-  const descriptionLines = [
-    `**Cursos**`,
-    courseMentions.map((course) => `- ${course}`).join("\n"),
-    "",
-    `**Escala**`,
-    `- Instrutores: ${data.instrutores || "N/A"}`,
-    `- Data: ${formatBr(data.data)}`,
-    `- Horario: ${data.horario || "N/A"}`,
-    `- Local: ${data.local || "N/A"}`,
-    `- Call: ${callLink}`,
-  ];
-
+function textDisplay(content) {
   return {
-    content: mentionMatrizes || null,
-    embeds: [
+    type: 10,
+    content,
+  };
+}
+
+function linkButton(label, url) {
+  return {
+    type: 1,
+    components: [
       {
-        title: "Central Policial | Anuncio de Curso",
-        color: 0xd4af37,
-        description: descriptionLines.join("\n"),
-        footer: {
-          text: data.authorId ? `Publicado por ${data.authorId}` : "Intranet Policial",
-        },
-        timestamp: new Date().toISOString(),
+        type: 2,
+        style: 5,
+        label,
+        url,
       },
     ],
   };
 }
 
-function buildFinalEmbed(data, factionName, includeMatrizes, env) {
-  const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
+function buildAnnouncementMessage(data, env) {
   const courseMentions = resolveCourseMentions(data);
-  const periodo = `Inicio: ${formatBr(data.data_inicio)} as ${data.hora_inicio || "00:00"}\nFim: ${formatBr(data.data_fim)} as ${data.hora_fim || "00:00"}`;
-
-  const fields = [
-    {
-      name: "Curso",
-      value: courseMentions.join("\n"),
-      inline: false,
-    },
-    {
-      name: "Instrutores",
-      value: data.instrutores || "N/A",
-      inline: false,
-    },
-    {
-      name: "Auxiliares",
-      value: data.auxiliares || "Nenhum",
-      inline: false,
-    },
-    {
-      name: "Aprovados",
-      value: data.aprovados || "Nenhum",
-      inline: true,
-    },
-    {
-      name: "Reprovados",
-      value: data.reprovados || "Nenhum",
-      inline: true,
-    },
-    {
-      name: "Periodo",
-      value: periodo,
-      inline: false,
-    },
+  const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
+  const components = [
+    textDisplay([
+      "## 📣 Central Policial | Anúncio de Curso",
+      mentionMatrizes ? `**Convocação:** ${mentionMatrizes}` : "**Convocação:** Matrizes não configuradas.",
+    ].join("\n")),
+    textDisplay([
+      "### 📚 Cursos",
+      courseMentions.map((course) => `- ${course}`).join("\n"),
+    ].join("\n")),
+    textDisplay([
+      "### 👨‍🏫 Escala e Planejamento",
+      `- **Instrutores:** ${data.instrutores || "N/A"}`,
+      `- **Data:** ${formatBr(data.data)}`,
+      `- **Horário:** ${data.horario || "N/A"}`,
+      `- **Local:** ${data.local || "N/A"}`,
+      data.authorId ? `- **Publicado por:** <@${data.authorId}>` : "- **Publicado por:** Intranet Policial",
+    ].join("\n")),
   ];
 
-  if (data.obs) {
-    fields.push({
-      name: "Observacoes",
-      value: data.obs,
-      inline: false,
-    });
-  }
-
-  if (includeMatrizes && mentionMatrizes) {
-    fields.push({
-      name: "Matrizes Envolvidas",
-      value: mentionMatrizes,
-      inline: false,
-    });
+  if (data.call_link) {
+    components.push(
+      textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
+      linkButton("Entrar na call", data.call_link),
+    );
   }
 
   return {
-    content: data.authorId ? `Relatorio enviado por <@${data.authorId}>` : null,
-    embeds: [
-      {
-        title: includeMatrizes
-          ? "Central Policial | Registro Geral de Curso"
-          : `Central Policial | Curso Finalizado ${factionName}`,
-        color: includeMatrizes ? 0xf59e0b : 0x22c55e,
-        fields,
-        footer: {
-          text: includeMatrizes ? "Log Global de Cursos" : `Sistema ${factionName}`,
-        },
-        timestamp: new Date().toISOString(),
-      },
-    ],
+    flags: 32768,
+    allowed_mentions: {
+      parse: ["roles", "users"],
+    },
+    components,
+  };
+}
+
+function buildFinalMessage(data, factionName, includeMatrizes, env) {
+  const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
+  const courseMentions = resolveCourseMentions(data);
+  const title = includeMatrizes
+    ? "## 📘 Central Policial | Registro Geral de Curso"
+    : `## 📘 Central Policial | Curso Finalizado ${factionName}`;
+  const components = [
+    textDisplay([
+      title,
+      data.authorId ? `**📝 Relatório enviado por:** <@${data.authorId}>` : "**📝 Relatório enviado por:** Intranet Policial",
+    ].join("\n")),
+    textDisplay([
+      "### 📚 Curso",
+      courseMentions.map((course) => `- ${course}`).join("\n"),
+    ].join("\n")),
+    textDisplay([
+      "### 👨‍🏫 Equipe de Ensino",
+      `- **Instrutores:** ${data.instrutores || "N/A"}`,
+      `- **Auxiliares:** ${data.auxiliares || "Nenhum"}`,
+    ].join("\n")),
+    textDisplay([
+      "### 📅 Data",
+      `- **Início:** ${formatBr(data.data_inicio)} às ${data.hora_inicio || "00:00"}`,
+      `- **Fim:** ${formatBr(data.data_fim)} às ${data.hora_fim || "00:00"}`,
+    ].join("\n")),
+    textDisplay([
+      "### ✅ Resultado da Turma",
+      `- **Aprovados:** ${data.aprovados || "Nenhum"}`,
+      `- **Reprovados:** ${data.reprovados || "Nenhum"}`,
+    ].join("\n")),
+  ];
+
+  if (data.obs) {
+    components.push(
+      textDisplay([
+        "### 📓 Observações",
+        data.obs,
+      ].join("\n")),
+    );
+  }
+
+  if (includeMatrizes && mentionMatrizes) {
+    components.push(
+      textDisplay([
+        "### 🏛️ Matrizes Envolvidas",
+        mentionMatrizes,
+      ].join("\n")),
+    );
+  }
+
+  return {
+    flags: 32768,
+    allowed_mentions: {
+      parse: ["roles", "users"],
+    },
+    components,
   };
 }
 
@@ -328,7 +342,7 @@ export default async function handler(req, res) {
           });
         }
 
-        const payload = buildAnnouncementEmbed(data, env);
+        const payload = buildAnnouncementMessage(data, env);
         await sendDiscordMessage(env.CHANNEL_CURSOS_ANUNCIADOS, DISCORD_BOT_TOKEN, payload);
         return res.status(200).json({ success: true });
       }
@@ -352,7 +366,7 @@ export default async function handler(req, res) {
             sendDiscordMessage(
               faction.channelId,
               DISCORD_BOT_TOKEN,
-              buildFinalEmbed(data, faction.name, false, env),
+              buildFinalMessage(data, faction.name, false, env),
             ),
           );
         }
@@ -362,7 +376,7 @@ export default async function handler(req, res) {
             sendDiscordMessage(
               env.CHANNEL_CURSOS_FINALIZADOS,
               DISCORD_BOT_TOKEN,
-              buildFinalEmbed(data, faction.name, true, env),
+              buildFinalMessage(data, faction.name, true, env),
             ),
           );
         }
