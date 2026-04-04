@@ -1,4 +1,4 @@
-// api/course-manager.js
+﻿// api/course-manager.js
 export default async function handler(req, res) {
   const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
   const GUILD_ID = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID;
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
           .map((r) => ({ id: r.id, name: r.name, tipo: resolveTipoCurso(r.id) }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        // Filtra Membros e envia ID para o front fazer a menção
+        // Filtra Membros e envia ID para o front fazer a menÃ§Ã£o
         const membrosFormatados = members
           .filter((m) => !m.user.bot)
           .map((m) => ({
@@ -125,20 +125,20 @@ export default async function handler(req, res) {
     }
   }
 
-  // --- MODO POST: Envio do Relatório ---
+  // --- MODO POST: Envio do RelatÃ³rio ---
   if (req.method === "POST") {
     const data = req.body;
 
-    // Formatação de Datas (Início e Fim)
+    // FormataÃ§Ã£o de Datas (InÃ­cio e Fim)
     const formatBr = (dateStr) =>
       dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
     const dataInicio = formatBr(data.data_inicio);
     const dataFim = formatBr(data.data_fim);
 
-    // String composta de horário
-    const horarioTexto = `**Início:** ${dataInicio} às ${data.hora_inicio || "00:00"}\n**Fim:** ${dataFim} às ${data.hora_fim || "00:00"}`;
+    // String composta de horÃ¡rio
+    const horarioTexto = `**InÃ­cio:** ${dataInicio} Ã s ${data.hora_inicio || "00:00"}\n**Fim:** ${dataFim} Ã s ${data.hora_fim || "00:00"}`;
 
-    // Menção das Matrizes (Apenas para uso no Embed Geral)
+    // MenÃ§Ã£o das Matrizes (Apenas para uso no Embed Geral)
     let mencaoMatriz = "";
     if (MATRIZES_ROLE_ID) {
       mencaoMatriz = MATRIZES_ROLE_ID.split(",")
@@ -146,28 +146,28 @@ export default async function handler(req, res) {
         .join(" ");
     }
 
-    // Menção do Curso
+    // MenÃ§Ã£o do Curso
     const cursoDisplay = data.curso_id
       ? `<@&${data.curso_id}>`
       : data.curso_nome || "N/A";
 
-    // --- FUNÇÃO GERADORA DE EMBED ---
+    // --- FUNÃ‡ÃƒO GERADORA DE EMBED ---
     // param: includeMatriz (boolean) -> Se true, adiciona o campo de "Matrizes Envolvidas"
     const createEmbed = (title, color, description, footer, includeMatriz) => {
       const fields = [
-        { name: "📚 Curso", value: cursoDisplay, inline: true },
-        // Instrutores agora vem como string de menções "<@123>, <@456>"
+        { name: "ðŸ“š Curso", value: cursoDisplay, inline: true },
+        // Instrutores agora vem como string de menÃ§Ãµes "<@123>, <@456>"
         {
-          name: "🧑‍🏫 Instrutores",
+          name: "ðŸ§‘â€ðŸ« Instrutores",
           value: data.instrutores || "N/A",
           inline: true,
         },
       ];
 
-      // Matrizes (Aparece só se for solicitado, ex: Canal Geral)
+      // Matrizes (Aparece sÃ³ se for solicitado, ex: Canal Geral)
       if (includeMatriz && mencaoMatriz) {
         fields.push({
-          name: "🏢 Matrizes Envolvidas",
+          name: "ðŸ¢ Matrizes Envolvidas",
           value: mencaoMatriz,
           inline: false,
         });
@@ -175,27 +175,27 @@ export default async function handler(req, res) {
 
       if (data.auxiliares)
         fields.push({
-          name: "👮 Auxiliares",
+          name: "ðŸ‘® Auxiliares",
           value: data.auxiliares,
           inline: false,
         });
 
       fields.push(
         {
-          name: "✅ Aprovados",
+          name: "âœ… Aprovados",
           value: data.aprovados || "Nenhum",
           inline: true,
         },
         {
-          name: "❌ Reprovados",
+          name: "âŒ Reprovados",
           value: data.reprovados || "Nenhum",
           inline: true,
         },
-        { name: "🗓️ Período", value: horarioTexto, inline: false },
+        { name: "ðŸ—“ï¸ PerÃ­odo", value: horarioTexto, inline: false },
       );
 
       if (data.obs)
-        fields.push({ name: "📝 Observações", value: data.obs, inline: false });
+        fields.push({ name: "ðŸ“ ObservaÃ§Ãµes", value: data.obs, inline: false });
 
       return {
         content: description || null, // Mensagem fora do embed (opcional)
@@ -212,17 +212,17 @@ export default async function handler(req, res) {
     };
 
     try {
-      // 1. ANÚNCIO
+      // 1. ANÃšNCIO
       if (data.type === "anuncio") {
         const missingFields = [];
         if (!data.curso_id && !data.curso_nome) missingFields.push("curso");
         if (!data.instrutores) missingFields.push("instrutores");
         if (!data.data) missingFields.push("data");
-        if (!data.horario) missingFields.push("horário");
+        if (!data.horario) missingFields.push("horÃ¡rio");
 
         if (missingFields.length) {
           return res.status(400).json({
-            error: `Campos obrigatórios ausentes: ${missingFields.join(", ")}.`,
+            error: `Campos obrigatÃ³rios ausentes: ${missingFields.join(", ")}.`,
           });
         }
 
@@ -234,21 +234,21 @@ export default async function handler(req, res) {
           : "N/A";
 
         const fields = [
-          { name: "📚 Curso", value: cursoDisplay, inline: true },
+          { name: "ðŸ“š Curso", value: cursoDisplay, inline: true },
           {
-            name: "🧑‍🏫 Instrutores",
+            name: "ðŸ§‘â€ðŸ« Instrutores",
             value: data.instrutores || "N/A",
             inline: true,
           },
-          { name: "📅 Data", value: dataCurso || "N/A", inline: true },
-          { name: "⏰ Horário", value: horarioCurso, inline: true },
-          { name: "📍 Local", value: localCurso, inline: true },
-          { name: "🔗 Call", value: callLink, inline: false },
+          { name: "ðŸ“… Data", value: dataCurso || "N/A", inline: true },
+          { name: "â° HorÃ¡rio", value: horarioCurso, inline: true },
+          { name: "ðŸ“ Local", value: localCurso, inline: true },
+          { name: "ðŸ”— Call", value: callLink, inline: false },
         ];
 
         if (mencaoMatriz) {
           fields.push({
-            name: "🏢 Matrizes Envolvidas",
+            name: "ðŸ¢ Matrizes Envolvidas",
             value: mencaoMatriz,
             inline: false,
           });
@@ -262,11 +262,11 @@ export default async function handler(req, res) {
           .join("\n");
 
         const payload = {
-          content: mencaoMatriz ? `Atenção: ${mencaoMatriz}` : null,
+          content: mencaoMatriz ? `AtenÃ§Ã£o: ${mencaoMatriz}` : null,
           content: contentParts || null,
           embeds: [
             {
-              title: "📢 Anúncio de Curso",
+              title: "ðŸ“¢ AnÃºncio de Curso",
               color: 3447003,
               fields,
               footer: { text: "Intranet Policial" },
@@ -288,26 +288,27 @@ export default async function handler(req, res) {
         );
       }
 
-      // 2. RELATÓRIO FINAL
+      // 2. RELATÃ“RIO FINAL
       else if (data.type === "final") {
         let factionChannelId = "";
         let factionName = "";
         const userRoles = data.userRoles || [];
+        const explicitFaction = String(data.faction || '').trim().toUpperCase();
 
-        if (userRoles.includes(ROLE_ID_PCERJ)) {
+        if (explicitFaction === "PCERJ" || userRoles.includes(ROLE_ID_PCERJ)) {
           factionChannelId = CH_PCERJ_FINALIZADOS;
           factionName = "PCERJ";
-        } else if (userRoles.includes(ROLE_ID_PMERJ)) {
+        } else if (explicitFaction === "PMERJ" || userRoles.includes(ROLE_ID_PMERJ)) {
           factionChannelId = CH_PMERJ_FINALIZADOS;
           factionName = "PMERJ";
-        } else if (userRoles.includes(ROLE_ID_PRF)) {
+        } else if (explicitFaction === "PRF" || userRoles.includes(ROLE_ID_PRF)) {
           factionChannelId = CH_PRF_FINALIZADOS;
           factionName = "PRF";
-        } else if (userRoles.includes(ROLE_ID_PF)) {
+        } else if (explicitFaction === "PF" || userRoles.includes(ROLE_ID_PF)) {
           factionChannelId = CH_PF_FINALIZADOS;
           factionName = "PF";
         } else
-          return res.status(400).json({ error: "Facção não identificada." });
+          return res.status(400).json({ error: "FacÃ§Ã£o nÃ£o identificada." });
 
         const requestOptions = {
           method: "POST",
@@ -318,14 +319,14 @@ export default async function handler(req, res) {
         };
         const promises = [];
 
-        // A) Envio para a FACÇÃO (SEM marcar Matrizes)
+        // A) Envio para a FACÃ‡ÃƒO (SEM marcar Matrizes)
         if (factionChannelId) {
           const factionPayload = createEmbed(
-            `📑 Relatório Finalizado - ${factionName}`,
+            `ðŸ“‘ RelatÃ³rio Finalizado - ${factionName}`,
             5763719, // Verde
-            `Relatório por <@${data.authorId}>`, // Content fora do embed
+            `RelatÃ³rio por <@${data.authorId}>`, // Content fora do embed
             `Sistema ${factionName}`,
-            false, // <--- FALSE: Não inclui Matrizes no Embed
+            false, // <--- FALSE: NÃ£o inclui Matrizes no Embed
           );
           promises.push(
             fetch(
@@ -338,10 +339,10 @@ export default async function handler(req, res) {
           );
         }
 
-        // B) Envio para o GERAL (COM marcação de Matrizes)
+        // B) Envio para o GERAL (COM marcaÃ§Ã£o de Matrizes)
         if (CHANNEL_CURSOS_FINALIZADOS) {
           const geralPayload = createEmbed(
-            "📑 Registro Geral de Curso",
+            "ðŸ“‘ Registro Geral de Curso",
             15105570, // Laranja
             null, // Sem mensagem externa ou pode por mencaoMatriz aqui se quiser notificar
             "Log Global de Cursos",
@@ -369,3 +370,4 @@ export default async function handler(req, res) {
   }
   return res.status(405).json({ error: "Method Not Allowed" });
 }
+

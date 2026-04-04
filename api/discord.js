@@ -182,12 +182,22 @@ export default async function handler(req, res) {
         .filter(
           (member) => Array.isArray(member.roles) && member.roles.includes(roleId),
         )
-        .map((member) => member.nick || member.user.global_name || member.user.username)
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b, "pt-BR"));
+        .map((member) => {
+          const label =
+            member.nick || member.user.global_name || member.user.username || "";
+
+          return {
+            id: member.user.id,
+            label,
+            mention: `<@${member.user.id}>`,
+          };
+        })
+        .filter((member) => member.label)
+        .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
 
       return res.status(200).json({
         members: filteredMembers,
+        memberNames: filteredMembers.map((member) => member.label),
         roleId,
         roleSource: configuredRole,
       });

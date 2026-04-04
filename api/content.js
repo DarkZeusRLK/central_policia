@@ -1,4 +1,4 @@
-const DISCORD_API_BASE = "https://discord.com/api/v10";
+﻿const DISCORD_API_BASE = "https://discord.com/api/v10";
 
 function formatBrDate(dateStr) {
   return dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
@@ -42,53 +42,86 @@ async function sendDiscordMessage(channelId, botToken, payload) {
   return response;
 }
 
+async function sendDiscordMultipartMessage(channelId, botToken, content, attachments) {
+  const form = new FormData();
+  const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+
+  form.append("payload_json", JSON.stringify({ content }));
+
+  files.forEach((attachment, index) => {
+    const match = String(attachment.dataUrl || "").match(/^data:(.+?);base64,(.+)$/);
+    if (!match) return;
+
+    const mimeType = attachment.type || match[1] || "application/octet-stream";
+    const base64 = match[2];
+    const buffer = Buffer.from(base64, "base64");
+    const blob = new Blob([buffer], { type: mimeType });
+    const fileName = attachment.name || `anexo-${index + 1}`;
+
+    form.append(`files[${index}]`, blob, fileName);
+  });
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/channels/${channelId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+      body: form,
+    },
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Discord recusou a mensagem multipart: ${text}`);
+  }
+
+  return response;
+}
+
 function buildPericiaTemplate(data) {
-  const qra = asLineList(data.qra_participantes);
-  const tipo = data.tipo_pericia;
+    const tipo = data.tipo_pericia;
 
   if (tipo === "caminhao") {
-    return `----PERÍCIA VEICULO CAMINHÃO----
-QRA: ${qra}
+    return `----PERÃCIA VEICULO CAMINHÃƒO----
 MODELO: ${data.modelo || "N/A"}
 PLACA: ${data.placa || "N/A"}
-PROPRIETÁRIO: ${data.proprietario || "N/A"}
+PROPRIETÃRIO: ${data.proprietario || "N/A"}
 PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
 ID DE QUEM TROUXE: ${data.id_referencia || "N/A"}
 OCORRIDO: ${data.ocorrido || "N/A"}
 ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-Região: ${data.regiao || "N/A"}`;
+RegiÃ£o: ${data.regiao || "N/A"}`;
   }
 
   if (tipo === "veiculo") {
-    return `---- PERÍCIA VEICULO ----
-QRA: ${qra}
+    return `---- PERÃCIA VEICULO ----
 MODELO: ${data.modelo || "N/A"}
 PLACA: ${data.placa || "N/A"}
-PROPRIETÁRIO: ${data.proprietario || "N/A"}
+PROPRIETÃRIO: ${data.proprietario || "N/A"}
 PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
-ID DO DENUNCIANTE (Caso o veículo tenha sido entregue por terceiros): ${data.id_referencia || "N/A"}
+ID DO DENUNCIANTE (Caso o veÃ­culo tenha sido entregue por terceiros): ${data.id_referencia || "N/A"}
 OCORRIDO: ${data.ocorrido || "N/A"}
 ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-Região: ${data.regiao || "N/A"}`;
+RegiÃ£o: ${data.regiao || "N/A"}`;
   }
 
   if (tipo === "corpo") {
     return `----- PERICIA DE CORPO ----
-QRA: ${qra}
 NOME: ${data.nome || "N/A"}
 PASSAPORTE: ${data.rg_passaporte_vitima || "N/A"}
 ITENS ENCONTRADOS: ${data.itens_encontrados || "N/A"}
-Região: ${data.regiao || "N/A"}`;
+RegiÃ£o: ${data.regiao || "N/A"}`;
   }
 
   if (tipo === "facorg") {
     return `----- PESSOAS ARMADAS DENTRO DE FAC/ORG ----
-QRA: ${qra}
 FAC/ORG: ${data.fac_org || data.nome_fac || "N/A"}
 PROVAS: ${data.provas || "N/A"}`;
   }
 
-  throw new Error("Tipo de perícia inválido.");
+  throw new Error("Tipo de perÃ­cia invÃ¡lido.");
 }
 
 function validatePericiaPayload(data) {
@@ -122,11 +155,11 @@ function validatePericiaPayload(data) {
   };
 
   const requiredFields = validators[data.tipo_pericia];
-  if (!requiredFields) return "Tipo de perícia inválido.";
+  if (!requiredFields) return "Tipo de perÃ­cia invÃ¡lido.";
 
   const missingFields = requiredFields.filter((field) => !required(data[field]));
   if (missingFields.length) {
-    return `Campos obrigatórios ausentes: ${missingFields.join(", ")}.`;
+    return `Campos obrigatÃ³rios ausentes: ${missingFields.join(", ")}.`;
   }
 
   return "";
@@ -136,7 +169,7 @@ async function handleGetNews(res, env) {
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID } = env;
 
   if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID) {
-    return res.status(500).json({ error: "Configuração faltando" });
+    return res.status(500).json({ error: "ConfiguraÃ§Ã£o faltando" });
   }
 
   const response = await fetch(
@@ -147,26 +180,26 @@ async function handleGetNews(res, env) {
   );
 
   if (!response.ok) {
-    throw new Error("Erro ao buscar notícias");
+    throw new Error("Erro ao buscar notÃ­cias");
   }
 
   const messages = await response.json();
   const newsData = messages
     .map((msg) => {
       const content = msg.content;
-      if (!content.includes("# 📰")) return null;
+      if (!content.includes("# ðŸ“°")) return null;
 
-      const titleMatch = content.match(/# 📰 (.*)/);
+      const titleMatch = content.match(/# ðŸ“° (.*)/);
       const title = titleMatch ? titleMatch[1] : "Manchete Policial";
 
-      const authorMatch = content.match(/> ✍️.*?Reportagem por:.*?<@(\d+)>/);
-      let author = "Redação";
+      const authorMatch = content.match(/> âœï¸.*?Reportagem por:.*?<@(\d+)>/);
+      let author = "RedaÃ§Ã£o";
 
       if (authorMatch) {
         const mentioned = msg.mentions.find((u) => u.id === authorMatch[1]);
         author = mentioned
           ? mentioned.global_name || mentioned.username
-          : "Repórter";
+          : "RepÃ³rter";
       }
 
       let image = "https://via.placeholder.com/400x200?text=Sem+Imagem";
@@ -189,8 +222,8 @@ async function handleGetNews(res, env) {
       const cleanBody = content
         .replace(/<@&\d+>/g, "")
         .replace(/<@\d+>/g, "")
-        .replace(/# 📰 .*\n?/g, "")
-        .replace(/> ✍️.*\n?/g, "")
+        .replace(/# ðŸ“° .*\n?/g, "")
+        .replace(/> âœï¸.*\n?/g, "")
         .replace(/https?:\/\/\S+/g, "")
         .replace(/\n\n+/g, "\n")
         .trim();
@@ -215,7 +248,7 @@ async function handlePublishNews(req, res, env) {
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, MATRIZES_ROLE_ID } = env;
 
   if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !MATRIZES_ROLE_ID) {
-    return res.status(500).json({ error: "Configuração incompleta (.env)." });
+    return res.status(500).json({ error: "ConfiguraÃ§Ã£o incompleta (.env)." });
   }
 
   const rolesToMention = parseIdList(MATRIZES_ROLE_ID)
@@ -233,11 +266,11 @@ async function handlePublishNews(req, res, env) {
 ${rolesToMention}
 <@${policialUserId}>
 
-# 📰 ${String(title || "").toUpperCase()}
+# ðŸ“° ${String(title || "").toUpperCase()}
 
 ${formattedContent || ""}
 
-> ✍️ *Reportagem por:* <@${userId}>
+> âœï¸ *Reportagem por:* <@${userId}>
 
 ${imageUrl || ""}
   `.trim();
@@ -253,7 +286,7 @@ async function handleStats(res, env) {
   const { DISCORD_BOT_TOKEN, PRISOES_CH_ID, FIANCAS_CH_ID } = env;
 
   if (!DISCORD_BOT_TOKEN) {
-    return res.status(500).json({ error: "Bot Token não configurado" });
+    return res.status(500).json({ error: "Bot Token nÃ£o configurado" });
   }
 
   async function fetchMessagesFromChannel(channelId) {
@@ -327,7 +360,7 @@ async function handleSubmitBo(req, res, env) {
 
   const { DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID_BO } = env;
   if (!DISCORD_BOT_TOKEN || !DISCORD_CHANNEL_ID_BO) {
-    return res.status(500).json({ error: "Erro no Servidor: Bot não configurado." });
+    return res.status(500).json({ error: "Erro no Servidor: Bot nÃ£o configurado." });
   }
 
   const anoAtual = new Date().getFullYear();
@@ -345,16 +378,16 @@ async function handleSubmitBo(req, res, env) {
 
   const relatorio = `
 \`\`\`md
-# BOLETIM DE OCORRÊNCIA Nº ${boNumero}
+# BOLETIM DE OCORRÃŠNCIA NÂº ${boNumero}
 DATA DO FATO: ${dataFormatada}
 LOCAL DO FATO: ${local}
 
-# VÍTIMA / COMUNICANTE
+# VÃTIMA / COMUNICANTE
 NOME: ${nome}
 PASSAPORTE: ${passaporte}
 TELEFONE: ${telefone}
-PROFISSÃO: ${profissao || "Não Informado"}
-SEXO: ${sexo || "Não Informado"}
+PROFISSÃƒO: ${profissao || "NÃ£o Informado"}
+SEXO: ${sexo || "NÃ£o Informado"}
 
 # RELATO INDIVIDUAL
 ${ocorrencia}
@@ -362,11 +395,11 @@ ${ocorrencia}
 # BENS / OBJETOS
 ${itens || "Nenhum bem declarado."}
 
-# EVIDÊNCIA
+# EVIDÃŠNCIA
 ${video_link || "N/A"}
 \`\`\``;
 
-  const contentMessage = `👮 **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
+  const contentMessage = `ðŸ‘® **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
   await sendDiscordMessage(DISCORD_CHANNEL_ID_BO, DISCORD_BOT_TOKEN, {
     content: contentMessage,
   });
@@ -391,16 +424,21 @@ async function handleSubmitPericia(req, res, env) {
   }
 
   const reportBody = buildPericiaTemplate(data);
-  const reporter = data.authorId
-    ? `<@${data.authorId}>`
-    : data.authorName || "Sistema";
-  const attachmentLine =
-    Array.isArray(data.imagens) && data.imagens.length
-      ? `\nANEXOS LOCAIS: ${data.imagens.join(", ")}`
+  const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
+  const qraMentions = Array.isArray(data.qra_participantes) ? data.qra_participantes : [];
+  const qraHeader = qraMentions.length ? `QRA: ${qraMentions.join(", ")}` : "QRA: N/A";
+  const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
+  const attachmentNames =
+    !attachments.length && Array.isArray(data.imagens) && data.imagens.length
+      ? `\nAnexos: ${data.imagens.join(", ")}`
       : "";
+  const content = `ðŸ‘® Enviado por: ${reporter}\n${qraHeader}\n\`\`\`\n${reportBody}${attachmentNames}\n\`\`\``;
 
-  const content = `👮 Enviado por: ${reporter}\n\`\`\`\n${reportBody}${attachmentLine}\n\`\`\``;
-  await sendDiscordMessage(channelId, botToken, { content });
+  if (attachments.length) {
+    await sendDiscordMultipartMessage(channelId, botToken, content, attachments);
+  } else {
+    await sendDiscordMessage(channelId, botToken, { content });
+  }
 
   return res.status(200).json({ success: true });
 }
@@ -408,7 +446,7 @@ async function handleSubmitPericia(req, res, env) {
 export default async function handler(req, res) {
   const action = req.query.action;
   if (!action) {
-    return res.status(400).json({ error: "Ação não informada." });
+    return res.status(400).json({ error: "AÃ§Ã£o nÃ£o informada." });
   }
 
   try {
@@ -432,9 +470,10 @@ export default async function handler(req, res) {
       return await handleSubmitPericia(req, res, process.env);
     }
 
-    return res.status(405).json({ error: "Método ou ação inválidos." });
+    return res.status(405).json({ error: "MÃ©todo ou aÃ§Ã£o invÃ¡lidos." });
   } catch (error) {
     console.error("Erro em /api/content:", error);
-    return res.status(500).json({ error: "Erro interno ao processar conteúdo." });
+    return res.status(500).json({ error: "Erro interno ao processar conteÃºdo." });
   }
 }
+
