@@ -988,7 +988,7 @@
     async function loadOperationalStats() {
       try {
         // Chama a API que criamos
-        const response = await fetch('/api/stats');
+        const response = await fetch('/api/content?action=stats');
 
         if (response.ok) {
           const data = await response.json();
