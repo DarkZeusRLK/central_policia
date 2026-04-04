@@ -1,1405 +1,445 @@
 ﻿<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Intranet Policial | REVOADA RJ</title>
-    <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../style/main.css">
+    <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../style/main.css" />
     <style>
-      :root   {
-              --bg:#0f131a;
-              --panel:#1e2530;
-              --side:#121820;
-              --input:#161d27;
-              --text:#fff;
-              --muted:#94a3b8;
-              --line:#334155;
-              --gold:#d4af37;
-              --green:#22c55e;
-              --shadow:0 18px 40px rgba(0,0,0,.35)
-      }
-      
-            *   {
-              box-sizing:border-box
-      }
-      
-            body   {
-              margin:0;
-              min-height:100vh;
-              display:flex;
-              background:radial-gradient(circle at top right,rgba(212,175,55,.08),transparent 20%),linear-gradient(180deg,#0e141c 0%,var(--bg) 100%);
-              color:var(--text);
-              font-family:'Inter',sans-serif;
-              overflow-x:hidden
-      }
-      
-            .hidden   {
-              display:none!important
-      }
-      
-            .sidebar   {
-              width:260px;
-              background:var(--side);
-              border-right:1px solid rgba(255,255,255,.06);
-              display:flex;
-              flex-direction:column;
-              position:fixed;
-              inset:0 auto 0 0;
-              z-index:100
-      }
-      
-            .sidebar-header   {
-              padding:28px 24px;
-              text-align:center;
-              border-bottom:1px solid rgba(255,255,255,.06)
-      }
-      
-            .sidebar-logo   {
-              width:78px;
-              height:78px;
-              object-fit:contain;
-              margin-bottom:14px;
-              filter:drop-shadow(0 8px 20px rgba(0,0,0,.35))
-      }
-      
-            .sidebar-header h2   {
-              margin:0;
-              font-size:1.15rem;
-              letter-spacing:.12em;
-              line-height:1.4
-      }
-      
-            .sidebar-menu   {
-              list-style:none;
-              padding:16px 0;
-              margin:0;
-              overflow-y:auto;
-              flex:1
-      }
-      
-            .sidebar-section-title   {
-              padding:14px 24px 8px;
-              color:#64748b;
-              font-size:.72rem;
-              font-weight:700;
-              letter-spacing:.16em;
-              text-transform:uppercase
-      }
-      
-            .sidebar-menu a   {
-              display:flex;
-              align-items:center;
-              gap:12px;
-              padding:12px 24px;
-              color:var(--muted);
-              text-decoration:none;
-              border-right:3px solid transparent;
-              transition:.2s
-      }
-      
-            .sidebar-menu a:hover,
-            .sidebar-menu a.active   {
-              background:rgba(212,175,55,.08);
-              color:var(--gold);
-              border-right-color:var(--gold)
-      }
-      
-            .dept-logo   {
-              width:18px;
-              height:18px;
-              object-fit:contain
-      }
-      
-            .user-mini-profile   {
-              padding:18px 20px;
-              border-top:1px solid rgba(255,255,255,.06);
-              display:flex;
-              align-items:center;
-              gap:12px;
-              background:rgba(255,255,255,.02)
-      }
-      
-            .user-mini-profile img   {
-              width:42px;
-              height:42px;
-              border-radius:50%;
-              object-fit:cover;
-              border:2px solid rgba(212,175,55,.35)
-      }
-      
-            .dashboard-content   {
-              margin-left:260px;
-              width:calc(100% - 260px);
-              min-height:100vh;
-              padding:28px 32px 40px
-      }
-      
-            .dashboard-header   {
-              height:70px;
-              background:var(--panel);
-              border:1px solid rgba(255,255,255,.05);
-              border-radius:18px;
-              display:grid;
-              grid-template-columns:minmax(160px,1fr) minmax(280px,540px) minmax(220px,1fr);
-              align-items:center;
-              gap:20px;
-              padding:0 20px;
-              margin-bottom:28px;
-              box-shadow:var(--shadow);
-              position:sticky;
-              top:18px;
-              z-index:40
-      }
-      
-            .header-title   {
-              font-size:.92rem;
-              font-weight:700;
-              letter-spacing:.08em;
-              color:var(--muted);
-              text-transform:uppercase
-      }
-      
-            .search-shell   {
-              position:relative
-      }
-      
-            .search-shell i   {
-              position:absolute;
-              left:16px;
-              top:50%;
-              transform:translateY(-50%);
-              color:#64748b
-      }
-      
-            .search-shell input   {
-              width:100%;
-              height:44px;
-              border:1px solid rgba(255,255,255,.06);
-              border-radius:999px;
-              background:#141b24;
-              color:var(--text);
-              padding:0 16px 0 44px;
-              font-size:.95rem;
-              transition:.2s
-      }
-      
-            .search-shell input:focus,
-            .field-block input:focus,
-            .field-block select:focus,
-            .field-block textarea:focus   {
-              outline:none;
-              border-color:rgba(212,175,55,.85);
-              box-shadow:0 0 0 4px rgba(212,175,55,.12)
-      }
-      
-            .header-actions   {
-              display:flex;
-              justify-content:flex-end;
-              align-items:center;
-              gap:14px;
-              position:relative
-      }
-      
-            .system-status   {
-              display:inline-flex;
-              align-items:center;
-              gap:10px;
-              padding:10px 14px;
-              border-radius:999px;
-              background:rgba(34,197,94,.1);
-              border:1px solid rgba(34,197,94,.24);
-              color:#86efac;
-              font-size:.85rem;
-              font-weight:600
-      }
-      
-            .pulsing-dot   {
-              width:10px;
-              height:10px;
-              border-radius:50%;
-              background:var(--green);
-              box-shadow:0 0 0 rgba(34,197,94,.7);
-              animation:pulse 1.8s infinite
-      }
-      
-            .profile-trigger   {
-              width:46px;
-              height:46px;
-              border:0;
-              padding:0;
-              border-radius:50%;
-              overflow:hidden;
-              background:#0f172a;
-              cursor:pointer;
-              border:2px solid rgba(212,175,55,.45)
-      }
-      
-            .profile-trigger img   {
-              width:100%;
-              height:100%;
-              object-fit:cover
-      }
-      
-            .profile-dropdown   {
-              position:absolute;
-              top:calc(100% + 12px);
-              right:0;
-              width:260px;
-              background:#111822;
-              border:1px solid rgba(255,255,255,.08);
-              border-radius:16px;
-              box-shadow:var(--shadow);
-              padding:16px
-      }
-      
-            .profile-dropdown-header   {
-              padding-bottom:12px;
-              border-bottom:1px solid rgba(255,255,255,.06);
-              margin-bottom:12px
-      }
-      
-            .profile-dropdown-header strong   {
-              display:block;
-              font-size:.98rem;
-              margin-bottom:4px
-      }
-      
-            .profile-dropdown-header span   {
-              color:var(--muted);
-              font-size:.85rem
-      }
-      
-            .dropdown-link,
-            .dropdown-button   {
-              width:100%;
-              display:flex;
-              align-items:center;
-              gap:10px;
-              padding:12px 10px;
-              border-radius:10px;
-              color:#dbe4f1;
-              text-decoration:none;
-              background:transparent;
-              border:0;
-              cursor:pointer;
-              font:inherit;
-              transition:.2s
-      }
-      
-            .dropdown-link:hover,
-            .dropdown-button:hover   {
-              background:rgba(212,175,55,.08);
-              color:var(--gold)
-      }
-      
-            .dash-section   {
-              display:none;
-              animation:fadeIn .35s ease
-      }
-      
-            .dash-section:not(.hidden)   {
-              display:block
-      }
-      
-            .hero-panel,
-            .glass-panel   {
-              background:linear-gradient(180deg,rgba(30,37,48,.98),rgba(18,24,32,.98));
-              border:1px solid rgba(255,255,255,.06);
-              border-radius:22px;
-              box-shadow:var(--shadow)
-      }
-      
-            .hero-panel   {
-              padding:30px;
-              display:grid;
-              grid-template-columns:1.4fr 1fr;
-              gap:24px
-      }
-      
-            .hero-panel h1,
-            .section-headline h1   {
-              margin:0 0 10px;
-              font-size:2rem;
-              line-height:1.1
-      }
-      
-            .hero-panel p,
-            .section-headline p,
-            .overview-card p,
-            .field-note,
-            .upload-caption   {
-              color:var(--muted)
-      }
-      
-            .hero-badges   {
-              display:flex;
-              flex-wrap:wrap;
-              gap:10px;
-              margin-top:18px
-      }
-      
-            .hero-badge   {
-              padding:10px 14px;
-              border-radius:999px;
-              border:1px solid rgba(212,175,55,.18);
-              background:rgba(212,175,55,.08);
-              color:#f3df9a;
-              font-size:.85rem;
-              font-weight:600
-      }
-      
-            .overview-grid   {
-              display:grid;
-              grid-template-columns:repeat(3,minmax(0,1fr));
-              gap:16px
-      }
-      
-            .overview-card   {
-              padding:18px;
-              border-radius:16px;
-              background:rgba(255,255,255,.03);
-              border:1px solid rgba(255,255,255,.05)
-      }
-      
-            .overview-card strong   {
-              display:block;
-              font-size:1.5rem;
-              margin-bottom:8px
-      }
-      
-            .forensic-workspace   {
-              padding:28px;
-              width:100%
-      }
-      
-            .section-headline   {
-              margin-bottom:18px
-      }
-      
-            .forensic-tabs   {
-              display:flex;
-              gap:10px;
-              flex-wrap:wrap;
-              margin-bottom:24px
-      }
-      
-            .forensic-tab   {
-              border:1px solid rgba(255,255,255,.08);
-              background:rgba(255,255,255,.03);
-              color:var(--muted);
-              padding:12px 18px;
-              border-radius:12px;
-              cursor:pointer;
-              font:inherit;
-              font-weight:700;
-              transition:.2s
-      }
-      
-            .forensic-tab:hover,
-            .forensic-tab.active   {
-              background:rgba(212,175,55,.12);
-              color:var(--gold);
-              border-color:rgba(212,175,55,.45)
-      }
-      
-            .forensic-layout   {
-              display:grid;
-              grid-template-columns:minmax(0,2.1fr) minmax(300px,.9fr);
-              gap:24px;
-              align-items:start
-      }
-      
-            .form-card,
-            .info-card   {
-              background:rgba(255,255,255,.02);
-              border:1px solid rgba(255,255,255,.05);
-              border-radius:18px;
-              padding:22px
-      }
-      
-            .form-card h3,
-            .info-card h3   {
-              margin:0 0 6px;
-              font-size:1.05rem
-      }
-      
-            .form-card p,
-            .info-card p,
-            .info-card li   {
-              color:var(--muted);
-              font-size:.92rem
-      }
-      
-            .forensic-form   {
-              display:flex;
-              flex-direction:column;
-              gap:22px
-      }
-      
-            .form-grid   {
-              display:grid;
-              grid-template-columns:repeat(3,minmax(0,1fr));
-              gap:16px
-      }
-      
-            .field-block   {
-              display:flex;
-              flex-direction:column;
-              gap:8px
-      }
-      
-            .field-block.full   {
-              grid-column:1/-1
-      }
-      
-            .field-block label   {
-              color:var(--muted);
-              font-size:.82rem;
-              font-weight:700;
-              letter-spacing:.04em;
-              text-transform:uppercase
-      }
-      
-            .field-block input,
-            .field-block select,
-            .field-block textarea   {
-              width:100%;
-              min-height:46px;
-              border-radius:4px;
-              border:1px solid var(--line);
-              background:var(--input);
-              color:var(--text);
-              padding:12px 14px;
-              font:inherit;
-              transition:.2s
-      }
-      
-            .field-block textarea   {
-              min-height:120px;
-              resize:vertical
-      }
-    </style>
-    <style>
-      .member-picker   {
-              display:grid;
-              grid-template-columns:minmax(0,1fr) auto;
-              gap:10px;
-              align-items:end
-      }
-      
-            .member-list   {
-              display:flex;
-              flex-wrap:wrap;
-              gap:10px;
-              margin-top:12px
-      }
-      
-            .member-chip   {
-              display:inline-flex;
-              align-items:center;
-              gap:10px;
-              padding:10px 12px;
-              border-radius:999px;
-              border:1px solid rgba(212,175,55,.2);
-              background:rgba(212,175,55,.08);
-              color:#f5ecd0;
-              font-size:.88rem
-      }
-      
-            .member-chip button   {
-              border:0;
-              background:transparent;
-              color:#f8d580;
-              cursor:pointer;
-              padding:0;
-              font-size:.9rem
-      }
-      
-            .btn   {
-              min-height:46px;
-              border:0;
-              border-radius:10px;
-              font:inherit;
-              font-weight:700;
-              cursor:pointer;
-              padding:0 16px;
-              transition:.2s
-      }
-      
-            .btn:hover   {
-              filter:brightness(1.05);
-              transform:translateY(-1px)
-      }
-      
-            .btn:disabled   {
-              cursor:not-allowed;
-              opacity:.6;
-              transform:none;
-              filter:none
-      }
-      
-            .btn-accent   {
-              background:linear-gradient(135deg,#b8921f,var(--gold));
-              color:#111822
-      }
-      
-            .btn-secondary   {
-              background:#243040;
-              color:var(--text);
-              border:1px solid rgba(255,255,255,.08)
-      }
-      
-            .upload-grid   {
-              display:grid;
-              grid-template-columns:repeat(3,minmax(0,1fr));
-              gap:14px;
-              margin-top:12px
-      }
-      
-            .upload-slot   {
-              aspect-ratio:1/1;
-              border-radius:16px;
-              border:1px dashed rgba(255,255,255,.16);
-              background:rgba(255,255,255,.03);
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              overflow:hidden;
-              position:relative
-      }
-      
-            .upload-slot.empty   {
-              color:#5f7188;
-              font-size:2rem
-      }
-      
-            .upload-slot img   {
-              width:100%;
-              height:100%;
-              object-fit:cover
-      }
-      
-            .upload-slot button   {
-              position:absolute;
-              top:10px;
-              right:10px;
-              width:32px;
-              height:32px;
-              border-radius:50%;
-              border:0;
-              background:rgba(15,19,26,.85);
-              color:#fff;
-              cursor:pointer
-      }
-      
-            .submit-row   {
-              display:flex;
-              justify-content:flex-end
-      }
-      
-            .submit-row .btn   {
-              min-width:240px
-      }
-      
-            .info-list   {
-              padding-left:18px;
-              margin:16px 0 0
-      }
-      
-            .info-list li+li   {
-              margin-top:10px
-      }
-      
-            .empty-state   {
-              border-radius:12px;
-              border:1px dashed rgba(255,255,255,.12);
-              background:rgba(255,255,255,.02);
-              padding:14px;
-              color:#708298;
-              font-size:.88rem
-      }
-      
-            .notification-container   {
-              position:fixed;
-              top:24px;
-              right:24px;
-              display:flex;
-              flex-direction:column;
-              gap:12px;
-              z-index:999
-      }
-      
-            .toast   {
-              min-width:260px;
-              background:#111822;
-              border:1px solid rgba(255,255,255,.08);
-              color:#fff;
-              padding:14px 16px;
-              border-radius:14px;
-              box-shadow:var(--shadow);
-              display:flex;
-              align-items:center;
-              gap:10px;
-              animation:slideIn .25s ease
-      }
-      
-            .toast.success i   {
-              color:#4ade80
-      }
-      
-            .toast.error i   {
-              color:#f87171
-      }
-      
-            .toast.info i   {
-              color:#60a5fa
-      }
-      
-            @keyframes pulse   {
-              0%   {
-                transform:scale(.95);
-                box-shadow:0 0 0 0 rgba(34,197,94,.65)
-        }
-      
-              70%   {
-                transform:scale(1);
-                box-shadow:0 0 0 12px rgba(34,197,94,0)
-        }
-      
-              100%   {
-                transform:scale(.95);
-                box-shadow:0 0 0 0 rgba(34,197,94,0)
-        }
-      
-      
-      }
-      
-            @keyframes fadeIn   {
-              from   {
-                opacity:0;
-                transform:translateY(10px)
-        }
-      
-              to   {
-                opacity:1;
-                transform:translateY(0)
-        }
-      
-      
-      }
-      
-            @keyframes slideIn   {
-              from   {
-                opacity:0;
-                transform:translateY(-8px)
-        }
-      
-              to   {
-                opacity:1;
-                transform:translateY(0)
-        }
-      
-      
-      }
-      
-            @media (max-width:1200px)   {
-              .dashboard-header   {
-                grid-template-columns:1fr;
-                height:auto;
-                padding:18px
-        }
-      
-              .header-actions   {
-                justify-content:flex-start
-        }
-      
-              .hero-panel,.forensic-layout,.overview-grid   {
-                grid-template-columns:1fr
-        }
-      
-      
-      }
-      
-            @media (max-width:920px)   {
-              .sidebar   {
-                position:static;
-                width:100%;
-                height:auto
-        }
-      
-              body   {
-                flex-direction:column
-        }
-      
-              .dashboard-content   {
-                margin-left:0;
-                width:100%;
-                padding:20px
-        }
-      
-              .form-grid,.upload-grid   {
-                grid-template-columns:1fr
-        }
-      
-      
-      }
+      :root {
+        --bg: #0f131a;
+        --bg-soft: #161d27;
+        --panel: #1e2530;
+        --sidebar: #121820;
+        --line-soft: rgba(255, 255, 255, 0.06);
+        --text: #ffffff;
+        --muted: #94a3b8;
+        --muted-strong: #cbd5e1;
+        --accent: #d4af37;
+        --green: #22c55e;
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.09), transparent 20%), linear-gradient(180deg, #0c1118 0%, var(--bg) 100%);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+      }
+      button, input, select, textarea { font: inherit; }
+      a { color: inherit; }
+      .hidden { display: none !important; }
+      .dashboard-shell { display: flex; min-height: 100vh; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 260px;
+        background: var(--sidebar);
+        border-right: 1px solid var(--line-soft);
+        display: flex;
+        flex-direction: column;
+        z-index: 50;
+      }
+      .sidebar-header { padding: 28px 24px; text-align: center; border-bottom: 1px solid var(--line-soft); }
+      .sidebar-logo { width: 78px; height: 78px; object-fit: contain; margin-bottom: 14px; filter: drop-shadow(0 10px 20px rgba(0,0,0,.35)); }
+      .sidebar-title { margin: 0; font-size: 1.15rem; line-height: 1.35; letter-spacing: .12em; text-transform: uppercase; }
+      .sidebar-menu { flex: 1; overflow-y: auto; padding: 14px 0 20px; }
+      .sidebar-menu ul { list-style: none; margin: 0; padding: 0; }
+      .sidebar-section-title { padding: 14px 24px 8px; color: #64748b; font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 24px;
+        color: var(--muted);
+        text-decoration: none;
+        border-right: 3px solid transparent;
+        transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+      }
+      .sidebar-link:hover { background: rgba(255,255,255,.04); color: var(--muted-strong); }
+      .sidebar-link.active { background: rgba(212,175,55,.08); color: var(--accent); border-right-color: var(--accent); }
+      .sidebar-link i { width: 18px; text-align: center; }
+      .dept-logo { width: 18px; height: 18px; object-fit: contain; }
+      .user-mini-profile { padding: 18px 20px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--line-soft); background: rgba(255,255,255,.02); }
+      .user-mini-profile img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(212,175,55,.35); background: #0b1118; }
+      .main-content { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; padding: 28px 32px 40px; }
+      .dashboard-header {
+        position: sticky;
+        top: 18px;
+        z-index: 40;
+        display: grid;
+        grid-template-columns: minmax(180px,1fr) minmax(320px,560px) minmax(220px,1fr);
+        align-items: center;
+        gap: 20px;
+        height: 70px;
+        margin-bottom: 28px;
+        padding: 0 20px;
+        border: 1px solid var(--line-soft);
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+      .header-title { color: var(--muted); font-size: .92rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+      .search-shell { position: relative; }
+      .search-shell i { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: #64748b; }
+      .search-shell input,
+      .field-block input,
+      .field-block select,
+      .field-block textarea,
+      .teaching-form input,
+      .teaching-form select,
+      .teaching-form textarea {
+        width: 100%;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 10px;
+        background: var(--bg-soft);
+        color: var(--text);
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+      }
+      .search-shell input { height: 44px; padding: 0 16px 0 44px; border-radius: 999px; }
+      .search-shell input:focus,
+      .field-block input:focus,
+      .field-block select:focus,
+      .field-block textarea:focus,
+      .teaching-form input:focus,
+      .teaching-form select:focus,
+      .teaching-form textarea:focus {
+        outline: none;
+        border-color: rgba(212,175,55,.85);
+        box-shadow: 0 0 0 4px rgba(212,175,55,.12);
+      }
+      .header-actions { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 14px; }
+      .system-status { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(34,197,94,.24); background: rgba(34,197,94,.1); color: #86efac; font-size: .85rem; font-weight: 700; }
+      .pulsing-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 rgba(34,197,94,.7); animation: pulse 1.8s infinite; }
+      .profile-trigger { width: 46px; height: 46px; padding: 0; border: 2px solid rgba(212,175,55,.45); border-radius: 50%; overflow: hidden; background: #0f172a; cursor: pointer; }
+      .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
+      .profile-dropdown { position: absolute; top: calc(100% + 12px); right: 0; width: 260px; padding: 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: #111822; box-shadow: var(--shadow); }
+      .profile-dropdown-header { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .profile-dropdown-header strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+      .profile-dropdown-header span { color: var(--muted); font-size: .84rem; }
+      .dropdown-link, .dropdown-button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted-strong); text-decoration: none; cursor: pointer; transition: background .2s ease; }
+      .dropdown-link:hover, .dropdown-button:hover { background: rgba(255,255,255,.05); }
+      .dropdown-button.logout { color: #fca5a5; }
+      .section-card, .glass-panel { border: 1px solid rgba(255,255,255,.06); border-radius: 22px; background: linear-gradient(180deg, rgba(34,42,55,.98), rgba(24,31,42,.98)); box-shadow: var(--shadow); }
+      .section-card { padding: 24px; }
+      .page-title { margin: 0 0 8px; font-size: clamp(1.9rem, 2.8vw, 2.4rem); }
+      .page-subtitle { margin: 0; color: var(--muted); line-height: 1.6; }
+      .quick-grid, .field-row, .teaching-grid, .upload-grid { display: grid; gap: 14px; }
+      .quick-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 24px; gap: 18px; }
+      .quick-card { padding: 20px; border: 1px solid rgba(255,255,255,.06); border-radius: 18px; background: rgba(255,255,255,.02); }
+      .quick-card span { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; margin-bottom: 14px; border-radius: 12px; background: rgba(212,175,55,.12); color: var(--accent); }
+      .quick-card h3 { margin: 0 0 8px; font-size: 1.02rem; }
+      .quick-card p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .forensic-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+      .forensic-tab, .segment-button, .action-button, .submit-button, .ghost-button { border: 1px solid rgba(255,255,255,.08); cursor: pointer; transition: transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
+      .forensic-tab { padding: 10px 18px; border-radius: 12px; background: rgba(255,255,255,.03); color: var(--muted-strong); font-weight: 700; }
+      .forensic-tab:hover, .segment-button:hover, .action-button:hover, .submit-button:hover, .ghost-button:hover { transform: translateY(-1px); }
+      .forensic-tab.active, .segment-button.active { background: rgba(212,175,55,.12); color: var(--accent); border-color: rgba(212,175,55,.45); }
+      .forensic-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 24px; margin-top: 20px; }
+      .forensic-panel, .info-panel, .teaching-panel { padding: 22px; }
+      .field-block { margin-top: 18px; }
+      .field-block label, .field-label, .teaching-label { display: block; margin-bottom: 8px; color: var(--muted-strong); font-size: .84rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+      .field-block input, .field-block select, .teaching-form input, .teaching-form select { min-height: 44px; padding: 0 14px; }
+      .field-block textarea, .teaching-form textarea { min-height: 120px; padding: 14px; resize: vertical; }
+      .field-help { margin-top: 8px; color: var(--muted); font-size: .86rem; line-height: 1.55; }
+      .field-row { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .field-row.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .qra-picker { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; }
+      .action-button, .ghost-button, .submit-button, .segment-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; font-weight: 700; }
+      .action-button { background: rgba(255,255,255,.08); color: var(--text); }
+      .action-button:hover, .ghost-button:hover { background: rgba(255,255,255,.12); }
+      .ghost-button { background: #2c3749; color: var(--muted-strong); }
+      .submit-button { background: linear-gradient(135deg, #b7902f 0%, #d4af37 100%); color: #0f172a; border-color: transparent; min-width: 220px; }
+      .submit-button.secondary { background: #0f274f; color: #fff; }
+      .button-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 22px; }
+      .member-chip-list, .selected-list-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+      .member-chip, .selected-item { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(212,175,55,.22); border-radius: 999px; background: rgba(212,175,55,.08); color: #f8e7a6; font-size: .88rem; }
+      .member-chip button, .selected-item button { width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(0,0,0,.2); color: inherit; cursor: pointer; }
+      .upload-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+      .upload-caption { margin-top: 8px; color: var(--muted); }
+      .upload-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 16px; }
+      .upload-slot { position: relative; min-height: 200px; overflow: hidden; border: 1px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.03); }
+      .upload-slot.empty { display: grid; place-items: center; color: #64748b; font-size: 2.1rem; }
+      .upload-slot img { width: 100%; height: 100%; object-fit: cover; }
+      .upload-slot button { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: rgba(15,23,42,.8); color: #fff; cursor: pointer; }
+      .info-panel ul { padding-left: 18px; color: var(--muted); line-height: 1.7; }
+      .empty-state, .status-banner { padding: 14px 16px; border-radius: 12px; }
+      .empty-state { border: 1px dashed rgba(255,255,255,.12); background: rgba(255,255,255,.02); color: var(--muted); }
+      .teaching-wrap { display: grid; gap: 20px; }
+      .teaching-toolbar { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 16px; align-items: end; }
+      .segment-row { display: flex; gap: 12px; margin-top: 20px; }
+      .segment-button { flex: 1; background: #334155; color: #fff; }
+      .teaching-form { margin-top: 20px; }
+      .status-banner { margin-top: 16px; border: 1px solid rgba(96,165,250,.2); background: rgba(96,165,250,.08); color: #bfdbfe; }
+      .notification-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 120; }
+      .toast { display: inline-flex; align-items: center; gap: 10px; min-width: 260px; max-width: 360px; padding: 14px 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 14px; background: #111822; box-shadow: var(--shadow); animation: slideIn .25s ease; }
+      .toast.success { color: #86efac; }
+      .toast.error { color: #fca5a5; }
+      .toast.info { color: #cbd5e1; }
+      .toast.loading { color: #bfdbfe; }
+      @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.7); } 70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+      @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+      @media (max-width: 1280px) { .dashboard-header { grid-template-columns: 1fr; height: auto; padding: 18px; } .forensic-layout { grid-template-columns: 1fr; } }
+      @media (max-width: 980px) { .sidebar { position: static; width: 100%; min-height: auto; } .dashboard-shell { flex-direction: column; } .main-content { width: 100%; margin-left: 0; padding: 18px; } .quick-grid, .field-row, .field-row.two, .teaching-grid, .teaching-toolbar, .upload-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 720px) { .header-actions { justify-content: flex-start; } .qra-picker { grid-template-columns: 1fr; } .segment-row, .button-row, .upload-header { flex-direction: column; align-items: stretch; } }
     </style>
   </head>
   <body>
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <img src="images/Logo_policia.png" alt="Logo Polícia" class="sidebar-logo">
-        <h2>INTRANET<br>POLICIAL</h2>
-      </div>
-      <ul class="sidebar-menu">
-        <li>
-          <a href="#" onclick="switchTab('home', this)">
-            <i class="fa-solid fa-gauge-high">
-            </i> Painel Operacional</a>
-          </li>
-          <li class="sidebar-section-title">Departamentos</li>
-          <li>
-            <a href="#" onclick="switchTab('pcerj', this)" class="active">
-              <img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro%20(1).png" alt="PCERJ"> PCERJ</a>
-            </li>
-            <li>
-              <a href="#" onclick="switchTab('placeholder', this)">
-                <img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ"> PMERJ</a>
-              </li>
-              <li>
-                <a href="#" onclick="switchTab('placeholder', this)">
-                  <img class="dept-logo" src="images/PRF_new.png" alt="PRF"> PRF</a>
-                </li>
-                <li class="sidebar-section-title">Serviços</li>
-                <li>
-                  <a href="#" onclick="switchTab('pcerj', this)">
-                    <i class="fa-solid fa-file-waveform">
-                    </i> Formulário de Perícia</a>
-                  </li>
-                  <li>
-                    <a href="boletim.html">
-                      <i class="fa-solid fa-clipboard">
-                      </i> Registrar B.O.</a>
-                    </li>
-                    <li class="sidebar-section-title">Interno</li>
-                    <li>
-                      <a href="#" onclick="switchTab('placeholder', this)">
-                        <i class="fa-solid fa-folder-tree">
-                        </i> Central Administrativa</a>
-                      </li>
-                      <li>
-                        <a href="../index.html">
-                          <i class="fa-solid fa-arrow-left">
-                          </i> Voltar ao Início</a>
-                        </li>
-                      </ul>
-                      <div class="user-mini-profile" id="sidebar-user">
-                      </div>
-                    </aside>
-                    <main class="dashboard-content">
-                      <div class="dashboard-header">
-                        <div class="header-title">PCERJ • Central Policial Intranet</div>
-                        <div class="search-shell">
-                          <i class="fa-solid fa-magnifying-glass">
-                          </i>
-                          <input id="global-search" type="search" placeholder="Buscar por QRA, placa, proprietário ou protocolo">
-                        </div>
-                        <div class="header-actions">
-                          <div class="system-status">
-                            <span class="pulsing-dot">
-                            </span>
-                            <span>Sincronizado</span>
-                          </div>
-                          <button class="profile-trigger" id="profile-trigger" type="button" aria-label="Abrir menu do perfil">
-                            <img id="profile-avatar" src="images/Logo_policia.png" alt="Avatar">
-                          </button>
-                          <div class="profile-dropdown hidden" id="profile-dropdown">
-                            <div class="profile-dropdown-header">
-                              <strong id="profile-name">Servidor REVOADA</strong>
-                              <span id="profile-role">Agente em serviço</span>
-                            </div>
-                            <a class="dropdown-link" href="#" id="dropdown-home-link">
-                              <i class="fa-solid fa-house">
-                              </i>
-                              <span>Página Inicial</span>
-                            </a>
-                            <button class="dropdown-button" type="button" id="logout-button">
-                              <i class="fa-solid fa-right-from-bracket">
-                              </i>
-                              <span>Sair</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <section id="sec-home" class="dash-section hidden">
-                        <div class="hero-panel">
-                          <div>
-                            <h1>Controle operacional da intranet</h1>
-                            <p>Painel rápido para acompanhamento da central, status de formulários e direcionamento dos setores integrados.</p>
-                            <div class="hero-badges">
-                              <span class="hero-badge">Despacho integrado</span>
-                              <span class="hero-badge">Fluxo pericial ativo</span>
-                              <span class="hero-badge">Tema noturno tático</span>
-                            </div>
-                          </div>
-                          <div class="overview-grid">
-                            <div class="overview-card">
-                              <strong>04</strong>
-                              <p>tipos de perícia disponíveis na central.</p>
-                            </div>
-                            <div class="overview-card">
-                              <strong>03</strong>
-                              <p>imagens máximas por ocorrência no preview local.</p>
-                            </div>
-                            <div class="overview-card">
-                              <strong>100%</strong>
-                              <p>largura ocupada pelo formulário principal.</p>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                      <section id="sec-pcerj" class="dash-section">
-                        <div class="glass-panel forensic-workspace">
-                          <div class="section-headline">
-                            <h1>Formulário de Perícia PCERJ</h1>
-                            <p>Preenchimento técnico para caminhão, veículo, corpo e FAC/ORG com fluxo de anexos, policiais participantes e dados de encaminhamento.</p>
-                          </div>
-                          <div class="forensic-tabs">
-                            <button type="button" class="forensic-tab active" data-tab="caminhao">Caminhão</button>
-                            <button type="button" class="forensic-tab" data-tab="veiculo">Veículo</button>
-                            <button type="button" class="forensic-tab" data-tab="corpo">Corpo</button>
-                            <button type="button" class="forensic-tab" data-tab="facorg">FAC/ORG</button>
-                          </div>
-                          <div class="forensic-layout">
-                            <div class="form-card">
-                              <h3 id="form-title">Perícia Veicular Pesada</h3>
-                              <p id="form-description">Preencha os dados do caminhão e da ocorrência. Os campos visíveis mudam conforme a aba selecionada.</p>
-                              <form id="forensic-form" class="forensic-form">
-                                <input type="hidden" name="tipo_pericia" id="tipo-pericia" value="caminhao">
-                                <input type="hidden" name="qra_participantes" id="qra-hidden">
-                                <div class="form-grid">
-                                  <div class="field-block full" data-field="qra_select">
-                                    <label for="field-qra-select">QRA</label>
-                                    <div class="member-picker">
-                                      <select id="field-qra-select">
-                                        <option value="">Selecione o policial participante</option>
-                                      </select>
-                                      <button type="button" class="btn btn-secondary" id="add-qra-button">
-                                        <i class="fa-solid fa-plus">
-                                        </i> Adicionar</button>
-                                      </div>
-                                      <div class="field-note">QRA corresponde ao nome ou apelido dos policiais que participaram da perícia. O carregamento será filtrado pelo cargo definido em <code>CARGO_POLICIAL_REVOADA</code>.</div>
-                                      <div class="member-list" id="qra-list">
-                                      </div>
-                                    </div>
-                                    <div class="field-block hidden" data-field="nome_fac">
-                                      <label for="field-nome-fac">Nome da FAC</label>
-                                      <input id="field-nome-fac" name="nome_fac" type="text" placeholder="Digite o nome da FAC">
-                                    </div>
-                                    <div class="field-block" data-field="modelo">
-                                      <label for="field-modelo">Modelo</label>
-                                      <input id="field-modelo" name="modelo" type="text" placeholder="Ex: Mercedes-Benz Actros">
-                                    </div>
-                                    <div class="field-block" data-field="placa">
-                                      <label for="field-placa">Placa</label>
-                                      <input id="field-placa" name="placa" type="text" placeholder="ABC1D23">
-                                    </div>
-                                    <div class="field-block hidden" data-field="nome">
-                                      <label for="field-nome">Nome</label>
-                                      <input id="field-nome" name="nome" type="text" placeholder="Nome da pessoa periciada">
-                                    </div>
-                                    <div class="field-block" data-field="proprietario">
-                                      <label for="field-proprietario">Proprietário</label>
-                                      <input id="field-proprietario" name="proprietario" type="text" placeholder="Nome do proprietário">
-                                    </div>
-                                    <div class="field-block" data-field="passaporte">
-                                      <label for="field-passaporte">RG/Passaporte da Vítima</label>
-                                      <input id="field-passaporte" name="rg_passaporte_vitima" type="text" placeholder="RG ou passaporte da vítima">
-                                    </div>
-                                    <div class="field-block" data-field="id_trouxe">
-                                      <label for="field-id-trouxe" id="field-id-label">ID de Quem Trouxe</label>
-                                      <input id="field-id-trouxe" name="id_referencia" type="text" placeholder="ID ou registro do agente">
-                                    </div>
-                                    <div class="field-block hidden" data-field="orgao">
-                                      <label for="field-orgao">FAC/ORG</label>
-                                      <input id="field-orgao" name="fac_org" type="text" placeholder="Nome da FAC ou ORG">
-                                    </div>
-                                    <div class="field-block hidden" data-field="laudo">
-                                      <label for="field-laudo">RG/Passaporte da Vítima</label>
-                                      <input id="field-laudo" name="rg_passaporte_vitima_fac" type="text" placeholder="RG ou passaporte da vítima">
-                                    </div>
-                                    <div class="field-block full" data-field="descricao">
-                                      <label for="field-descricao" id="field-descricao-label">Ocorrido</label>
-                                      <textarea id="field-descricao" name="ocorrido" placeholder="Descreva brevemente o ocorrido.">
-                                      </textarea>
-                                    </div>
-                                    <div class="field-block full hidden" data-field="itens">
-                                      <label for="field-itens">Itens Encontrados</label>
-                                      <textarea id="field-itens" name="itens_encontrados" placeholder="Liste os itens encontrados na perícia.">
-                                      </textarea>
-                                    </div>
-                                    <div class="field-block hidden" data-field="regiao">
-                                      <label for="field-regiao">Região</label>
-                                      <select id="field-regiao" name="regiao">
-                                        <option value="">Selecione a região</option>
-                                        <option value="Norte">Norte</option>
-                                        <option value="Sul">Sul</option>
-                                      </select>
-                                    </div>
-                                    <div class="field-block full hidden" data-field="provas">
-                                      <label for="field-provas">Provas</label>
-                                      <textarea id="field-provas" name="provas" placeholder="Descreva as provas coletadas.">
-                                      </textarea>
-                                    </div>
-                                    <div class="field-block full">
-                                      <label>Anexos da Ocorrência</label>
-                                      <div class="upload-caption">Adicione até 3 imagens para preview local antes do envio.</div>
-                                      <input id="image-upload" type="file" accept="image/*" multiple class="hidden">
-                                      <button type="button" class="btn btn-secondary" id="add-image-button">
-                                        <i class="fa-solid fa-images">
-                                        </i> Adicionar Imagem</button>
-                                        <div class="upload-grid" id="upload-grid">
-                                          <div class="upload-slot empty">
-                                            <i class="fa-regular fa-image">
-                                            </i>
-                                          </div>
-                                          <div class="upload-slot empty">
-                                            <i class="fa-regular fa-image">
-                                            </i>
-                                          </div>
-                                          <div class="upload-slot empty">
-                                            <i class="fa-regular fa-image">
-                                            </i>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="submit-row">
-                                      <button type="submit" class="btn btn-accent">
-                                        <i class="fa-solid fa-paper-plane">
-                                        </i> Enviar Relatório</button>
-                                      </div>
-                                    </form>
-                                  </div>
-                                  <aside class="info-card">
-                                    <h3>Regras rápidas de preenchimento</h3>
-                                    <p>O comportamento visual acompanha o tipo de perícia selecionado e deixa apenas os campos relevantes em tela.</p>
-                                    <ul class="info-list">
-                                      <li>
-                                        <strong>QRA:</strong> sempre representa os policiais participantes da perícia.</li>
-                                        <li>
-                                          <strong>Caminhão e Veículo:</strong> exibem ocorrido, itens encontrados e região.</li>
-                                          <li>
-                                            <strong>Corpo:</strong> prioriza nome, documento da vítima, itens encontrados e região.</li>
-                                            <li>
-                                              <strong>FAC/ORG:</strong> usa apenas QRA, FAC/ORG e provas.</li>
-                                              <li>
-                                                <strong>Upload:</strong> o botão de adicionar é desabilitado ao atingir 3 imagens.</li>
-                                              </ul>
-                                              <div style="margin-top:22px">
-                                                <h3>Integração</h3>
-                                                <div class="empty-state" id="search-feedback">O envio será feito para o canal definido em <code>PERICIA_CHANNEL_ID</code> e os membros do QRA serão filtrados pelo cargo <code>CARGO_POLICIAL_REVOADA</code>.</div>
-                                              </div>
-                                            </aside>
-                                          </div>
-                                        </div>
-                                      </section>
-                                      <section id="sec-placeholder" class="dash-section hidden">
-                                        <div class="glass-panel" style="padding:28px">
-                                          <h1 style="margin-top:0">Módulo em preparação</h1>
-                                          <p style="color:var(--muted);margin-bottom:0">A estrutura lateral permanece disponível, mas esta área ainda não recebeu interface dedicada.</p>
-                                        </div>
-                                      </section>
-                                    </main>
-                                    <script>
-                                      const APP_ENV_KEYS={
-                                                                              policeRole:"CARGO_POLICIAL_REVOADA", periciaChannelId:"PERICIA_CHANNEL_ID"
-                                      
-                                      };
-                                                                            const FORENSIC_CONFIG={
-                                                                              caminhao:{
-                                                                                title:"Perícia Veicular Pesada", description:"Modelo para perícia de caminhão com identificação do responsável, ocorrido, itens e região.", visibleFields:["qra_select", "modelo", "placa", "proprietario", "passaporte", "id_trouxe", "descricao", "itens", "regiao"], idLabel:"ID de Quem Trouxe", descriptionLabel:"Ocorrido"
-                                      
-                                        }, veiculo:{
-                                                                                title:"Perícia Veicular", description:"Modelo para perícia veicular com dados do denunciante, itens encontrados e região.", visibleFields:["qra_select", "modelo", "placa", "proprietario", "passaporte", "id_trouxe", "descricao", "itens", "regiao"], idLabel:"ID do Denunciante", descriptionLabel:"Ocorrido"
-                                      
-                                        }, corpo:{
-                                                                                title:"Perícia em Corpo", description:"Modelo para perícia de corpo com identificação da vítima, itens encontrados e região.", visibleFields:["qra_select", "nome", "passaporte", "itens", "regiao"], idLabel:"", descriptionLabel:"Ocorrido"
-                                      
-                                        }, facorg:{
-                                                                                title:"Pessoas Armadas Dentro de FAC/ORG", description:"Modelo reduzido para envio de FAC/ORG com QRA, identificação do local e provas.", visibleFields:["qra_select", "orgao", "provas"], idLabel:"", descriptionLabel:"Ocorrido"
-                                      
-                                        }
-                                      
-                                      
-                                      };
-                                                                            const FALLBACK_POLICE_MEMBERS=["Delegado Revoada", "Perito Lacerda", "Investigadora Maya", "Escrivão Duarte", "Agente Motta"];
-                                                                            let selectedQraParticipants=[], uploadedImages=[];
-                                                                            window.switchTab=function(sectionName, element){
-                                                                              document.querySelectorAll('.dash-section').forEach(section=>section.classList.add('hidden'));
-                                                                              document.getElementById(`sec-${sectionName}`)?.classList.remove('hidden');
-                                                                              if(element){
-                                                                                document.querySelectorAll('.sidebar-menu a').forEach(link=>link.classList.remove('active'));
-                                                                                element.classList.add('active')
-                                      
-                                        }
-                                      
-                                      
-                                      };
-                                                                            const Notify={
-                                                                              container:null, init(){
-                                                                                this.container=document.querySelector('.notification-container');
-                                                                                if(!this.container){
-                                                                                  this.container=document.createElement('div');
-                                                                                  this.container.className='notification-container';
-                                                                                  document.body.appendChild(this.container)
-                                      
-                                          }
-                                      
-                                      
-                                        }, show(message, type='info'){
-                                                                                if(!this.container)this.init();
-                                                                                const toast=document.createElement('div');
-                                                                                toast.className=`toast ${type}`;
-                                                                                const icon=type==='success'?'fa-circle-check':type==='error'?'fa-triangle-exclamation':'fa-circle-info';
-                                                                                toast.innerHTML=`<i class="fa-solid ${icon}">
-                                                                            </i>
-                                                                            <span>${message}</span>`;
-                                                                                this.container.appendChild(toast);
-                                                                                setTimeout(()=>toast.remove(), 3200)
-                                      
-                                        }, success(message){
-                                                                                this.show(message, 'success')
-                                      
-                                        }, error(message){
-                                                                                this.show(message, 'error')
-                                      
-                                        }, info(message){
-                                                                                this.show(message, 'info')
-                                      
-                                        }
-                                      
-                                      
-                                      };
-                                                                            document.addEventListener('DOMContentLoaded', async()=>{
-                                                                              Notify.init();
-                                                                              const user=getCurrentUser();
-                                                                              renderUser(user);
-                                                                              setupProfileDropdown();
-                                                                              setupForensicTabs();
-                                                                              setupUpload();
-                                                                              setupQraPicker();
-                                                                              setupSearch();
-                                                                              setupForensicForm();
-                                                                              await loadPoliceMembersByRole();
-                                                                              switchTab('pcerj', document.querySelector('.sidebar-menu a[onclick*="pcerj"]'))
-                                      
-                                      });
-                                                                            function getCurrentUser(){
-                                                                              const stored=localStorage.getItem('revoada_user');
-                                                                              if(!stored){
-                                                                                return{
-                                                                                  username:'Servidor REVOADA', avatar:'', id:'local-user', policeRoleLabel:localStorage.getItem('revoada_police_role_label')||'Agente em serviço'
-                                      
-                                          }
-                                      
-                                      
-                                        }
-                                      
-                                                                              const parsed=JSON.parse(stored);
-                                                                              return{
-                                                                                ...parsed, policeRoleLabel:localStorage.getItem('revoada_police_role_label')||parsed.policeRoleLabel||'Agente em serviço'
-                                      
-                                        }
-                                      
-                                      
-                                      }
-                                      
-                                                                            function getAvatarUrl(user){
-                                                                              return user.avatar&&user.id?`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`:'images/Logo_policia.png'
-                                      
-                                      }
-                                      
-                                                                            function renderUser(user){
-                                                                              const avatarUrl=getAvatarUrl(user);
-                                                                              const roleLabel=user.policeRoleLabel||'Agente em serviço';
-                                                                              document.getElementById('profile-avatar').src=avatarUrl;
-                                                                              document.getElementById('profile-name').textContent=user.username||'Servidor REVOADA';
-                                                                              document.getElementById('profile-role').textContent=roleLabel;
-                                                                              document.getElementById('sidebar-user').innerHTML=`<img src="${avatarUrl}" alt="Avatar do usuário">
-                                                                            <div>
-                                                                            <div style="font-weight:700;font-size:.92rem;">${user.username||'Servidor REVOADA'}</div>
-                                                                            <div style="font-size:.78rem;color:#94a3b8;">${roleLabel}</div>
-                                                                            </div>`
-                                      
-                                      }
-                                      
-                                                                            function setupProfileDropdown(){
-                                                                              const trigger=document.getElementById('profile-trigger');
-                                                                              const dropdown=document.getElementById('profile-dropdown');
-                                                                              const homeLink=document.getElementById('dropdown-home-link');
-                                                                              const logoutButton=document.getElementById('logout-button');
-                                                                              trigger.addEventListener('click', event=>{
-                                                                                event.stopPropagation();
-                                                                                dropdown.classList.toggle('hidden')
-                                      
-                                        });
-                                                                              homeLink.addEventListener('click', event=>{
-                                                                                event.preventDefault();
-                                                                                dropdown.classList.add('hidden');
-                                                                                switchTab('home', document.querySelector('.sidebar-menu a[onclick*="home"]'))
-                                      
-                                        });
-                                                                              logoutButton.addEventListener('click', ()=>{
-                                                                                localStorage.removeItem('revoada_user');
-                                                                                localStorage.removeItem('revoada_is_journalist');
-                                                                                window.location.href='../index.html'
-                                      
-                                        });
-                                                                              document.addEventListener('click', event=>{
-                                                                                if(!dropdown.contains(event.target)&&!trigger.contains(event.target))dropdown.classList.add('hidden')
-                                      
-                                        })
-                                      
-                                      }
-                                      
-                                                                            function setupForensicTabs(){
-                                                                              document.querySelectorAll('.forensic-tab').forEach(button=>button.addEventListener('click', ()=>activateForensicTab(button.dataset.tab)));
-                                                                              activateForensicTab('caminhao')
-                                      
-                                      }
-                                      
-                                                                            function activateForensicTab(tabName){
-                                                                              const config=FORENSIC_CONFIG[tabName];
-                                                                              if(!config)return;
-                                                                              document.querySelectorAll('.forensic-tab').forEach(tab=>tab.classList.toggle('active', tab.dataset.tab===tabName));
-                                                                              document.getElementById('tipo-pericia').value=tabName;
-                                                                              document.getElementById('form-title').textContent=config.title;
-                                                                              document.getElementById('form-description').textContent=config.description;
-                                                                              document.getElementById('field-id-label').textContent=config.idLabel||'ID de Referência';
-                                                                              document.getElementById('field-descricao-label').textContent=config.descriptionLabel||'Ocorrido';
-                                                                              document.querySelectorAll('[data-field]').forEach(field=>field.classList.toggle('hidden', !config.visibleFields.includes(field.dataset.field)))
-                                      
-                                      }
-                                      
-                                                                            function setupUpload(){
-                                                                              const input=document.getElementById('image-upload');
-                                                                              const addButton=document.getElementById('add-image-button');
-                                                                              addButton.addEventListener('click', ()=>{
-                                                                                if(uploadedImages.length<3)input.click()
-                                      
-                                        });
-                                                                              input.addEventListener('change', event=>{
-                                                                                Array.from(event.target.files||[]).forEach(file=>{
-                                                                                  if(uploadedImages.length>=3)return;
-                                                                                  uploadedImages.push({
-                                                                                    file, previewUrl:URL.createObjectURL(file)
-                                      
-                                            })
-                                      
-                                          });
-                                                                                renderUploadGrid();
-                                                                                input.value=''
-                                      
-                                        });
-                                                                              renderUploadGrid()
-                                      
-                                      }
-                                      
-                                                                            function renderUploadGrid(){
-                                                                              const grid=document.getElementById('upload-grid');
-                                                                              const addButton=document.getElementById('add-image-button');
-                                                                              grid.innerHTML='';
-                                                                              uploadedImages.forEach((image, index)=>{
-                                                                                const slot=document.createElement('div');
-                                                                                slot.className='upload-slot';
-                                                                                slot.innerHTML=`<img src="${image.previewUrl}" alt="Preview ${index+1}">
-                                                                            <button type="button" aria-label="Remover imagem" data-index="${index}">
-                                                                            <i class="fa-solid fa-xmark">
-                                                                            </i>
-                                                                            </button>`;
-                                                                                grid.appendChild(slot)
-                                      
-                                        });
-                                                                              for(let i=uploadedImages.length;
-                                                                              i<3;
-                                                                              i+=1){
-                                                                                const empty=document.createElement('div');
-                                                                                empty.className='upload-slot empty';
-                                                                                empty.innerHTML='<i class="fa-regular fa-image">
-                                                                            </i>';
-                                                                                grid.appendChild(empty)
-                                      
-                                        }
-                                      
-                                                                              grid.querySelectorAll('button[data-index]').forEach(button=>button.addEventListener('click', ()=>removeUpload(Number(button.dataset.index))));
-                                                                              addButton.disabled=uploadedImages.length>=3;
-                                                                              addButton.classList.toggle('hidden', uploadedImages.length>=3)
-                                      
-                                      }
-                                      
-                                                                            function removeUpload(index){
-                                                                              const removed=uploadedImages[index];
-                                                                              if(removed?.previewUrl)URL.revokeObjectURL(removed.previewUrl);
-                                                                              uploadedImages.splice(index, 1);
-                                                                              renderUploadGrid()
-                                      
-                                      }
-                                      
-                                                                            function setupQraPicker(){
-                                                                              document.getElementById('add-qra-button').addEventListener('click', addQraParticipant);
-                                                                              renderQraParticipants()
-                                      
-                                      }
-                                      
-                                                                            async function loadPoliceMembersByRole(){
-                                                                              const roleKey=localStorage.getItem('revoada_police_role_key')||APP_ENV_KEYS.policeRole;
-                                                                              try{
-                                                                                const response=await fetch(`/api/discord?action=police-members&role=${encodeURIComponent(roleKey)}`);
-                                                                                if(!response.ok)throw new Error('Falha ao buscar membros');
-                                                                                const data=await response.json();
-                                                                                populateQraOptions(Array.isArray(data.members)&&data.members.length?data.members:FALLBACK_POLICE_MEMBERS)
-                                      
-                                        }
-                                      
-                                                                              catch{
-                                                                                populateQraOptions(FALLBACK_POLICE_MEMBERS)
-                                      
-                                        }
-                                      
-                                                                              document.getElementById('field-qra-select').disabled=false
-                                      
-                                      }
-                                      
-                                                                            function populateQraOptions(members){
-                                                                              const select=document.getElementById('field-qra-select');
-                                                                              select.innerHTML='<option value="">Selecione o policial participante</option>';
-                                                                              members.forEach(member=>{
-                                                                                const option=document.createElement('option');
-                                                                                option.value=member;
-                                                                                option.textContent=member;
-                                                                                select.appendChild(option)
-                                      
-                                        })
-                                      
-                                      }
-                                      
-                                                                            function addQraParticipant(){
-                                                                              const select=document.getElementById('field-qra-select');
-                                                                              const value=select.value;
-                                                                              if(!value)return Notify.info('Selecione um policial participante antes de adicionar.');
-                                                                              if(selectedQraParticipants.includes(value))return Notify.info('Esse policial já foi incluído no QRA.');
-                                                                              selectedQraParticipants.push(value);
-                                                                              document.getElementById('qra-hidden').value=selectedQraParticipants.join(', ');
-                                                                              renderQraParticipants();
-                                                                              select.value=''
-                                      
-                                      }
-                                      
-                                                                            function renderQraParticipants(){
-                                                                              const container=document.getElementById('qra-list');
-                                                                              container.innerHTML='';
-                                                                              if(!selectedQraParticipants.length){
-                                                                                container.innerHTML='<div class="empty-state">Nenhum policial participante selecionado no QRA.</div>';
-                                                                                return
-                                      
-                                        }
-                                      
-                                                                              selectedQraParticipants.forEach(member=>{
-                                                                                const chip=document.createElement('div');
-                                                                                chip.className='member-chip';
-                                                                                chip.innerHTML=`<span>${member}</span>
-                                                                            <button type="button" aria-label="Remover policial do QRA" data-member="${member}">
-                                                                            <i class="fa-solid fa-xmark">
-                                                                            </i>
-                                                                            </button>`;
-                                                                                container.appendChild(chip)
-                                      
-                                        });
-                                                                              container.querySelectorAll('button[data-member]').forEach(button=>button.addEventListener('click', ()=>{
-                                                                                selectedQraParticipants=selectedQraParticipants.filter(member=>member!==button.dataset.member);
-                                                                                document.getElementById('qra-hidden').value=selectedQraParticipants.join(', ');
-                                                                                renderQraParticipants()
-                                      
-                                        }))
-                                      
-                                      }
-                                      
-                                                                            function setupSearch(){
-                                                                              const input=document.getElementById('global-search');
-                                                                              const feedback=document.getElementById('search-feedback');
-                                                                              input.addEventListener('input', ()=>{
-                                                                                const term=input.value.trim().toLowerCase();
-                                                                                const fields=document.querySelectorAll('#forensic-form [data-field]');
-                                                                                if(!term){
-                                                                                  feedback.textContent='Use a barra de busca do topo para filtrar rapidamente por termo no formulário atual.';
-                                                                                  fields.forEach(field=>{
-                                                                                    field.style.outline='';
-                                                                                    field.style.outlineOffset=''
-                                      
-                                            });
-                                                                                  return
-                                      
-                                          }
-                                      
-                                                                                const matchedFields=Array.from(fields).filter(field=>field.textContent.toLowerCase().includes(term));
-                                                                                fields.forEach(field=>{
-                                                                                  const matched=matchedFields.includes(field);
-                                                                                  field.style.outline=matched?'1px solid rgba(212, 175, 55, 0.55)':'';
-                                                                                  field.style.outlineOffset=matched?'8px':''
-                                      
-                                          });
-                                                                                feedback.textContent=matchedFields.length?`${matchedFields.length} campo(s) destacados para o termo "${input.value.trim()}".`:`Nenhum campo visível corresponde a "${input.value.trim()}".`
-                                      
-                                        })
-                                      
-                                      }
-                                      
-                                                                            function setupForensicForm(){
-                                                                              document.getElementById('forensic-form').addEventListener('submit', async event=>{
-                                                                                event.preventDefault();
-                                                                                const formData=Object.fromEntries(new FormData(event.target).entries());
-                                                                                formData.imagens=uploadedImages.map(image=>image.file.name);
-                                                                                formData.qra_participantes=[...selectedQraParticipants];
-                                                                                formData.config_env={
-                                                                                  cargo_policial_revoada:APP_ENV_KEYS.policeRole, pericia_channel_id:APP_ENV_KEYS.periciaChannelId
-                                      
-                                          };
-                                                                                const user=getCurrentUser();
-                                                                                formData.authorId=user.id;
-                                                                                formData.authorName=user.username;
-                                                                                try{
-                                                                                  const response=await fetch('/api/content?action=submit-pericia', {
-                                                                                    method:'POST', headers:{
-                                                                                      'Content-Type':'application/json'
-                                      
-                                              }, body:JSON.stringify(formData)
-                                      
-                                            });
-                                                                                  const payload=await response.json().catch(()=>({
-                                      
-                                            }));
-                                                                                  if(!response.ok)throw new Error(payload.error||'Falha ao enviar perícia.');
-                                                                                  Notify.success('Perícia enviada ao Discord com sucesso.')
-                                      
-                                          }
-                                      
-                                                                                catch(error){
-                                                                                  console.error(error);
-                                                                                  Notify.error(error.message||'Falha ao enviar perícia.')
-                                      
-                                          }
-                                      
-                                      
-                                        })
-                                      
-                                      }
-                                    </script>
-                                  </body>
-                                </html>
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img class="sidebar-logo" src="images/Logo_policia.png" alt="Brasão PCERJ" />
+          <h1 class="sidebar-title">Intranet<br />Policial</h1>
+        </div>
+        <nav class="sidebar-menu">
+          <ul>
+            <li><div class="sidebar-section-title">Painel</div></li>
+            <li><a href="#" class="sidebar-link" data-section-link="home"><i class="fa-solid fa-gauge-high"></i><span>Painel Operacional</span></a></li>
+            <li><div class="sidebar-section-title">Departamentos</div></li>
+            <li><a href="#" class="sidebar-link active" data-section-link="pcerj"><img class="dept-logo" src="images/Logo_policia.png" alt="PCERJ" /><span>PCERJ</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="pmerj"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" /><span>PMERJ</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="prf"><img class="dept-logo" src="images/PRF_new.png" alt="PRF" /><span>PRF</span></a></li>
+            <li><div class="sidebar-section-title">Serviços</div></li>
+            <li><a href="#" class="sidebar-link" data-section-link="pcerj"><i class="fa-solid fa-clipboard-list"></i><span>Formulário de Perícia</span></a></li>
+            <li><a href="boletim.html" class="sidebar-link"><i class="fa-solid fa-clipboard"></i><span>Registrar B.O.</span></a></li>
+            <li><div class="sidebar-section-title">Interno</div></li>
+            <li id="tab-ensino" class="hidden"><a href="#" class="sidebar-link" data-section-link="ensino"><i class="fa-solid fa-graduation-cap"></i><span>Ensino e Cursos</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="admin"><i class="fa-solid fa-building-shield"></i><span>Central Administrativa</span></a></li>
+            <li><a href="../index.html" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Voltar ao Início</span></a></li>
+          </ul>
+        </nav>
+        <div id="sidebar-user" class="user-mini-profile">
+          <img src="images/Logo_policia.png" alt="Usuário" />
+          <div>
+            <div style="font-weight: 700; font-size: 0.92rem;">Servidor REVOADA</div>
+            <div style="font-size: 0.78rem; color: #94a3b8;">Agente em serviço</div>
+          </div>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header class="dashboard-header">
+          <div class="header-title">PCERJ • Central Policial Intranet</div>
+          <div class="search-shell">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="global-search" type="search" placeholder="Buscar por QRA, placa, proprietário ou protocolo" />
+          </div>
+          <div class="header-actions">
+            <div class="system-status"><span class="pulsing-dot"></span><span>Sincronizado</span></div>
+            <button id="profile-trigger" class="profile-trigger" type="button" aria-label="Abrir menu do usuário"><img id="profile-avatar" src="images/Logo_policia.png" alt="Avatar do usuário" /></button>
+            <div id="profile-dropdown" class="profile-dropdown hidden">
+              <div class="profile-dropdown-header"><strong id="profile-name">Servidor REVOADA</strong><span id="profile-role">Agente em serviço</span></div>
+              <a href="#" id="dropdown-home-link" class="dropdown-link"><i class="fa-solid fa-house"></i><span>Página Inicial</span></a>
+              <button id="logout-button" type="button" class="dropdown-button logout"><i class="fa-solid fa-right-from-bracket"></i><span>Sair</span></button>
+            </div>
+          </div>
+        </header>
 
+        <section id="sec-home" class="dash-section hidden">
+          <div class="section-card">
+            <h1 class="page-title">Central Policial Intranet</h1>
+            <p class="page-subtitle">Ambiente interno das matrizes para perícia, triagem operacional e gestão de comunicações.</p>
+            <div class="quick-grid">
+              <article class="quick-card"><span><i class="fa-solid fa-clipboard-check"></i></span><h3>Perícias PCERJ</h3><p>Formulário unificado para caminhão, veículo, corpo e FAC/ORG com envio direto ao Discord.</p></article>
+              <article class="quick-card"><span><i class="fa-solid fa-building-shield"></i></span><h3>Matrizes Integradas</h3><p>PMERJ e PRF permanecem acessíveis na navegação e já contam com seção dedicada para expansão.</p></article>
+              <article class="quick-card"><span><i class="fa-solid fa-graduation-cap"></i></span><h3>Ensino por Permissão</h3><p>A aba de cursos só aparece para usuários com cargo autorizado em <code>api/course-manager.js</code>.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section id="sec-pcerj" class="dash-section">
+          <div class="section-card">
+            <h1 class="page-title">Formulário de Perícia PCERJ</h1>
+            <p class="page-subtitle">Preenchimento técnico para caminhão, veículo, corpo e FAC/ORG com fluxo de anexos, policiais participantes e dados de encaminhamento.</p>
+            <div class="forensic-tabs">
+              <button type="button" class="forensic-tab active" data-forensic-tab="caminhao">Caminhão</button>
+              <button type="button" class="forensic-tab" data-forensic-tab="veiculo">Veículo</button>
+              <button type="button" class="forensic-tab" data-forensic-tab="corpo">Corpo</button>
+              <button type="button" class="forensic-tab" data-forensic-tab="facorg">FAC/ORG</button>
+            </div>
+            <div class="forensic-layout">
+              <div class="glass-panel forensic-panel">
+                <h2 id="form-title">Perícia Veicular Pesada</h2>
+                <p id="form-description">Preencha os dados do caminhão e da ocorrência. Os campos visíveis mudam conforme a aba selecionada.</p>
+                <form id="forensic-form">
+                  <input id="tipo-pericia" name="tipo_pericia" type="hidden" value="caminhao" />
+                  <input id="qra-hidden" type="hidden" />
+                  <div class="field-block" data-field="qra_select">
+                    <label for="field-qra-select">QRA</label>
+                    <div class="qra-picker">
+                      <select id="field-qra-select" aria-label="Seleção de policiais participantes" disabled><option value="">Carregando policiais...</option></select>
+                      <button id="add-qra-button" type="button" class="action-button"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button>
+                    </div>
+                    <div class="field-help">QRA corresponde ao nome ou apelido dos policiais que participaram da perícia. O carregamento será filtrado pelo cargo definido em <code>CARGO_POLICIAL_REVOADA</code>.</div>
+                    <div id="qra-list" class="member-chip-list"></div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-block" data-field="modelo"><label for="field-modelo">Modelo</label><input id="field-modelo" name="modelo" type="text" placeholder="Ex: Mercedes-Benz Actros" /></div>
+                    <div class="field-block" data-field="placa"><label for="field-placa">Placa</label><input id="field-placa" name="placa" type="text" placeholder="ABC1D23" /></div>
+                    <div class="field-block" data-field="proprietario"><label for="field-proprietario">Proprietário</label><input id="field-proprietario" name="proprietario" type="text" placeholder="Nome do proprietário" /></div>
+                  </div>
+                  <div class="field-row two">
+                    <div class="field-block" data-field="passaporte"><label for="field-passaporte">RG/Passaporte da Vítima</label><input id="field-passaporte" name="rg_passaporte_vitima" type="text" placeholder="RG ou passaporte da vítima" /></div>
+                    <div class="field-block" data-field="id_trouxe"><label id="field-id-label" for="field-id-referencia">ID de Quem Trouxe</label><input id="field-id-referencia" name="id_referencia" type="text" placeholder="ID ou registro do agente" /></div>
+                  </div>
+                  <div class="field-row two">
+                    <div class="field-block hidden" data-field="nome"><label for="field-nome">Nome</label><input id="field-nome" name="nome" type="text" placeholder="Nome da vítima" /></div>
+                    <div class="field-block hidden" data-field="orgao"><label for="field-fac-org">Nome da FAC/ORG</label><input id="field-fac-org" name="fac_org" type="text" placeholder="Informe a FAC/ORG" /></div>
+                  </div>
+                  <div class="field-block" data-field="descricao"><label id="field-descricao-label" for="field-ocorrido">Ocorrido</label><textarea id="field-ocorrido" name="ocorrido" placeholder="Descreva brevemente o ocorrido"></textarea></div>
+                  <div class="field-row two">
+                    <div class="field-block" data-field="itens"><label for="field-itens">Itens Encontrados</label><textarea id="field-itens" name="itens_encontrados" placeholder="Liste os itens encontrados"></textarea></div>
+                    <div class="field-block" data-field="regiao"><label for="field-regiao">Região</label><select id="field-regiao" name="regiao"><option value="">Selecione a região</option><option value="Norte">Norte</option><option value="Sul">Sul</option></select></div>
+                  </div>
+                  <div class="field-block hidden" data-field="provas"><label for="field-provas">Provas</label><textarea id="field-provas" name="provas" placeholder="Descreva as provas coletadas"></textarea></div>
+                  <div class="field-block">
+                    <div class="upload-header">
+                      <div><div class="field-label">Anexos da Ocorrência</div><div class="upload-caption">Adicione até 3 imagens para preview local antes do envio.</div></div>
+                      <button id="add-image-button" type="button" class="ghost-button"><i class="fa-regular fa-image"></i><span>Adicionar Imagem</span></button>
+                    </div>
+                    <input id="image-upload" type="file" accept="image/*" multiple class="hidden" />
+                    <div id="upload-grid" class="upload-grid"></div>
+                  </div>
+                  <div class="button-row"><button type="submit" class="submit-button"><i class="fa-solid fa-paper-plane"></i><span>Enviar Relatório</span></button></div>
+                </form>
+              </div>
+              <aside class="glass-panel info-panel">
+                <h3>Regras rápidas de preenchimento</h3>
+                <p>O comportamento visual acompanha o tipo de perícia selecionado e deixa apenas os campos relevantes em tela.</p>
+                <ul>
+                  <li><strong>QRA:</strong> sempre representa os policiais participantes da perícia.</li>
+                  <li><strong>Caminhão e Veículo:</strong> exibem ocorrido, itens encontrados e região.</li>
+                  <li><strong>Corpo:</strong> prioriza nome, documento da vítima, itens encontrados e região.</li>
+                  <li><strong>FAC/ORG:</strong> usa apenas QRA, FAC/ORG e provas.</li>
+                  <li><strong>Upload:</strong> o botão de adicionar é desabilitado ao atingir 3 imagens.</li>
+                </ul>
+                <div style="margin-top: 22px;"><h3>Integração</h3><div id="search-feedback" class="empty-state">O envio será feito para o canal definido em <code>PERICIA_CHANNEL_ID</code> e os membros do QRA serão filtrados pelo cargo <code>CARGO_POLICIAL_REVOADA</code>.</div></div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section id="sec-pmerj" class="dash-section hidden"><div class="section-card"><h1 class="page-title">PMERJ</h1><p class="page-subtitle">A matriz PMERJ já está acessível na navegação. Esta área foi reativada para evitar cliques sem resposta e está pronta para receber o módulo específico quando você quiser expandir.</p><div class="status-banner">A navegação lateral agora responde corretamente ao clique em PMERJ e PRF. Se você quiser, no próximo passo podemos montar os formulários próprios dessas matrizes aqui.</div></div></section>
+        <section id="sec-prf" class="dash-section hidden"><div class="section-card"><h1 class="page-title">PRF</h1><p class="page-subtitle">A seção da PRF foi restaurada na navegação e permanece pronta para receber uma interface dedicada sem ficar inativa para o usuário.</p><div class="status-banner">Estrutura de seção criada e integrada ao roteamento interno da página.</div></div></section>
+
+        <section id="sec-ensino" class="dash-section hidden">
+          <div class="section-card teaching-wrap">
+            <div>
+              <h1 class="page-title">Ensino e Cursos</h1>
+              <p class="page-subtitle">Área restrita para instrutores autorizados, com anúncio de cursos e emissão de relatórios finalizados integrados ao <code>api/course-manager.js</code>.</p>
+            </div>
+            <div class="teaching-toolbar">
+              <div><label class="teaching-label" for="filtro-tipo-curso">Tipo de Curso</label><select id="filtro-tipo-curso"><option value="basico">Cursos Básicos</option><option value="complementar">Cursos Complementares</option><option value="acoes">Cursos de Ações</option></select></div>
+              <div class="status-banner" id="teaching-status">Carregando cursos, membros e calls do Discord para a área de ensino.</div>
+            </div>
+            <div class="segment-row">
+              <button type="button" class="segment-button active" data-teaching-tab="relatorio"><i class="fa-solid fa-file-signature"></i><span>Curso Finalizado</span></button>
+              <button type="button" class="segment-button" data-teaching-tab="anuncio"><i class="fa-solid fa-bullhorn"></i><span>Anunciar Curso</span></button>
+            </div>
+            <datalist id="lista-membros-discord"></datalist>
+            <datalist id="lista-calls-discord"></datalist>
+            <div id="instrutor-relatorio" class="glass-panel teaching-panel">
+              <h2>Emitir Relatório de Curso Finalizado</h2>
+              <p>Use este formulário para registrar conclusão, aprovados, reprovados e período do curso finalizado.</p>
+              <form id="form-curso-final" class="teaching-form">
+                <div class="teaching-grid">
+                  <div><label class="teaching-label" for="curso-final-select">Curso Ministrado</label><select id="curso-final-select" name="curso_nome" required><option value="" disabled selected>Carregando lista de cursos...</option></select></div>
+                  <div><label class="teaching-label" for="obs-final">Observações</label><input id="obs-final" name="obs" type="text" placeholder="Observações gerais do curso" /></div>
+                </div>
+                <div class="field-block"><label class="teaching-label" for="input-instrutores">Instrutores Responsáveis</label><div class="qra-picker"><input id="input-instrutores" type="text" list="lista-membros-discord" placeholder="Digite o nome do instrutor" /><button type="button" class="action-button" data-member-add="instrutores"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button></div><div id="visual-instrutores" class="selected-list-container"></div><input id="hidden-instrutores" name="instrutores" type="hidden" /></div>
+                <div class="field-block"><label class="teaching-label" for="input-auxiliares">Auxiliares</label><div class="qra-picker"><input id="input-auxiliares" type="text" list="lista-membros-discord" placeholder="Digite o nome do auxiliar" /><button type="button" class="action-button" data-member-add="auxiliares"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button></div><div id="visual-auxiliares" class="selected-list-container"></div><input id="hidden-auxiliares" name="auxiliares" type="hidden" /></div>
+                <div class="teaching-grid">
+                  <div><label class="teaching-label" for="input-aprovados">Aprovados</label><div class="qra-picker"><input id="input-aprovados" type="text" list="lista-membros-discord" placeholder="Digite o nome do aprovado" /><button type="button" class="action-button" data-member-add="aprovados"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button></div><div id="visual-aprovados" class="selected-list-container"></div><input id="hidden-aprovados" name="aprovados" type="hidden" /></div>
+                  <div><label class="teaching-label" for="input-reprovados">Reprovados</label><div class="qra-picker"><input id="input-reprovados" type="text" list="lista-membros-discord" placeholder="Digite o nome do reprovado" /><button type="button" class="action-button" data-member-add="reprovados"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button></div><div id="visual-reprovados" class="selected-list-container"></div><input id="hidden-reprovados" name="reprovados" type="hidden" /></div>
+                </div>
+                <div class="teaching-grid">
+                  <div><label class="teaching-label" for="data-inicio">Data de Início</label><input id="data-inicio" name="data_inicio" type="date" required /></div>
+                  <div><label class="teaching-label" for="hora-inicio">Hora de Início</label><input id="hora-inicio" name="hora_inicio" type="time" required /></div>
+                  <div><label class="teaching-label" for="data-fim">Data de Fim</label><input id="data-fim" name="data_fim" type="date" required /></div>
+                  <div><label class="teaching-label" for="hora-fim">Hora de Fim</label><input id="hora-fim" name="hora_fim" type="time" required /></div>
+                </div>
+                <div class="button-row"><button type="submit" class="submit-button secondary"><i class="fa-solid fa-paper-plane"></i><span>Enviar Relatório Final</span></button></div>
+              </form>
+            </div>
+            <div id="instrutor-anuncio" class="glass-panel teaching-panel hidden">
+              <h2>Anunciar Novo Curso</h2>
+              <p>Use este formulário para publicar anúncio de curso, instrutores, data, horário, local e call no Discord.</p>
+              <form id="form-curso-anuncio" class="teaching-form">
+                <div class="teaching-grid">
+                  <div><label class="teaching-label" for="curso-anuncio-select">Curso</label><select id="curso-anuncio-select" name="curso_nome" required><option value="" disabled selected>Carregando lista de cursos...</option></select></div>
+                  <div><label class="teaching-label" for="curso-local">Local</label><input id="curso-local" name="local" type="text" placeholder="Ex: Estande Central" required /></div>
+                  <div><label class="teaching-label" for="curso-data">Data</label><input id="curso-data" name="data" type="date" required /></div>
+                  <div><label class="teaching-label" for="curso-horario">Horário</label><input id="curso-horario" name="horario" type="time" required /></div>
+                </div>
+                <div class="field-block"><label class="teaching-label" for="input-instrutores-anuncio">Instrutores Responsáveis</label><div class="qra-picker"><input id="input-instrutores-anuncio" type="text" list="lista-membros-discord" placeholder="Digite o nome do instrutor" /><button type="button" class="action-button" data-member-add="instrutores-anuncio"><i class="fa-solid fa-plus"></i><span>Adicionar</span></button></div><div id="visual-instrutores-anuncio" class="selected-list-container"></div><input id="hidden-instrutores-anuncio" name="instrutores" type="hidden" /></div>
+                <div class="field-block"><label class="teaching-label" for="curso-call">Call</label><input id="curso-call" name="call_channel" type="text" list="lista-calls-discord" placeholder="Nome da call ou URL completa" /></div>
+                <div class="button-row"><button type="submit" class="submit-button secondary"><i class="fa-solid fa-bullhorn"></i><span>Publicar Anúncio</span></button></div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section id="sec-admin" class="dash-section hidden"><div class="section-card"><h1 class="page-title">Central Administrativa</h1><p class="page-subtitle">Área reservada para futuras rotinas internas da intranet. A navegação foi mantida ativa para não deixar links sem resposta.</p></div></section>
+      </main>
+    </div>
+
+    <script>
+      const APP_ENV_KEYS = { policeRole: "CARGO_POLICIAL_REVOADA", periciaChannelId: "PERICIA_CHANNEL_ID" };
+      const FALLBACK_POLICE_MEMBERS = ["Delegado Revoada", "Perito Lacerda", "Investigadora Maya", "Escrivão Duarte", "Agente Motta"];
+      const FORENSIC_CONFIG = {
+        caminhao: { title: "Perícia Veicular Pesada", description: "Modelo para perícia de caminhão com identificação do responsável, ocorrido, itens e região.", visibleFields: ["qra_select", "modelo", "placa", "proprietario", "passaporte", "id_trouxe", "descricao", "itens", "regiao"], idLabel: "ID de Quem Trouxe", descriptionLabel: "Ocorrido" },
+        veiculo: { title: "Perícia Veicular", description: "Modelo para perícia de veículo com dados do denunciante, itens encontrados e região.", visibleFields: ["qra_select", "modelo", "placa", "proprietario", "passaporte", "id_trouxe", "descricao", "itens", "regiao"], idLabel: "ID do Denunciante", descriptionLabel: "Ocorrido" },
+        corpo: { title: "Perícia de Corpo", description: "Modelo para perícia de corpo com identificação da vítima, itens encontrados e região.", visibleFields: ["qra_select", "nome", "passaporte", "itens", "regiao"], idLabel: "ID de Referência", descriptionLabel: "Ocorrido" },
+        facorg: { title: "Pessoas Armadas Dentro de FAC/ORG", description: "Modelo reduzido para envio de FAC/ORG com QRA, nome da FAC/ORG e provas.", visibleFields: ["qra_select", "orgao", "provas"], idLabel: "ID de Referência", descriptionLabel: "Ocorrido" },
+      };
+      const state = { currentSection: "pcerj", currentForensicTab: "caminhao", currentTeachingTab: "relatorio", selectedQraParticipants: [], uploadedImages: [], discordMembersMap: {}, discordCallsMap: {}, discordGuildId: "", allCursos: [], currentUser: null };
+      const Notify = {
+        container: null,
+        init() { this.container = document.querySelector(".notification-container"); if (!this.container) { this.container = document.createElement("div"); this.container.className = "notification-container"; document.body.appendChild(this.container); } },
+        show(message, type = "info") { if (!this.container) this.init(); const toast = document.createElement("div"); toast.className = `toast ${type}`; const icon = type === "success" ? "fa-circle-check" : type === "error" ? "fa-triangle-exclamation" : type === "loading" ? "fa-spinner fa-spin" : "fa-circle-info"; toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`; this.container.appendChild(toast); if (type !== "loading") setTimeout(() => toast.remove(), 3200); return toast; },
+        success(message) { this.show(message, "success"); },
+        error(message) { this.show(message, "error"); },
+        info(message) { this.show(message, "info"); },
+        loading(message) { return this.show(message, "loading"); },
+      };
+      document.addEventListener("DOMContentLoaded", async () => { Notify.init(); const user = getCurrentUser(); state.currentUser = user; renderUser(user); setupSidebarNavigation(); setupProfileDropdown(); setupForensicTabs(); setupUpload(); setupQraPicker(); setupSearch(); setupForensicForm(); setupTeachingTabs(); setupMemberPickers(); setupTeachingForms(); await Promise.all([loadPoliceMembersByRole(), checkTeachingPermission(user)]); switchSection("pcerj"); activateForensicTab("caminhao"); });
+      function getCurrentUser() { const stored = localStorage.getItem("revoada_user"); if (!stored) return { username: "Servidor REVOADA", avatar: "", id: "local-user", roles: [], policeRoleLabel: localStorage.getItem("revoada_police_role_label") || "Agente em serviço" }; try { const parsed = JSON.parse(stored); return { ...parsed, roles: Array.isArray(parsed.roles) ? parsed.roles : [], policeRoleLabel: localStorage.getItem("revoada_police_role_label") || parsed.policeRoleLabel || "Agente em serviço" }; } catch (error) { console.error("Falha ao ler usuário salvo:", error); return { username: "Servidor REVOADA", avatar: "", id: "local-user", roles: [], policeRoleLabel: "Agente em serviço" }; } }
+      function getAvatarUrl(user) { if (user && user.avatar && user.id) return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`; return "images/Logo_policia.png"; }
+      function renderUser(user) { const avatarUrl = getAvatarUrl(user); const roleLabel = user.policeRoleLabel || "Agente em serviço"; document.getElementById("profile-avatar").src = avatarUrl; document.getElementById("profile-name").textContent = user.username || "Servidor REVOADA"; document.getElementById("profile-role").textContent = roleLabel; document.getElementById("sidebar-user").innerHTML = `<img src="${avatarUrl}" alt="Avatar do usuário" /><div><div style="font-weight: 700; font-size: 0.92rem;">${user.username || "Servidor REVOADA"}</div><div style="font-size: 0.78rem; color: #94a3b8;">${roleLabel}</div></div>`; }
+      function setupSidebarNavigation() { document.querySelectorAll("[data-section-link]").forEach((link) => { link.addEventListener("click", (event) => { event.preventDefault(); switchSection(link.dataset.sectionLink, link); }); }); }
+      function switchSection(sectionName, linkElement = null) { state.currentSection = sectionName; document.querySelectorAll(".dash-section").forEach((section) => { section.classList.toggle("hidden", section.id !== `sec-${sectionName}`); }); document.querySelectorAll(".sidebar-link[data-section-link]").forEach((link) => { link.classList.toggle("active", link.dataset.sectionLink === sectionName); }); if (linkElement) linkElement.classList.add("active"); }
+      function setupProfileDropdown() { const trigger = document.getElementById("profile-trigger"); const dropdown = document.getElementById("profile-dropdown"); const homeLink = document.getElementById("dropdown-home-link"); const logoutButton = document.getElementById("logout-button"); trigger.addEventListener("click", (event) => { event.stopPropagation(); dropdown.classList.toggle("hidden"); }); homeLink.addEventListener("click", (event) => { event.preventDefault(); dropdown.classList.add("hidden"); switchSection("home"); }); logoutButton.addEventListener("click", () => { localStorage.removeItem("revoada_user"); localStorage.removeItem("revoada_is_journalist"); window.location.href = "../index.html"; }); document.addEventListener("click", (event) => { if (!dropdown.contains(event.target) && !trigger.contains(event.target)) dropdown.classList.add("hidden"); }); }
+      function setupForensicTabs() { document.querySelectorAll("[data-forensic-tab]").forEach((button) => { button.addEventListener("click", () => activateForensicTab(button.dataset.forensicTab)); }); }
+      function activateForensicTab(tabName) { const config = FORENSIC_CONFIG[tabName]; if (!config) return; state.currentForensicTab = tabName; document.querySelectorAll("[data-forensic-tab]").forEach((tabButton) => { tabButton.classList.toggle("active", tabButton.dataset.forensicTab === tabName); }); document.getElementById("tipo-pericia").value = tabName; document.getElementById("form-title").textContent = config.title; document.getElementById("form-description").textContent = config.description; document.getElementById("field-id-label").textContent = config.idLabel; document.getElementById("field-descricao-label").textContent = config.descriptionLabel; document.querySelectorAll("[data-field]").forEach((field) => { field.classList.toggle("hidden", !config.visibleFields.includes(field.dataset.field)); }); }
+      function setupUpload() { const input = document.getElementById("image-upload"); const addButton = document.getElementById("add-image-button"); addButton.addEventListener("click", () => { if (state.uploadedImages.length < 3) input.click(); }); input.addEventListener("change", (event) => { Array.from(event.target.files || []).forEach((file) => { if (state.uploadedImages.length >= 3) return; state.uploadedImages.push({ file, previewUrl: URL.createObjectURL(file) }); }); renderUploadGrid(); input.value = ""; }); renderUploadGrid(); }
+      function renderUploadGrid() { const grid = document.getElementById("upload-grid"); const addButton = document.getElementById("add-image-button"); grid.innerHTML = ""; state.uploadedImages.forEach((image, index) => { const slot = document.createElement("div"); slot.className = "upload-slot"; slot.innerHTML = `<img src="${image.previewUrl}" alt="Preview ${index + 1}" /><button type="button" data-remove-upload="${index}" aria-label="Remover imagem"><i class="fa-solid fa-xmark"></i></button>`; grid.appendChild(slot); }); for (let index = state.uploadedImages.length; index < 3; index += 1) { const emptySlot = document.createElement("div"); emptySlot.className = "upload-slot empty"; emptySlot.innerHTML = '<i class="fa-regular fa-image"></i>'; grid.appendChild(emptySlot); } grid.querySelectorAll("[data-remove-upload]").forEach((button) => { button.addEventListener("click", () => removeUpload(Number(button.dataset.removeUpload))); }); addButton.disabled = state.uploadedImages.length >= 3; addButton.classList.toggle("hidden", state.uploadedImages.length >= 3); }
+      function removeUpload(index) { const removed = state.uploadedImages[index]; if (removed && removed.previewUrl) URL.revokeObjectURL(removed.previewUrl); state.uploadedImages.splice(index, 1); renderUploadGrid(); }
+      function setupQraPicker() { const addButton = document.getElementById("add-qra-button"); addButton.addEventListener("click", addQraParticipant); renderQraParticipants(); }
+      async function loadPoliceMembersByRole() { const select = document.getElementById("field-qra-select"); const roleKey = localStorage.getItem("revoada_police_role_key") || APP_ENV_KEYS.policeRole; try { const response = await fetch(`/api/discord?action=police-members&role=${encodeURIComponent(roleKey)}`); if (!response.ok) throw new Error("Falha ao buscar membros policiais."); const data = await response.json(); const members = Array.isArray(data.members) && data.members.length ? data.members : FALLBACK_POLICE_MEMBERS; populateQraOptions(members); } catch (error) { console.error(error); populateQraOptions(FALLBACK_POLICE_MEMBERS); Notify.info("Lista policial carregada em modo local de fallback."); } select.disabled = false; }
+      function populateQraOptions(members) { const select = document.getElementById("field-qra-select"); select.innerHTML = '<option value="">Selecione o policial participante</option>'; members.forEach((member) => { const option = document.createElement("option"); option.value = member; option.textContent = member; select.appendChild(option); }); }
+      function addQraParticipant() { const select = document.getElementById("field-qra-select"); const value = select.value; if (!value) return Notify.info("Selecione um policial participante antes de adicionar."); if (state.selectedQraParticipants.includes(value)) return Notify.info("Esse policial já foi incluído no QRA."); state.selectedQraParticipants.push(value); document.getElementById("qra-hidden").value = state.selectedQraParticipants.join(", "); renderQraParticipants(); select.value = ""; }
+      function renderQraParticipants() { const container = document.getElementById("qra-list"); container.innerHTML = ""; if (!state.selectedQraParticipants.length) { container.innerHTML = '<div class="empty-state">Nenhum policial participante selecionado no QRA.</div>'; return; } state.selectedQraParticipants.forEach((member) => { const chip = document.createElement("div"); chip.className = "member-chip"; chip.innerHTML = `<span>${member}</span><button type="button" data-remove-qra="${member}" aria-label="Remover policial do QRA"><i class="fa-solid fa-xmark"></i></button>`; container.appendChild(chip); }); container.querySelectorAll("[data-remove-qra]").forEach((button) => { button.addEventListener("click", () => { state.selectedQraParticipants = state.selectedQraParticipants.filter((member) => member !== button.dataset.removeQra); document.getElementById("qra-hidden").value = state.selectedQraParticipants.join(", "); renderQraParticipants(); }); }); }
+      function setupSearch() { const input = document.getElementById("global-search"); const feedback = document.getElementById("search-feedback"); input.addEventListener("input", () => { const term = input.value.trim().toLowerCase(); const fields = document.querySelectorAll("#forensic-form [data-field]"); fields.forEach((field) => { field.style.outline = ""; field.style.outlineOffset = ""; }); if (!term) { feedback.textContent = "O envio será feito para o canal definido em PERICIA_CHANNEL_ID e os membros do QRA serão filtrados pelo cargo CARGO_POLICIAL_REVOADA."; return; } const matches = Array.from(fields).filter((field) => !field.classList.contains("hidden") && field.textContent.toLowerCase().includes(term)); matches.forEach((field) => { field.style.outline = "1px solid rgba(212, 175, 55, 0.55)"; field.style.outlineOffset = "8px"; }); feedback.textContent = matches.length ? `${matches.length} campo(s) destacados para o termo "${input.value.trim()}".` : `Nenhum campo visível corresponde a "${input.value.trim()}".`; }); }
+      function setupForensicForm() { const form = document.getElementById("forensic-form"); form.addEventListener("submit", async (event) => { event.preventDefault(); const submitButton = form.querySelector('button[type="submit"]'); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Enviando perícia ao Discord..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Enviando...</span>'; const formData = Object.fromEntries(new FormData(form).entries()); formData.imagens = state.uploadedImages.map((image) => image.file.name); formData.qra_participantes = [...state.selectedQraParticipants]; formData.authorId = state.currentUser.id; formData.authorName = state.currentUser.username; formData.config_env = { cargo_policial_revoada: APP_ENV_KEYS.policeRole, pericia_channel_id: APP_ENV_KEYS.periciaChannelId }; try { const response = await fetch("/api/content?action=submit-pericia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao enviar perícia."); Notify.success("Perícia enviada ao Discord com sucesso."); form.reset(); activateForensicTab(state.currentForensicTab); state.selectedQraParticipants = []; renderQraParticipants(); state.uploadedImages.forEach((image) => { if (image.previewUrl) URL.revokeObjectURL(image.previewUrl); }); state.uploadedImages = []; renderUploadGrid(); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao enviar perícia."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }); }
+      async function checkTeachingPermission(user) { const teachingTab = document.getElementById("tab-ensino"); const teachingStatus = document.getElementById("teaching-status"); if (!Array.isArray(user.roles) || !user.roles.length) { teachingStatus.textContent = "Nenhum cargo de ensino identificado no usuário atual."; return; } try { const response = await fetch("/api/course-manager?action=config"); if (!response.ok) throw new Error("Falha ao carregar configuração de ensino."); const config = await response.json(); const allowedRoles = String(config.instrutorRoleId || "").split(",").map((id) => id.trim()).filter(Boolean); const hasPermission = user.roles.some((roleId) => allowedRoles.includes(String(roleId))); if (!hasPermission) { teachingStatus.textContent = "Usuário autenticado, mas sem um dos cargos autorizados para a área de ensino."; return; } teachingTab.classList.remove("hidden"); await loadTeachingDiscordData(); } catch (error) { console.error("Erro ao verificar permissão de ensino:", error); teachingStatus.textContent = "Não foi possível validar a permissão de ensino agora."; } }
+      async function loadTeachingDiscordData() { const status = document.getElementById("teaching-status"); try { const response = await fetch("/api/course-manager?action=discord-data"); if (!response.ok) throw new Error("Erro ao buscar dados do Discord para cursos."); const data = await response.json(); state.allCursos = Array.isArray(data.cursos) ? data.cursos : []; state.discordGuildId = data.guildId || ""; state.discordMembersMap = {}; state.discordCallsMap = {}; const membersDatalist = document.getElementById("lista-membros-discord"); const callsDatalist = document.getElementById("lista-calls-discord"); if (membersDatalist) { membersDatalist.innerHTML = ""; (data.membros || []).forEach((member) => { state.discordMembersMap[member.name] = member.id; const option = document.createElement("option"); option.value = member.name; membersDatalist.appendChild(option); }); } if (callsDatalist) { callsDatalist.innerHTML = ""; (data.calls || []).forEach((call) => { state.discordCallsMap[call.name] = call.id; const option = document.createElement("option"); option.value = call.name; callsDatalist.appendChild(option); }); } renderCursosPorTipo(getTipoCursoSelecionado()); status.textContent = `${state.allCursos.length} curso(s), ${(data.membros || []).length} membro(s) e ${(data.calls || []).length} call(s) carregados da API de ensino.`; } catch (error) { console.error("Falha ao carregar dados de ensino:", error); status.textContent = "Falha ao carregar cursos, membros e calls do Discord."; } }
+      function setupTeachingTabs() { document.querySelectorAll("[data-teaching-tab]").forEach((button) => { button.addEventListener("click", () => activateTeachingTab(button.dataset.teachingTab)); }); const filter = document.getElementById("filtro-tipo-curso"); filter.addEventListener("change", () => renderCursosPorTipo(filter.value)); }
+      function activateTeachingTab(tabName) { state.currentTeachingTab = tabName; document.querySelectorAll("[data-teaching-tab]").forEach((button) => { button.classList.toggle("active", button.dataset.teachingTab === tabName); }); document.getElementById("instrutor-relatorio").classList.toggle("hidden", tabName !== "relatorio"); document.getElementById("instrutor-anuncio").classList.toggle("hidden", tabName !== "anuncio"); }
+      function getTipoCursoSelecionado() { const filter = document.getElementById("filtro-tipo-curso"); return filter ? filter.value : "basico"; }
+      function renderCursosPorTipo(tipo) { const selects = document.querySelectorAll('select[name="curso_nome"]'); const filteredCourses = state.allCursos.filter((curso) => curso.tipo === tipo); const placeholderText = filteredCourses.length ? "Selecione o curso..." : "Nenhum curso neste filtro"; selects.forEach((select) => { select.innerHTML = ""; const placeholder = document.createElement("option"); placeholder.value = ""; placeholder.disabled = true; placeholder.selected = true; placeholder.textContent = placeholderText; select.appendChild(placeholder); filteredCourses.forEach((curso) => { const option = document.createElement("option"); option.value = curso.id; option.textContent = curso.name; select.appendChild(option); }); }); }
+      function setupMemberPickers() { document.querySelectorAll("[data-member-add]").forEach((button) => { button.addEventListener("click", () => addMemberToken(button.dataset.memberAdd)); }); ["instrutores", "auxiliares", "aprovados", "reprovados", "instrutores-anuncio"].forEach((type) => { const input = document.getElementById(`input-${type}`); if (input) input.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); addMemberToken(type); } }); }); }
+      function addMemberToken(type) { const input = document.getElementById(`input-${type}`); const container = document.getElementById(`visual-${type}`); const hidden = document.getElementById(`hidden-${type}`); if (!input || !container || !hidden) return; const typedName = input.value.trim(); if (!typedName) return; const discordId = state.discordMembersMap[typedName]; const storedValue = discordId ? `<@${discordId}>` : typedName; const alreadyExists = Array.from(container.querySelectorAll(".selected-item")).some((item) => item.dataset.value === storedValue); if (alreadyExists) { input.value = ""; return; } const item = document.createElement("div"); item.className = "selected-item"; item.dataset.value = storedValue; item.innerHTML = `<span>${typedName}</span><button type="button" aria-label="Remover item"><i class="fa-solid fa-xmark"></i></button>`; item.querySelector("button").addEventListener("click", () => { item.remove(); syncHiddenField(type); }); container.appendChild(item); syncHiddenField(type); input.value = ""; }
+      function syncHiddenField(type) { const container = document.getElementById(`visual-${type}`); const hidden = document.getElementById(`hidden-${type}`); if (!container || !hidden) return; const values = Array.from(container.querySelectorAll(".selected-item")).map((item) => item.dataset.value); hidden.value = values.join(", "); }
+      function setupTeachingForms() { const finalForm = document.getElementById("form-curso-final"); const announcementForm = document.getElementById("form-curso-anuncio"); finalForm.addEventListener("submit", async (event) => { event.preventDefault(); await submitCourseForm(finalForm, "final"); }); announcementForm.addEventListener("submit", async (event) => { event.preventDefault(); await submitCourseForm(announcementForm, "anuncio"); }); }
+      async function submitCourseForm(form, type) { const submitButton = form.querySelector('button[type="submit"]'); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Processando formulário de ensino..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Processando...</span>'; try { const data = Object.fromEntries(new FormData(form).entries()); const courseSelect = form.querySelector('select[name="curso_nome"]'); if (courseSelect && courseSelect.selectedIndex >= 0) { data.curso_id = courseSelect.value; data.curso_nome = courseSelect.options[courseSelect.selectedIndex].text; } if (data.call_channel) { const rawCall = data.call_channel.trim(); if (/^https?:\/\//i.test(rawCall)) data.call_link = rawCall; else { const callId = state.discordCallsMap[rawCall]; if (callId && state.discordGuildId) data.call_link = `https://discord.com/channels/${state.discordGuildId}/${callId}`; } delete data.call_channel; } data.type = type; data.authorId = state.currentUser.id; data.userRoles = Array.isArray(state.currentUser.roles) ? state.currentUser.roles.map(String) : []; const response = await fetch("/api/course-manager", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao enviar formulário de ensino."); Notify.success(type === "anuncio" ? "Anúncio de curso enviado com sucesso." : "Relatório final de curso enviado com sucesso."); form.reset(); form.querySelectorAll(".selected-list-container").forEach((container) => { container.innerHTML = ""; }); form.querySelectorAll('input[type="hidden"]').forEach((input) => { if (input.id.startsWith("hidden-")) input.value = ""; }); renderCursosPorTipo(getTipoCursoSelecionado()); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao processar formulário de ensino."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }
+    </script>
+  </body>
+</html>
