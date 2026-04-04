@@ -52,8 +52,15 @@ function textDisplay(content) {
 async function sendDiscordMultipartMessage(channelId, botToken, payload, attachments) {
   const form = new FormData();
   const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+  const normalizedPayload = {
+    ...payload,
+    attachments: files.map((attachment, index) => ({
+      id: String(index),
+      filename: attachment.name || `anexo-${index + 1}`,
+    })),
+  };
 
-  form.append("payload_json", JSON.stringify(payload));
+  form.append("payload_json", JSON.stringify(normalizedPayload));
 
   files.forEach((attachment, index) => {
     const match = String(attachment.dataUrl || "").match(/^data:(.+?);base64,(.+)$/);
@@ -514,7 +521,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "MÃ©todo ou aÃ§Ã£o invÃ¡lidos." });
   } catch (error) {
     console.error("Erro em /api/content:", error);
-    return res.status(500).json({ error: "Erro interno ao processar conteÃºdo." });
+    return res.status(500).json({ error: error.message || "Erro interno ao processar conteúdo." });
   }
 }
 

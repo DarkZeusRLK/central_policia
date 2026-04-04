@@ -38,6 +38,22 @@ function textDisplay(content) {
   };
 }
 
+function separator(spacing = 1, divider = true) {
+  return {
+    type: 14,
+    spacing,
+    divider,
+  };
+}
+
+function container(accentColor, components) {
+  return {
+    type: 17,
+    accent_color: accentColor,
+    components,
+  };
+}
+
 function linkButton(label, url) {
   return {
     type: 1,
@@ -55,28 +71,32 @@ function linkButton(label, url) {
 function buildAnnouncementMessage(data, env) {
   const courseMentions = resolveCourseMentions(data);
   const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
-  const components = [
+  const components = [container(0xd4af37, [
     textDisplay([
       "## 📣 Central Policial | Anúncio de Curso",
-      mentionMatrizes ? `**Convocação:** ${mentionMatrizes}` : "**Convocação:** Matrizes não configuradas.",
+      data.authorId ? `**👮 Publicado por:** <@${data.authorId}>` : "**👮 Publicado por:** Intranet Policial",
     ].join("\n")),
+    separator(),
     textDisplay([
       "### 📚 Cursos",
       courseMentions.map((course) => `- ${course}`).join("\n"),
     ].join("\n")),
+    separator(),
     textDisplay([
       "### 👨‍🏫 Escala e Planejamento",
       `- **Instrutores:** ${data.instrutores || "N/A"}`,
       `- **Data:** ${formatBr(data.data)}`,
       `- **Horário:** ${data.horario || "N/A"}`,
       `- **Local:** ${data.local || "N/A"}`,
-      data.authorId ? `- **Publicado por:** <@${data.authorId}>` : "- **Publicado por:** Intranet Policial",
     ].join("\n")),
-  ];
+    ...(mentionMatrizes ? [separator(), textDisplay(`### 🏛️ Convocação\n${mentionMatrizes}`)] : []),
+  ])];
 
   if (data.call_link) {
     components.push(
-      textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
+      container(0x3b82f6, [
+        textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
+      ]),
       linkButton("Entrar na call", data.call_link),
     );
   }
@@ -96,25 +116,29 @@ function buildFinalMessage(data, factionName, includeMatrizes, env) {
   const title = includeMatrizes
     ? "## 📘 Central Policial | Registro Geral de Curso"
     : `## 📘 Central Policial | Curso Finalizado ${factionName}`;
-  const components = [
+  const cardComponents = [
     textDisplay([
       title,
       data.authorId ? `**📝 Relatório enviado por:** <@${data.authorId}>` : "**📝 Relatório enviado por:** Intranet Policial",
     ].join("\n")),
+    separator(),
     textDisplay([
       "### 📚 Curso",
       courseMentions.map((course) => `- ${course}`).join("\n"),
     ].join("\n")),
+    separator(),
     textDisplay([
       "### 👨‍🏫 Equipe de Ensino",
       `- **Instrutores:** ${data.instrutores || "N/A"}`,
       `- **Auxiliares:** ${data.auxiliares || "Nenhum"}`,
     ].join("\n")),
+    separator(),
     textDisplay([
       "### 📅 Data",
       `- **Início:** ${formatBr(data.data_inicio)} às ${data.hora_inicio || "00:00"}`,
       `- **Fim:** ${formatBr(data.data_fim)} às ${data.hora_fim || "00:00"}`,
     ].join("\n")),
+    separator(),
     textDisplay([
       "### ✅ Resultado da Turma",
       `- **Aprovados:** ${data.aprovados || "Nenhum"}`,
@@ -123,7 +147,8 @@ function buildFinalMessage(data, factionName, includeMatrizes, env) {
   ];
 
   if (data.obs) {
-    components.push(
+    cardComponents.push(
+      separator(),
       textDisplay([
         "### 📓 Observações",
         data.obs,
@@ -131,12 +156,18 @@ function buildFinalMessage(data, factionName, includeMatrizes, env) {
     );
   }
 
+  const components = [
+    container(includeMatrizes ? 0xf59e0b : 0x22c55e, cardComponents),
+  ];
+
   if (includeMatrizes && mentionMatrizes) {
     components.push(
-      textDisplay([
+      container(0x5865f2, [
+        textDisplay([
         "### 🏛️ Matrizes Envolvidas",
         mentionMatrizes,
-      ].join("\n")),
+        ].join("\n")),
+      ]),
     );
   }
 
