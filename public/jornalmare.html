@@ -62,6 +62,8 @@
       max-width: 900px;
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      content-visibility: auto;
+      contain-intrinsic-size: 1px 900px;
     }
 
     .news-article:hover {
@@ -465,7 +467,7 @@
           return;
         }
 
-        container.innerHTML = '';
+        const articleFragments = [];
 
         // Atualiza estatísticas
         document.getElementById('total-news').textContent = news.length;
@@ -546,7 +548,7 @@
                 <h2 class="news-article-title">${article.title}</h2>
                 
                 ${article.image ? `
-                  <img src="${article.image}" alt="${article.title}" class="news-article-image" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 ` : ''}
                 
                 <div class="news-article-text">
@@ -566,12 +568,14 @@
             </article>
           `;
 
-          container.innerHTML += articleHTML;
+          articleFragments.push(articleHTML);
 
           if (index < news.length - 1) {
-            container.innerHTML += '<div class="news-divider"></div>';
+            articleFragments.push('<div class="news-divider"></div>');
           }
         });
+
+        container.innerHTML = articleFragments.join('');
 
       } catch (error) {
         console.error('Erro ao carregar notícias:', error);

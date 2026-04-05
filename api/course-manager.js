@@ -215,16 +215,12 @@ function buildFinalMessages(data, factionName, includeMatrizes, env) {
     );
   }
 
-  const components = [
-    container(includeMatrizes ? 0xf59e0b : 0x22c55e, cardComponents),
-  ];
-
   const messages = [{
     flags: 32768,
     allowed_mentions: {
       parse: ["roles", "users"],
     },
-    components,
+    components: [container(includeMatrizes ? 0xf59e0b : 0x22c55e, cardComponents)],
   }];
 
   const continuationComponents = [];
@@ -289,14 +285,14 @@ function resolveFaction(data, env) {
   const userRoles = Array.isArray(data.userRoles) ? data.userRoles.map(String) : [];
   const explicitFaction = String(data.faction || "").trim().toUpperCase();
 
-  if (hasAnyRole(userRoles, env.ROLE_ID_PCERJ) || explicitFaction === "PCERJ") {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PCERJ)) {
     return {
       name: "PCERJ",
       channelId: env.CH_PCERJ_FINALIZADOS,
     };
   }
 
-  if (hasAnyRole(userRoles, env.ROLE_ID_PMERJ) || explicitFaction === "PMERJ") {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PMERJ)) {
     const courseType = resolveCourseTypeById(data.curso_id, env);
     return {
       name: "PMERJ",
@@ -304,14 +300,14 @@ function resolveFaction(data, env) {
     };
   }
 
-  if (hasAnyRole(userRoles, env.ROLE_ID_PRF) || explicitFaction === "PRF") {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PRF)) {
     return {
       name: "PRF",
       channelId: env.CH_PRF_FINALIZADOS,
     };
   }
 
-  if (hasAnyRole(userRoles, env.ROLE_ID_PF) || explicitFaction === "PF") {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PF)) {
     return {
       name: "PF",
       channelId: env.CH_PF_FINALIZADOS,
@@ -322,6 +318,35 @@ function resolveFaction(data, env) {
     return {
       name: "COMANDO_GERAL",
       channelId: "",
+    };
+  }
+
+  if (explicitFaction === "PCERJ") {
+    return {
+      name: "PCERJ",
+      channelId: env.CH_PCERJ_FINALIZADOS,
+    };
+  }
+
+  if (explicitFaction === "PMERJ") {
+    const courseType = resolveCourseTypeById(data.curso_id, env);
+    return {
+      name: "PMERJ",
+      channelId: courseType === "acoes" ? env.CH_PMERJ_FINALIZADOS_ACAO : env.CH_PMERJ_FINALIZADOS,
+    };
+  }
+
+  if (explicitFaction === "PRF") {
+    return {
+      name: "PRF",
+      channelId: env.CH_PRF_FINALIZADOS,
+    };
+  }
+
+  if (explicitFaction === "PF") {
+    return {
+      name: "PF",
+      channelId: env.CH_PF_FINALIZADOS,
     };
   }
 

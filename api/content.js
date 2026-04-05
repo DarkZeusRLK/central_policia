@@ -299,13 +299,13 @@ async function handleGetNews(res, env) {
 
 async function handlePublishNews(req, res, env) {
   const { title, content, imageUrl, userId, fontFamily } = req.body || {};
-  const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, MATRIZES_ROLE_ID } = env;
+  const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, CARGO_POLICIAL_REVOADA } = env;
 
-  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !MATRIZES_ROLE_ID) {
+  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !CARGO_POLICIAL_REVOADA) {
     return res.status(500).json({ error: "Configuração incompleta (.env)." });
   }
 
-  const rolesToMention = parseIdList(MATRIZES_ROLE_ID)
+  const rolesToMention = parseIdList(CARGO_POLICIAL_REVOADA)
     .map((id) => `<@&${id}>`)
     .join(" ");
 
@@ -498,22 +498,20 @@ async function handleSubmitPericia(req, res, env) {
     ].join("\n")),
   ]);
 
-  const attachmentCard = container(0x475569, [
-    textDisplay(
-      attachments.length
-        ? "### 🖼️ Anexos\nAs imagens da perícia foram enviadas em anexo nesta mensagem."
-        : Array.isArray(data.imagens) && data.imagens.length
-          ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
-          : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.",
-    ),
-  ]);
+  const attachmentText = attachments.length
+    ? "### 🖼️ Anexos\nAs imagens da perícia foram enviadas em anexo nesta mensagem."
+    : Array.isArray(data.imagens) && data.imagens.length
+      ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
+      : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.";
+
+  mainCard.components.push(separator(), textDisplay(attachmentText));
 
   const payload = {
     flags: 32768,
     allowed_mentions: {
       parse: ["users", "roles"],
     },
-    components: [mainCard, attachmentCard],
+    components: [mainCard],
   };
 
   if (attachments.length) {

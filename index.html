@@ -7,6 +7,7 @@
   <title>Central de Polícia | REVOADA RJ</title>
 
   <link rel="shortcut icon" href="public/images/Logo_policia.png" type="image/x-icon">
+  <link rel="preload" as="image" href="public/images/Logo_policia.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style/main.css">
 
@@ -149,6 +150,8 @@
       background: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 20px;
+      content-visibility: auto;
+      contain-intrinsic-size: 1px 1200px;
     }
 
     .photo-gallery-grid {
@@ -179,6 +182,15 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .news-card,
+    .news-article,
+    .commander-card,
+    .stats-live-grid,
+    .glass-panel {
+      content-visibility: auto;
+      contain-intrinsic-size: 1px 400px;
     }
 
     /* Modal para visualização ampliada */
@@ -485,7 +497,7 @@
 
   <!-- Tela de Carregamento -->
   <div id="loadingScreen" class="loading-screen">
-    <img src="public/images/Logo_policia.png" alt="Logo" class="loading-logo">
+    <img src="public/images/Logo_policia.png" alt="Logo" class="loading-logo" fetchpriority="high" decoding="async">
     <div class="loading-spinner"></div>
     <div class="loading-text">Carregando...</div>
     <div class="loading-progress">
@@ -495,7 +507,7 @@
 
   <nav class="navbar">
     <a href="#" class="logo">
-      <img src="public/images/Logo_policia.png" alt="Logo Revoada">
+      <img src="public/images/Logo_policia.png" alt="Logo Revoada" fetchpriority="high" decoding="async">
     </a>
 
     <ul class="nav-links">
@@ -505,13 +517,13 @@
         <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
         <div class="dropdown-content">
           <a href="public/departamentopcerj.html">
-            <img src="public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;"> PCERJ
+            <img src="public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;" decoding="async"> PCERJ
           </a>
           <a href="public/batalhaopmerj.html">
-            <img src="public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;"> PMERJ
+            <img src="public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;" decoding="async"> PMERJ
           </a>
           <a href="public/departamentoprf.html">
-            <img src="public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
+            <img src="public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;" decoding="async"> PRF
           </a>
         </div>
       </li>
@@ -536,8 +548,8 @@
     </div>
   </nav>
   <div class="video-background">
-    <video autoplay muted loop playsinline id="myVideo">
-      <source src="public/images/videoplayback.mp4" type="video/mp4">
+    <video autoplay muted loop playsinline preload="none" id="myVideo" poster="public/images/commanders/comandantes_gerais.png">
+      <source data-src="public/images/videoplayback.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
   </div>

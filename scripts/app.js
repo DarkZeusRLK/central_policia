@@ -284,6 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
   Notify.init();
   updateUI();
   checkUrlLogin();
+  optimizeMediaLoading();
 
   // Inicia RelÃ³gio e Data
   updateDateTime();
@@ -323,6 +324,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+function optimizeMediaLoading() {
+  document.querySelectorAll("img").forEach((img, index) => {
+    if (!img.getAttribute("decoding")) img.setAttribute("decoding", "async");
+
+    const isCriticalImage =
+      index < 3 ||
+      img.classList.contains("loading-logo") ||
+      img.classList.contains("commanders-banner-logo") ||
+      img.closest(".navbar") ||
+      img.closest(".sidebar-header") ||
+      img.id === "modalImage";
+
+    if (!isCriticalImage && !img.getAttribute("loading")) {
+      img.setAttribute("loading", "lazy");
+    }
+  });
+
+  document
+    .querySelectorAll(
+      ".photo-gallery-item img, .news-card img, .news-article-image, .commander-card img, .commanders-banner-image, .gallery-item img, .dept-gallery img"
+    )
+    .forEach((img) => {
+      if (!img.getAttribute("loading")) img.setAttribute("loading", "lazy");
+      if (!img.getAttribute("decoding")) img.setAttribute("decoding", "async");
+    });
+
+  const heroVideo = document.getElementById("myVideo");
+  const delayedSource = heroVideo
+    ? heroVideo.querySelector("source[data-src]")
+    : null;
+
+  if (heroVideo && delayedSource && !delayedSource.src) {
+    const startVideoLoad = () => {
+      delayedSource.src = delayedSource.dataset.src;
+      heroVideo.load();
+      heroVideo.play().catch(() => {});
+    };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(startVideoLoad, { timeout: 1500 });
+    } else {
+      window.setTimeout(startVideoLoad, 600);
+    }
+  }
+}
 
 // FunÃ§Ã£o de Atualizar Data e Hora (Chamada a cada segundo)
 function updateDateTime() {
@@ -558,8 +605,8 @@ async function loadNews() {
       return;
     }
 
-    data.forEach((news) => {
-      grid.innerHTML += `
+    grid.innerHTML = data
+      .map((news) => `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
                 <img src="${news.image}" alt="Capa da NotÃ­cia" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem IndisponÃ­vel%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
@@ -581,8 +628,8 @@ async function loadNews() {
                     ${news.summary}
                 </p>
             </div>
-        </article>`;
-    });
+        </article>`)
+      .join("");
   } catch (e) {
     console.error(e);
     grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notÃ­cias do servidor.</p>`;
@@ -680,13 +727,13 @@ async function loadCommanders() {
     container.innerHTML = ""; // Limpa o loading
 
     // Cria os cards dinÃ¢micos
-    commanders.forEach((cmd, index) => {
+    const cards = commanders.flatMap((cmd, index) => {
       if (index >= roles.length) return;
       const imageIndex = index + 1;
       // Tenta mÃºltiplos caminhos para resolver o problema do servidor     // Usa o primeiro caminho e adiciona fallback no onerror
       const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
-      container.innerHTML += `
+      return `
             <div class="commander-card">
                 <div class="cmd-img-container">
                     <img src="${imagePath}" loading="lazy" decoding="async"
@@ -698,6 +745,7 @@ async function loadCommanders() {
             </div>
         `;
     });
+    container.innerHTML = cards.join("");
   } catch (e) {
     console.error("Erro ao carregar comandantes:", e);
     const loadingIcon = container.querySelector(".fa-spinner");
@@ -779,7 +827,7 @@ async function loadDepartmentLeadership() {
 
         container.innerHTML = ""; // Limpa o loader
 
-        leaders.forEach((leader, index) => {
+        const cards = leaders.map((leader, index) => {
           // Pega o cargo correspondente ou usa um genÃ©rico se tiver mais gente que cargos
           const role = config.roles[index] || {
             title: "Oficial Superior",
@@ -799,7 +847,7 @@ async function loadDepartmentLeadership() {
             imagePath = `images/commanders/prf_${index + 1}.png`;
           }
 
-          container.innerHTML += `
+          return `
                         <div class="commander-card">
                             <div class="cmd-img-container">
                                 <img src="${imagePath}" loading="lazy" decoding="async" alt="${leader.username}">
@@ -810,6 +858,7 @@ async function loadDepartmentLeadership() {
                         </div>
                     `;
         });
+        container.innerHTML = cards.join("");
       } catch (e) {
         console.error(`Erro ao carregar ${containerId}:`, e);
         container.innerHTML = "<p>Erro ao carregar dados.</p>";
