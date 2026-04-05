@@ -223,7 +223,7 @@ async function handleGetNews(res, env) {
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID } = env;
 
   if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID) {
-    return res.status(500).json({ error: "ConfiguraÃ§Ã£o faltando" });
+    return res.status(500).json({ error: "Configuração faltando" });
   }
 
   const response = await fetch(
@@ -234,26 +234,26 @@ async function handleGetNews(res, env) {
   );
 
   if (!response.ok) {
-    throw new Error("Erro ao buscar notÃ­cias");
+    throw new Error("Erro ao buscar notícias");
   }
 
   const messages = await response.json();
   const newsData = messages
     .map((msg) => {
       const content = msg.content;
-      if (!content.includes("# ðŸ“°")) return null;
+        if (!content.includes("# 📰")) return null;
 
-      const titleMatch = content.match(/# ðŸ“° (.*)/);
+      const titleMatch = content.match(/# 📰 (.*)/);
       const title = titleMatch ? titleMatch[1] : "Manchete Policial";
 
-      const authorMatch = content.match(/> âœï¸.*?Reportagem por:.*?<@(\d+)>/);
-      let author = "RedaÃ§Ã£o";
+      const authorMatch = content.match(/> ✍️.*?Reportagem por:.*?<@(\d+)>/);
+      let author = "Redação";
 
       if (authorMatch) {
         const mentioned = msg.mentions.find((u) => u.id === authorMatch[1]);
         author = mentioned
           ? mentioned.global_name || mentioned.username
-          : "RepÃ³rter";
+          : "Repórter";
       }
 
       let image = "https://via.placeholder.com/400x200?text=Sem+Imagem";
@@ -276,8 +276,8 @@ async function handleGetNews(res, env) {
       const cleanBody = content
         .replace(/<@&\d+>/g, "")
         .replace(/<@\d+>/g, "")
-        .replace(/# ðŸ“° .*\n?/g, "")
-        .replace(/> âœï¸.*\n?/g, "")
+        .replace(/# 📰 .*\n?/g, "")
+        .replace(/> ✍️.*\n?/g, "")
         .replace(/https?:\/\/\S+/g, "")
         .replace(/\n\n+/g, "\n")
         .trim();
@@ -302,7 +302,7 @@ async function handlePublishNews(req, res, env) {
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, MATRIZES_ROLE_ID } = env;
 
   if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !MATRIZES_ROLE_ID) {
-    return res.status(500).json({ error: "ConfiguraÃ§Ã£o incompleta (.env)." });
+    return res.status(500).json({ error: "Configuração incompleta (.env)." });
   }
 
   const rolesToMention = parseIdList(MATRIZES_ROLE_ID)
@@ -315,16 +315,16 @@ async function handlePublishNews(req, res, env) {
   else if (fontFamily === "bold-italic") formattedContent = `***${content}***`;
   else if (fontFamily === "code") formattedContent = `\`\`\`\n${content}\n\`\`\``;
 
-  const policialUserId = "&1447056982371602526";
+  const policialUserId = "1447056982371602526";
   const messageContent = `
 ${rolesToMention}
 <@${policialUserId}>
 
-# ðŸ“° ${String(title || "").toUpperCase()}
+# 📰 ${String(title || "").toUpperCase()}
 
 ${formattedContent || ""}
 
-> âœï¸ *Reportagem por:* <@${userId}>
+> ✍️ *Reportagem por:* <@${userId}>
 
 ${imageUrl || ""}
   `.trim();

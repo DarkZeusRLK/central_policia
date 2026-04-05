@@ -1,5 +1,5 @@
-/* ==========================================================================
-   1. GESTÃO DE SESSÃO
+﻿/* ==========================================================================
+   1. GESTÃƒO DE SESSÃƒO
    ========================================================================== */
 const Session = {
   user: JSON.parse(localStorage.getItem("revoada_user")) || null,
@@ -12,10 +12,10 @@ const Session = {
     this.user = userData;
     localStorage.setItem("revoada_user", JSON.stringify(userData));
 
-    // Atualiza a interface se a função existir
+    // Atualiza a interface se a funÃ§Ã£o existir
     if (typeof updateUI === "function") updateUI();
 
-    // Notificação de boas-vindas
+    // NotificaÃ§Ã£o de boas-vindas
     if (typeof Notify !== "undefined") {
       Notify.success(`Bem-vindo, ${userData.username}!`);
     } else {
@@ -30,7 +30,7 @@ const Session = {
 
     if (typeof updateUI === "function") updateUI();
 
-    if (typeof Notify !== "undefined") Notify.info("Você saiu do sistema.");
+    if (typeof Notify !== "undefined") Notify.info("VocÃª saiu do sistema.");
 
     setTimeout(() => (window.location.href = "/"), 1000);
   },
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Verifica a URL atual
   const params = new URLSearchParams(window.location.search);
 
-  // Se tiver 'username' na URL, é porque o login acabou de acontecer
+  // Se tiver 'username' na URL, Ã© porque o login acabou de acontecer
   if (params.has("username")) {
     // Tenta ler os roles que vieram como texto
     let rolesArray = [];
@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Monta o objeto do usuário completo
+    // Monta o objeto do usuÃ¡rio completo
     const userData = {
       username: params.get("username"),
       id: params.get("id"),
@@ -174,18 +174,18 @@ document.addEventListener("DOMContentLoaded", () => {
       roles: rolesArray, // Salva os cargos aqui!
     };
 
-    // Salva na sessão
+    // Salva na sessÃ£o
     Session.login(userData);
 
-    // Limpa a URL para remover os dados visíveis
+    // Limpa a URL para remover os dados visÃ­veis
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // Se tiver função de inicializar UI global, chama ela
+  // Se tiver funÃ§Ã£o de inicializar UI global, chama ela
   if (typeof updateUI === "function") updateUI();
 });
 /* ==========================================================================
-   2. SISTEMA DE NOTIFICAÇÕES
+   2. SISTEMA DE NOTIFICAÃ‡Ã•ES
    ========================================================================== */
 const Notify = {
   container: null,
@@ -257,7 +257,7 @@ function proceedToLogin() {
   window.location.href = "/api/auth";
 }
 
-// Modal Dinâmico de Acesso Negado (Policial)
+// Modal DinÃ¢mico de Acesso Negado (Policial)
 function openAccessDeniedModal() {
   if (document.getElementById("denied-modal")) return;
 
@@ -268,7 +268,7 @@ function openAccessDeniedModal() {
         <div class="modal-box" style="border-color: #ef4444;">
             <div class="modal-icon"><i class="fa-solid fa-ban" style="color: #ef4444;"></i></div>
             <h2>Acesso Restrito</h2>
-            <p>Você não faz parte da corporação oficial no Discord.</p>
+            <p>VocÃª nÃ£o faz parte da corporaÃ§Ã£o oficial no Discord.</p>
             <div class="modal-actions">
                 <button class="btn-close-modal" onclick="document.getElementById('denied-modal').remove()">Fechar</button>
             </div>
@@ -278,22 +278,22 @@ function openAccessDeniedModal() {
 }
 
 /* ==========================================================================
-   4. INICIALIZAÇÃO E RELÓGIO
+   4. INICIALIZAÃ‡ÃƒO E RELÃ“GIO
    ========================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   Notify.init();
   updateUI();
   checkUrlLogin();
 
-  // Inicia Relógio e Data
+  // Inicia RelÃ³gio e Data
   updateDateTime();
   setInterval(updateDateTime, 1000);
 
-  // Carregamentos Assíncronos
+  // Carregamentos AssÃ­ncronos
   loadNews();
 
-  // Só carrega comandantes gerais se estiver na página principal (index.html)
-  // Nas páginas de departamento, só carrega os comandantes específicos
+  // SÃ³ carrega comandantes gerais se estiver na pÃ¡gina principal (index.html)
+  // Nas pÃ¡ginas de departamento, sÃ³ carrega os comandantes especÃ­ficos
   const isMainPage =
     !document.getElementById("pcerj-leadership") &&
     !document.getElementById("pmerj-leadership") &&
@@ -307,9 +307,10 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDepartmentLeadership();
   setupNavigation();
 
-  // Listeners de Formulário e Modal
+  // Listeners de FormulÃ¡rio e Modal
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
+  setupNewsForm();
 
   document.addEventListener("click", (e) => {
     const modal = document.getElementById("login-modal");
@@ -325,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Função de Atualizar Data e Hora (Chamada a cada segundo)
+// FunÃ§Ã£o de Atualizar Data e Hora (Chamada a cada segundo)
 function updateDateTime() {
   const now = new Date();
 
@@ -343,7 +344,7 @@ function updateDateTime() {
 }
 
 /* ==========================================================================
-   5. NAVEGAÇÃO E LINKS
+   5. NAVEGAÃ‡ÃƒO E LINKS
    ========================================================================== */
 function setupNavigation() {
   // 1. Link Boletim
@@ -402,7 +403,7 @@ function showSection(sectionId) {
 }
 
 /* ==========================================================================
-   6. LÓGICA DE LOGIN, UI E ACESSO POLICIAL
+   6. LÃ“GICA DE LOGIN, UI E ACESSO POLICIAL
    ========================================================================== */
 function checkUrlLogin() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -462,7 +463,7 @@ async function handlePoliceAccess(e) {
       Notify.success("Acesso Policial Autorizado.");
       localStorage.setItem("revoada_is_journalist", data.isJournalist);
       setTimeout(() => {
-        // Detecta o caminho correto baseado na página atual
+        // Detecta o caminho correto baseado na pÃ¡gina atual
         const currentPath = window.location.pathname;
         let redirectPath;
 
@@ -470,7 +471,7 @@ async function handlePoliceAccess(e) {
           currentPath.includes("/public/") ||
           currentPath.startsWith("/public")
         ) {
-          // Se estiver em uma página dentro de /public/, usa caminho relativo
+          // Se estiver em uma pÃ¡gina dentro de /public/, usa caminho relativo
           redirectPath = "central_policial.html";
         } else {
           // Se estiver na raiz (index.html), usa caminho com public/
@@ -485,7 +486,7 @@ async function handlePoliceAccess(e) {
     }
   } catch (error) {
     console.error(error);
-    Notify.error("Erro de comunicação com a central.");
+    Notify.error("Erro de comunicaÃ§Ã£o com a central.");
   }
 }
 
@@ -524,6 +525,8 @@ function updateUI() {
     const oldBadge = document.getElementById("user-badge-nav");
     if (oldBadge) oldBadge.remove();
   }
+
+  updateJournalistPanelVisibility();
 }
 
 function updateFormAvatar() {
@@ -537,11 +540,19 @@ function updateFormAvatar() {
   }
 }
 
+function updateJournalistPanelVisibility() {
+  const panel = document.getElementById("journalist-panel");
+  if (!panel) return;
+
+  const isJournalist = localStorage.getItem("revoada_is_journalist") === "true";
+  panel.classList.toggle("hidden", !(Session.isLoggedIn() && isJournalist));
+}
+
 /* ==========================================================================
-   7. DADOS E FORMULÁRIOS
+   7. DADOS E FORMULÃRIOS
    ========================================================================== */
 
-// --- CARREGAR NOTÍCIAS (API) ---
+// --- CARREGAR NOTÃCIAS (API) ---
 async function loadNews() {
   const grid = document.getElementById("news-grid");
   if (!grid) return;
@@ -554,7 +565,7 @@ async function loadNews() {
     grid.innerHTML = "";
 
     if (data.length === 0) {
-      grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Nenhuma notícia recente no mural.</p>`;
+      grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Nenhuma notÃ­cia recente no mural.</p>`;
       return;
     }
 
@@ -562,7 +573,7 @@ async function loadNews() {
       grid.innerHTML += `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
-                <img src="${news.image}" alt="Capa da Notícia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                <img src="${news.image}" alt="Capa da NotÃ­cia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem IndisponÃ­vel%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
                     <i class="fa-solid fa-camera"></i> ${news.author}
                 </div>
@@ -585,7 +596,7 @@ async function loadNews() {
     });
   } catch (e) {
     console.error(e);
-    grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notícias do servidor.</p>`;
+    grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notÃ­cias do servidor.</p>`;
   }
 }
 
@@ -605,13 +616,13 @@ function loadRecruitment(deptId) {
       window.location.href = targetFile;
     }, 500);
   } else {
-    Notify.error("Página do departamento não encontrada.");
+    Notify.error("PÃ¡gina do departamento nÃ£o encontrada.");
   }
 }
 
 async function handleBOSubmit(e) {
   e.preventDefault();
-  if (!Session.isLoggedIn()) return Notify.error("Login necessário.");
+  if (!Session.isLoggedIn()) return Notify.error("Login necessÃ¡rio.");
 
   Notify.loading("Enviando...");
   const formData = new FormData(e.target);
@@ -639,8 +650,64 @@ async function handleBOSubmit(e) {
 }
 
 /* ==========================================================================
-   8. CARREGAR COMANDANTES (DINÂMICO)
+   8. CARREGAR COMANDANTES (DINÃ‚MICO)
    ========================================================================== */
+function setupNewsForm() {
+  const form = document.getElementById("news-form");
+  if (!form || form.dataset.bound === "true") return;
+
+  form.dataset.bound = "true";
+  form.addEventListener("submit", handleNewsSubmit);
+}
+
+async function handleNewsSubmit(e) {
+  e.preventDefault();
+
+  if (!Session.isLoggedIn()) return Notify.error("Login necessário.");
+  if (localStorage.getItem("revoada_is_journalist") !== "true") {
+    return Notify.error("Apenas jornalistas autorizados podem publicar no jornal.");
+  }
+
+  const submitButton = document.getElementById("btn-publish-news");
+  const originalHtml = submitButton ? submitButton.innerHTML : "";
+  const loadingToast = Notify.loading("Publicando notícia...");
+
+  try {
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicando...';
+    }
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    data.userId = Session.user.id;
+
+    const response = await fetch("/api/content?action=publish-news", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Falha ao publicar notícia.");
+    }
+
+    Notify.success("Notícia publicada com sucesso.");
+    e.target.reset();
+    await loadNews();
+    setTimeout(() => showSection("jornal"), 1200);
+  } catch (error) {
+    console.error(error);
+    Notify.error(error.message || "Erro ao publicar notícia.");
+  } finally {
+    if (loadingToast) loadingToast.remove();
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalHtml;
+    }
+  }
+}
 async function loadCommanders() {
   const container = document.querySelector(".commanders-grid");
   if (!container) return;
@@ -650,40 +717,40 @@ async function loadCommanders() {
     const commanders = await req.json();
 
     if (!req.ok || !Array.isArray(commanders) || !commanders.length) {
-      console.warn("Não foi possível carregar todos os comandantes.");
+      console.warn("NÃ£o foi possÃ­vel carregar todos os comandantes.");
 
-      // Remove o ícone de loading se falhar
+      // Remove o Ã­cone de loading se falhar
       const loadingIcon = container.querySelector(".fa-spinner");
       if (loadingIcon && loadingIcon.parentElement)
         loadingIcon.parentElement.innerHTML =
-          "<p>Comando indisponível no momento.</p>";
+          "<p>Comando indisponÃ­vel no momento.</p>";
 
       return;
     }
 
-    // Definição dos Cargos (Ordem fixa)
+    // DefiniÃ§Ã£o dos Cargos (Ordem fixa)
     const roles = [
       {
         title: "Comandante Geral",
-        desc: "Responsável geral pela Polícia Revoada, com atribuições voltadas à gestão interna, coordenação operacional e supervisão dos setores da corporação, assegurando o cumprimento das normas, a eficiência administrativa e a integridade institucional.",
+        desc: "ResponsÃ¡vel geral pela PolÃ­cia Revoada, com atribuiÃ§Ãµes voltadas Ã  gestÃ£o interna, coordenaÃ§Ã£o operacional e supervisÃ£o dos setores da corporaÃ§Ã£o, assegurando o cumprimento das normas, a eficiÃªncia administrativa e a integridade institucional.",
       },
       {
         title: "Subcomandante Geral",
-        desc: "Dirige e fiscaliza a atuação da Corregedoria de Polícia Revoada, coordena a atuação dos comandantes de grupamentos e guarnições especiais, promove e realiza o gerenciamento tático das tropas em campo. Atua como consultor estratégico em pacificações e operações de alto risco.",
+        desc: "Dirige e fiscaliza a atuaÃ§Ã£o da Corregedoria de PolÃ­cia Revoada, coordena a atuaÃ§Ã£o dos comandantes de grupamentos e guarniÃ§Ãµes especiais, promove e realiza o gerenciamento tÃ¡tico das tropas em campo. Atua como consultor estratÃ©gico em pacificaÃ§Ãµes e operaÃ§Ãµes de alto risco.",
       },
       {
         title: "Subcomandante Geral",
-        desc: "Supervisionar a atuação da corporação, supervisionar os setores administrativos, o gerenciamento e a liderança das guarnições, participar das decisões do alto comando, bem como coordenar a atuação operacional.",
+        desc: "Supervisionar a atuaÃ§Ã£o da corporaÃ§Ã£o, supervisionar os setores administrativos, o gerenciamento e a lideranÃ§a das guarniÃ§Ãµes, participar das decisÃµes do alto comando, bem como coordenar a atuaÃ§Ã£o operacional.",
       },
     ];
 
     container.innerHTML = ""; // Limpa o loading
 
-    // Cria os cards dinâmicos
+    // Cria os cards dinÃ¢micos
     commanders.forEach((cmd, index) => {
       if (index >= roles.length) return;
       const imageIndex = index + 1;
-      // Tenta múltiplos caminhos para resolver o problema do servidor     // Usa o primeiro caminho e adiciona fallback no onerror
+      // Tenta mÃºltiplos caminhos para resolver o problema do servidor     // Usa o primeiro caminho e adiciona fallback no onerror
       const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
       container.innerHTML += `
@@ -703,50 +770,50 @@ async function loadCommanders() {
     const loadingIcon = container.querySelector(".fa-spinner");
     if (loadingIcon && loadingIcon.parentElement)
       loadingIcon.parentElement.innerHTML =
-        "<p>Comando indisponível no momento.</p>";
+        "<p>Comando indisponÃ­vel no momento.</p>";
   }
 }
 /* ==========================================================================
-   9. CARREGAMENTO DE LIDERANÇA DEPARTAMENTAL
+   9. CARREGAMENTO DE LIDERANÃ‡A DEPARTAMENTAL
    ========================================================================== */
 
 async function loadDepartmentLeadership() {
-  // Configurações para cada página (ID do container no HTML : Configuração da API)
+  // ConfiguraÃ§Ãµes para cada pÃ¡gina (ID do container no HTML : ConfiguraÃ§Ã£o da API)
   const configs = {
     "pcerj-leadership": {
       api: "/api/discord?action=leadership&group=pcerj",
       roles: [
         {
           title: "Delegado Geral",
-          desc: "Delegado Investigativo responsável por todos os inquéritos policiais e atividades relacionadas ao âmbito investigativo.",
+          desc: "Delegado Investigativo responsÃ¡vel por todos os inquÃ©ritos policiais e atividades relacionadas ao Ã¢mbito investigativo.",
         },
         {
           title: "Delegado Adjunto",
-          desc: "Delegado Operacional, responsável pelas atividades dos Grupamentos e Guarnições especiais, sendo comandante das pacificações.",
+          desc: "Delegado Operacional, responsÃ¡vel pelas atividades dos Grupamentos e GuarniÃ§Ãµes especiais, sendo comandante das pacificaÃ§Ãµes.",
         },
         {
           title: "Delegado Adjunto",
-          desc: "Delegado Administrativo, responsável pelas atividades de inatividade e escrivães.",
+          desc: "Delegado Administrativo, responsÃ¡vel pelas atividades de inatividade e escrivÃ£es.",
         },
       ],
     },
     "pmerj-leadership": {
       api: "/api/discord?action=leadership&group=pmerj",
       roles: [
-        { title: "Comandante", desc: "Responsável pelo batalhão." },
-        { title: "Subcomandante", desc: "Gestão da tropa e disciplina." },
-        { title: "Subcomandante", desc: "Planejamento de operações." },
+        { title: "Comandante", desc: "ResponsÃ¡vel pelo batalhÃ£o." },
+        { title: "Subcomandante", desc: "GestÃ£o da tropa e disciplina." },
+        { title: "Subcomandante", desc: "Planejamento de operaÃ§Ãµes." },
       ],
     },
     "pf-leadership": {
       api: "/api/discord?action=leadership&group=pf",
       roles: [
-        { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
+        { title: "Diretor Geral", desc: "Comando supremo da PolÃ­cia Federal." },
         {
           title: "Vice-Diretor",
-          desc: "Gestão Administrativa - para gestão tática, operacional",
+          desc: "GestÃ£o Administrativa - para gestÃ£o tÃ¡tica, operacional",
         },
-        { title: "Vice-Diretor", desc: "Fiscalização e conduta." },
+        { title: "Vice-Diretor", desc: "FiscalizaÃ§Ã£o e conduta." },
       ],
     },
     "prf-leadership": {
@@ -754,15 +821,15 @@ async function loadDepartmentLeadership() {
       roles: [
         {
           title: "Diretor Geral",
-          desc: "Chefe da Polícia Rodoviária Federal.",
+          desc: "Chefe da PolÃ­cia RodoviÃ¡ria Federal.",
         },
-        { title: "Vice-Diretor", desc: "Coordenação regional." },
-        { title: "Vice-Diretor", desc: "Fiscalização nas rodovias." },
+        { title: "Vice-Diretor", desc: "CoordenaÃ§Ã£o regional." },
+        { title: "Vice-Diretor", desc: "FiscalizaÃ§Ã£o nas rodovias." },
       ],
     },
   };
 
-  // Procura na página atual se existe algum desses containers
+  // Procura na pÃ¡gina atual se existe algum desses containers
   for (const [containerId, config] of Object.entries(configs)) {
     const container = document.getElementById(containerId);
 
@@ -773,21 +840,21 @@ async function loadDepartmentLeadership() {
 
         if (!req.ok || !leaders || leaders.length === 0) {
           container.innerHTML =
-            "<p style='text-align:center; color:#64748b;'>Liderança não definida.</p>";
+            "<p style='text-align:center; color:#64748b;'>LideranÃ§a nÃ£o definida.</p>";
           return;
         }
 
         container.innerHTML = ""; // Limpa o loader
 
         leaders.forEach((leader, index) => {
-          // Pega o cargo correspondente ou usa um genérico se tiver mais gente que cargos
+          // Pega o cargo correspondente ou usa um genÃ©rico se tiver mais gente que cargos
           const role = config.roles[index] || {
             title: "Oficial Superior",
             desc: "Membro da diretoria.",
           };
 
           // Determina o caminho da imagem local baseado no container
-          // As páginas de departamento estão em public/, então o caminho é relativo a partir de lá
+          // As pÃ¡ginas de departamento estÃ£o em public/, entÃ£o o caminho Ã© relativo a partir de lÃ¡
           let imagePath = "";
           if (containerId === "pcerj-leadership") {
             imagePath = `images/commanders/pcerj_${index + 1}.png`;
@@ -817,3 +884,7 @@ async function loadDepartmentLeadership() {
     }
   }
 }
+
+
+
+

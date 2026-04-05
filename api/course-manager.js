@@ -37,6 +37,21 @@ function splitCommaSeparatedList(value, maxLength = 1700) {
   return chunks;
 }
 
+function hasAnyRole(userRoles, configuredRoles) {
+  const allowed = parseIdList(configuredRoles).map(String);
+  if (!allowed.length) return false;
+  return Array.isArray(userRoles) && userRoles.map(String).some((roleId) => allowed.includes(roleId));
+}
+
+function resolveCourseTypeById(courseId, env) {
+  const id = String(courseId || "").trim();
+  if (!id) return "";
+  if (parseIdList(env.CURSO_ACOES_ID).includes(id)) return "acoes";
+  if (parseIdList(env.CURSO_COMP_ID).includes(id)) return "complementar";
+  if (parseIdList(env.CURSO_BASICO_ID).includes(id)) return "basico";
+  return "";
+}
+
 function resolveCourseMentions(data) {
   const courseIds = Array.isArray(data.curso_ids)
     ? data.curso_ids.filter(Boolean)
@@ -97,7 +112,7 @@ function linkButton(label, url) {
 function buildAnnouncementMessage(data, env) {
   const courseMentions = resolveCourseMentions(data);
   const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
-  const components = [container(0xd4af37, [
+  const cardComponents = [
     textDisplay([
       "## 📣 Central Policial | Anúncio de Curso",
       data.authorId ? `**👮 Publicado por:** <@${data.authorId}>` : "**👮 Publicado por:** Intranet Policial",
@@ -115,14 +130,16 @@ function buildAnnouncementMessage(data, env) {
       `- **Horário:** ${data.horario || "N/A"}`,
       `- **Local:** ${data.local || "N/A"}`,
     ].join("\n")),
-    ...(mentionMatrizes ? [separator(), textDisplay(`### 🏛️ Convocação\n${mentionMatrizes}`)] : []),
-  ])];
+  ];
+
+  if (mentionMatrizes) {
+    cardComponents.push(separator(), textDisplay(`### 🏛️ Convocação\n${mentionMatrizes}`));
+  }
 
   if (data.call_link) {
-    components.push(
-      container(0x3b82f6, [
-        textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
-      ]),
+    cardComponents.push(
+      separator(),
+      textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
       linkButton("Entrar na call", data.call_link),
     );
   }
@@ -132,7 +149,7 @@ function buildAnnouncementMessage(data, env) {
     allowed_mentions: {
       parse: ["roles", "users"],
     },
-    components,
+    components: [container(0xd4af37, cardComponents)],
   };
 }
 
@@ -168,9 +185,13 @@ function buildFinalMessages(data, factionName, includeMatrizes, env) {
     ].join("\n")),
     separator(),
     textDisplay([
-      "### ✅ Resultado da Turma",
-      `- **Aprovados:** ${approvedChunks[0] || "Nenhum"}`,
-      `- **Reprovados:** ${failedChunks[0] || "Nenhum"}`,
+      "### ✅ Aprovados",
+      approvedChunks[0] || "Nenhum",
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### ❌ Reprovados",
+      failedChunks[0] || "Nenhum",
     ].join("\n")),
   ];
 
@@ -184,20 +205,19 @@ function buildFinalMessages(data, factionName, includeMatrizes, env) {
     );
   }
 
+  if (includeMatrizes && mentionMatrizes) {
+    cardComponents.push(
+      separator(),
+      textDisplay([
+        "### 🏛️ Matrizes Envolvidas",
+        mentionMatrizes,
+      ].join("\n")),
+    );
+  }
+
   const components = [
     container(includeMatrizes ? 0xf59e0b : 0x22c55e, cardComponents),
   ];
-
-  if (includeMatrizes && mentionMatrizes) {
-    components.push(
-      container(0x5865f2, [
-        textDisplay([
-        "### 🏛️ Matrizes Envolvidas",
-        mentionMatrizes,
-        ].join("\n")),
-      ]),
-    );
-  }
 
   const messages = [{
     flags: 32768,
@@ -266,34 +286,42 @@ async function sendDiscordMessage(channelId, botToken, payload) {
 }
 
 function resolveFaction(data, env) {
-  const explicitFaction = String(data.faction || "").trim().toUpperCase();
   const userRoles = Array.isArray(data.userRoles) ? data.userRoles.map(String) : [];
+  const explicitFaction = String(data.faction || "").trim().toUpperCase();
 
-  if (explicitFaction === "PCERJ" || userRoles.includes(String(env.ROLE_ID_PCERJ || ""))) {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PCERJ) || explicitFaction === "PCERJ") {
     return {
       name: "PCERJ",
       channelId: env.CH_PCERJ_FINALIZADOS,
     };
   }
 
-  if (explicitFaction === "PMERJ" || userRoles.includes(String(env.ROLE_ID_PMERJ || ""))) {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PMERJ) || explicitFaction === "PMERJ") {
+    const courseType = resolveCourseTypeById(data.curso_id, env);
     return {
       name: "PMERJ",
-      channelId: env.CH_PMERJ_FINALIZADOS,
+      channelId: courseType === "acoes" ? env.CH_PMERJ_FINALIZADOS_ACAO : env.CH_PMERJ_FINALIZADOS,
     };
   }
 
-  if (explicitFaction === "PRF" || userRoles.includes(String(env.ROLE_ID_PRF || ""))) {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PRF) || explicitFaction === "PRF") {
     return {
       name: "PRF",
       channelId: env.CH_PRF_FINALIZADOS,
     };
   }
 
-  if (explicitFaction === "PF" || userRoles.includes(String(env.ROLE_ID_PF || ""))) {
+  if (hasAnyRole(userRoles, env.ROLE_ID_PF) || explicitFaction === "PF") {
     return {
       name: "PF",
       channelId: env.CH_PF_FINALIZADOS,
+    };
+  }
+
+  if (hasAnyRole(userRoles, env.COMANDO_GERAL)) {
+    return {
+      name: "COMANDO_GERAL",
+      channelId: "",
     };
   }
 
@@ -311,6 +339,7 @@ export default async function handler(req, res) {
     CH_PCERJ_FINALIZADOS: process.env.CH_PCERJ_FINALIZADOS,
     ROLE_ID_PMERJ: process.env.ROLE_ID_PMERJ,
     CH_PMERJ_FINALIZADOS: process.env.CH_PMERJ_FINALIZADOS,
+    CH_PMERJ_FINALIZADOS_ACAO: process.env.CH_PMERJ_FINALIZADOS_ACAO,
     ROLE_ID_PRF: process.env.ROLE_ID_PRF,
     CH_PRF_FINALIZADOS: process.env.CH_PRF_FINALIZADOS,
     ROLE_ID_PF: process.env.ROLE_ID_PF,
