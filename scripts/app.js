@@ -27,6 +27,8 @@ const Session = {
     this.user = null;
     localStorage.removeItem("revoada_user");
     localStorage.removeItem("revoada_is_journalist");
+    localStorage.removeItem("revoada_police_role_label");
+    localStorage.removeItem("revoada_police_role_key");
 
     if (typeof updateUI === "function") updateUI();
 
@@ -453,10 +455,22 @@ function showSection(sectionId) {
 function checkUrlLogin() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has("username")) {
+    let rolesArray = [];
+    const rolesString = urlParams.get("roles");
+
+    if (rolesString) {
+      try {
+        rolesArray = JSON.parse(rolesString);
+      } catch (error) {
+        console.error("Erro ao ler cargos no checkUrlLogin:", error);
+      }
+    }
+
     const userData = {
       username: urlParams.get("username"),
       id: urlParams.get("id"),
       avatar: urlParams.get("avatar"),
+      roles: rolesArray,
     };
     Session.login(userData);
     window.history.replaceState({}, document.title, "/");
@@ -505,8 +519,16 @@ async function handlePoliceAccess(e) {
     const data = await response.json();
 
     if (data.isMember) {
+      const refreshedUser = {
+        ...(Session.user || {}),
+        roles: Array.isArray(data.roles) ? data.roles : [],
+      };
+
+      Session.login(refreshedUser);
       Notify.success("Acesso Policial Autorizado.");
       localStorage.setItem("revoada_is_journalist", data.isJournalist);
+      localStorage.removeItem("revoada_police_role_label");
+      localStorage.removeItem("revoada_police_role_key");
       setTimeout(() => {
         // Detecta o caminho correto baseado na pÃ¡gina atual
         const currentPath = window.location.pathname;

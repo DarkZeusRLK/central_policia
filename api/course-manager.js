@@ -72,6 +72,10 @@ function resolveCourseMentions(data) {
   return courseNames.length ? courseNames : ["N/A"];
 }
 
+function extractMentionedUserIds(value) {
+  return Array.from(String(value || "").matchAll(/<@!?(\d+)>/g)).map((match) => match[1]);
+}
+
 function textDisplay(content) {
   return {
     type: 10,
@@ -115,7 +119,6 @@ function buildAnnouncementMessage(data, env) {
   const cardComponents = [
     textDisplay([
       "## 📣 Central Policial | Anúncio de Curso",
-      data.authorId ? `**👮 Publicado por:** <@${data.authorId}>` : "**👮 Publicado por:** Intranet Policial",
     ].join("\n")),
     separator(),
     textDisplay([
@@ -144,6 +147,11 @@ function buildAnnouncementMessage(data, env) {
     );
   }
 
+  cardComponents.push(
+    separator(),
+    textDisplay(data.authorId ? `-# Publicado por: <@${data.authorId}>` : "-# Publicado por: Intranet Policial"),
+  );
+
   return {
     flags: 32768,
     allowed_mentions: {
@@ -162,10 +170,7 @@ function buildFinalMessages(data, factionName, includeMatrizes, env) {
   const approvedChunks = splitCommaSeparatedList(data.aprovados);
   const failedChunks = splitCommaSeparatedList(data.reprovados);
   const cardComponents = [
-    textDisplay([
-      title,
-      data.authorId ? `**📝 Relatório enviado por:** <@${data.authorId}>` : "**📝 Relatório enviado por:** Intranet Policial",
-    ].join("\n")),
+    textDisplay(title),
     separator(),
     textDisplay([
       "### 📚 Curso",
@@ -214,6 +219,11 @@ function buildFinalMessages(data, factionName, includeMatrizes, env) {
       ].join("\n")),
     );
   }
+
+  cardComponents.push(
+    separator(),
+    textDisplay(data.authorId ? `-# Relatório enviado por: <@${data.authorId}>` : "-# Relatório enviado por: Intranet Policial"),
+  );
 
   const messages = [{
     flags: 32768,
@@ -279,6 +289,32 @@ async function sendDiscordMessage(channelId, botToken, payload) {
   }
 
   return response;
+}
+
+async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken, guildId) {
+  const normalizedCourseId = String(courseId || "").trim();
+  const approvedIds = extractMentionedUserIds(approvedList);
+
+  if (!normalizedCourseId || !approvedIds.length || !guildId) return;
+
+  const requests = approvedIds.map(async (userId) => {
+    const response = await fetch(
+      `${DISCORD_API_BASE}/guilds/${guildId}/members/${userId}/roles/${normalizedCourseId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bot ${botToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Falha ao aplicar tag do curso no membro ${userId}: ${text}`);
+    }
+  });
+
+  await Promise.all(requests);
 }
 
 function resolveFaction(data, env) {
@@ -532,6 +568,7 @@ export default async function handler(req, res) {
         });
 
         await Promise.all(requests);
+        await applyCourseRoleToApprovedMembers(data.curso_id, data.aprovados, DISCORD_BOT_TOKEN, GUILD_ID);
         return res.status(200).json({ success: true });
       }
 

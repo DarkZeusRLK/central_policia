@@ -144,6 +144,7 @@ export default async function handler(req, res) {
       const memberData = await response.json();
       return res.status(200).json({
         isMember: true,
+        roles: Array.isArray(memberData.roles) ? memberData.roles : [],
         isJournalist: journalistRoleId
           ? memberData.roles.includes(journalistRoleId)
           : false,

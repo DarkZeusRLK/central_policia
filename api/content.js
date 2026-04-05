@@ -11,6 +11,22 @@ function parseIdList(value) {
     .filter(Boolean);
 }
 
+function normalize(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function resolveConfiguredRoleIds(targetRoles, roles) {
+  return parseIdList(targetRoles)
+    .map((targetRole) => {
+      const exactId = roles.find((role) => role.id === targetRole);
+      if (exactId) return exactId.id;
+
+      const byName = roles.find((role) => normalize(role.name) === normalize(targetRole));
+      return byName?.id || "";
+    })
+    .filter(Boolean);
+}
+
 function required(value) {
   if (Array.isArray(value)) return value.length > 0;
   return String(value || "").trim().length > 0;
@@ -300,12 +316,22 @@ async function handleGetNews(res, env) {
 async function handlePublishNews(req, res, env) {
   const { title, content, imageUrl, userId, fontFamily } = req.body || {};
   const { DISCORD_BOT_TOKEN, JORNAL_CH_ID, CARGO_POLICIAL_REVOADA } = env;
+  const guildId = env.DISCORD_GUILD_ID || env.GUILD_ID;
 
-  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !CARGO_POLICIAL_REVOADA) {
+  if (!DISCORD_BOT_TOKEN || !JORNAL_CH_ID || !CARGO_POLICIAL_REVOADA || !guildId) {
     return res.status(500).json({ error: "Configuração incompleta (.env)." });
   }
 
-  const rolesToMention = parseIdList(CARGO_POLICIAL_REVOADA)
+  const rolesResponse = await fetch(`${DISCORD_API_BASE}/guilds/${guildId}/roles`, {
+    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+  });
+
+  if (!rolesResponse.ok) {
+    throw new Error("Não foi possível validar o cargo policial do jornal.");
+  }
+
+  const guildRoles = await rolesResponse.json();
+  const rolesToMention = resolveConfiguredRoleIds(CARGO_POLICIAL_REVOADA, guildRoles)
     .map((id) => `<@&${id}>`)
     .join(" ");
 
