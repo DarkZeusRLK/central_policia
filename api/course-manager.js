@@ -117,18 +117,20 @@ function buildAnnouncementMessage(data, env) {
   const courseMentions = resolveCourseMentions(data);
   const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
   const cardComponents = [
-    textDisplay([
-      "## 📣 Central Policial | Anúncio de Curso",
-    ].join("\n")),
+    textDisplay("## 📣 Central Policial | Anúncio de Curso"),
     separator(),
     textDisplay([
-      "### 📚 Cursos",
+      "### 📚 Curso",
       courseMentions.map((course) => `- ${course}`).join("\n"),
     ].join("\n")),
     separator(),
     textDisplay([
-      "### 👨‍🏫 Escala e Planejamento",
+      "### 👨‍🏫 Equipe de Ensino",
       `- **Instrutores:** ${data.instrutores || "N/A"}`,
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 📅 Data",
       `- **Data:** ${formatBr(data.data)}`,
       `- **Horário:** ${data.horario || "N/A"}`,
       `- **Local:** ${data.local || "N/A"}`,

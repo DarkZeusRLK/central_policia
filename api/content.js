@@ -341,10 +341,8 @@ async function handlePublishNews(req, res, env) {
   else if (fontFamily === "bold-italic") formattedContent = `***${content}***`;
   else if (fontFamily === "code") formattedContent = `\`\`\`\n${content}\n\`\`\``;
 
-  const policialUserId = "1447056982371602526";
   const messageContent = `
 ${rolesToMention}
-<@${policialUserId}>
 
 # 📰 ${String(title || "").toUpperCase()}
 
@@ -447,39 +445,42 @@ async function handleSubmitBo(req, res, env) {
   const protocolo = Math.floor(1000 + Math.random() * 9000);
   const boNumero = `${anoAtual}-${protocolo}`;
 
-  const dataObj = new Date(horario);
-  const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const dataObj = horario ? new Date(horario) : null;
+  const dataFormatada =
+    dataObj && !Number.isNaN(dataObj.getTime())
+      ? dataObj.toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "Não informado";
 
   const relatorio = `
 \`\`\`md
-# BOLETIM DE OCORRÃŠNCIA NÂº ${boNumero}
+# BOLETIM DE OCORRÊNCIA Nº ${boNumero}
 DATA DO FATO: ${dataFormatada}
-LOCAL DO FATO: ${local}
+LOCAL DO FATO: ${local || "Não informado"}
 
-# VÃTIMA / COMUNICANTE
-NOME: ${nome}
-PASSAPORTE: ${passaporte}
-TELEFONE: ${telefone}
-PROFISSÃƒO: ${profissao || "NÃ£o Informado"}
-SEXO: ${sexo || "NÃ£o Informado"}
+# VÍTIMA / COMUNICANTE
+NOME: ${nome || "Não informado"}
+PASSAPORTE: ${passaporte || "Não informado"}
+TELEFONE: ${telefone || "Não informado"}
+PROFISSÃO: ${profissao || "Não informado"}
+SEXO: ${sexo || "Não informado"}
 
 # RELATO INDIVIDUAL
-${ocorrencia}
+${ocorrencia || "Não informado"}
 
 # BENS / OBJETOS
 ${itens || "Nenhum bem declarado."}
 
-# EVIDÃŠNCIA
+# EVIDÊNCIA
 ${video_link || "N/A"}
 \`\`\``;
 
-  const contentMessage = `ðŸ‘® **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
+  const contentMessage = `👮 **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
   await sendDiscordMessage(DISCORD_CHANNEL_ID_BO, DISCORD_BOT_TOKEN, {
     content: contentMessage,
   });
