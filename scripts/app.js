@@ -649,7 +649,7 @@ async function loadCommanders() {
     const req = await fetch("/api/discord?action=commanders");
     const commanders = await req.json();
 
-    if (!req.ok || !commanders || commanders.length < 3) {
+    if (!req.ok || !Array.isArray(commanders) || !commanders.length) {
       console.warn("Não foi possível carregar todos os comandantes.");
 
       // Remove o ícone de loading se falhar
@@ -700,6 +700,10 @@ async function loadCommanders() {
     });
   } catch (e) {
     console.error("Erro ao carregar comandantes:", e);
+    const loadingIcon = container.querySelector(".fa-spinner");
+    if (loadingIcon && loadingIcon.parentElement)
+      loadingIcon.parentElement.innerHTML =
+        "<p>Comando indisponível no momento.</p>";
   }
 }
 /* ==========================================================================

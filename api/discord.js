@@ -1,4 +1,4 @@
-const DISCORD_API_BASE = "https://discord.com/api/v10";
+﻿const DISCORD_API_BASE = "https://discord.com/api/v10";
 
 function parseIdList(value) {
   return String(value || "")
@@ -54,9 +54,30 @@ async function resolveMembersByIds(ids, botToken, guildId) {
   return members.filter(Boolean);
 }
 
+async function resolveMembersByRoleIds(roleIds, botToken, guildId) {
+  const ids = parseIdList(roleIds);
+  if (!ids.length) return [];
+
+  const members = await fetchDiscordJson(
+    `${DISCORD_API_BASE}/guilds/${guildId}/members?limit=1000`,
+    botToken,
+  );
+
+  return members
+    .filter((member) => !member.user?.bot)
+    .filter(
+      (member) => Array.isArray(member.roles) && member.roles.some((roleId) => ids.includes(String(roleId))),
+    )
+    .map((member) => ({
+      username: member.nick || member.user.global_name || member.user.username,
+      avatarUrl: avatarUrlFromUser(member.user),
+    }))
+    .sort((a, b) => a.username.localeCompare(b.username, "pt-BR"));
+}
+
 function resolveLeadershipIds(group, env) {
   const map = {
-    commanders: env.COMANDO_GERAL_IDS,
+    commanders: env.COMANDO_GERAL || env.COMANDO_GERAL_IDS,
     pcerj: env.DELEGADOS_IDS,
     pmerj: env.COMANDOS_PMERJ_IDS,
     pf: env.DIRETORES_PF_IDS,
@@ -83,24 +104,24 @@ export default async function handler(req, res) {
   const action = req.query.action;
 
   if (!action) {
-    return res.status(400).json({ error: "Ação não informada." });
+    return res.status(400).json({ error: "AÃ§Ã£o nÃ£o informada." });
   }
 
   if (!botToken || !guildId) {
-    return res.status(500).json({ error: "Configuração do Discord ausente." });
+    return res.status(500).json({ error: "ConfiguraÃ§Ã£o do Discord ausente." });
   }
 
   try {
     if (action === "check-access") {
       if (req.method !== "POST") {
-        return res.status(405).json({ error: "Método não permitido." });
+        return res.status(405).json({ error: "MÃ©todo nÃ£o permitido." });
       }
 
       const { userId } = req.body || {};
       const journalistRoleId = process.env.JORNALISTA_ROLE_ID;
 
       if (!userId) {
-        return res.status(400).json({ error: "userId é obrigatório." });
+        return res.status(400).json({ error: "userId Ã© obrigatÃ³rio." });
       }
 
       const response = await fetch(
@@ -131,7 +152,7 @@ export default async function handler(req, res) {
 
     if (action === "commanders" || action === "leadership") {
       if (req.method !== "GET") {
-        return res.status(405).json({ error: "Método não permitido." });
+        return res.status(405).json({ error: "MÃ©todo nÃ£o permitido." });
       }
 
       const group =
@@ -141,16 +162,25 @@ export default async function handler(req, res) {
 
       const ids = resolveLeadershipIds(group, process.env);
       if (!ids.length) {
-        return res.status(500).json({ error: "IDs de liderança não configurados." });
+        return res.status(500).json({ error: "IDs de lideranÃ§a nÃ£o configurados." });
       }
 
-      const members = await resolveMembersByIds(ids, botToken, guildId);
+      let members = [];
+
+      if (group === "commanders") {
+        members = await resolveMembersByRoleIds(ids, botToken, guildId);
+      }
+
+      if (!members.length) {
+        members = await resolveMembersByIds(ids, botToken, guildId);
+      }
+
       return res.status(200).json(members);
     }
 
     if (action === "police-members") {
       if (req.method !== "GET") {
-        return res.status(405).json({ error: "Método não permitido." });
+        return res.status(405).json({ error: "MÃ©todo nÃ£o permitido." });
       }
 
       const configuredRole =
@@ -158,7 +188,7 @@ export default async function handler(req, res) {
 
       if (!configuredRole) {
         return res.status(500).json({
-          error: "A variável CARGO_POLICIAL_REVOADA não foi configurada.",
+          error: "A variÃ¡vel CARGO_POLICIAL_REVOADA nÃ£o foi configurada.",
         });
       }
 
@@ -173,7 +203,7 @@ export default async function handler(req, res) {
       const roleId = resolveRoleId(configuredRole, roles);
       if (!roleId) {
         return res.status(404).json({
-          error: "Cargo policial não encontrado no servidor do Discord.",
+          error: "Cargo policial nÃ£o encontrado no servidor do Discord.",
         });
       }
 
@@ -203,9 +233,11 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ error: "Ação inválida." });
+    return res.status(400).json({ error: "AÃ§Ã£o invÃ¡lida." });
   } catch (error) {
     console.error("Erro em /api/discord:", error);
-    return res.status(500).json({ error: "Falha na integração com o Discord." });
+    return res.status(500).json({ error: error.message || "Falha na integracao com o Discord." });
   }
 }
+
+

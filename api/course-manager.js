@@ -11,6 +11,32 @@ function formatBr(dateStr) {
   return dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
 }
 
+function splitCommaSeparatedList(value, maxLength = 1700) {
+  const items = String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (!items.length) return ["Nenhum"];
+
+  const chunks = [];
+  let current = "";
+
+  items.forEach((item) => {
+    const candidate = current ? `${current}, ${item}` : item;
+    if (candidate.length > maxLength && current) {
+      chunks.push(current);
+      current = item;
+      return;
+    }
+
+    current = candidate;
+  });
+
+  if (current) chunks.push(current);
+  return chunks;
+}
+
 function resolveCourseMentions(data) {
   const courseIds = Array.isArray(data.curso_ids)
     ? data.curso_ids.filter(Boolean)
@@ -110,12 +136,14 @@ function buildAnnouncementMessage(data, env) {
   };
 }
 
-function buildFinalMessage(data, factionName, includeMatrizes, env) {
+function buildFinalMessages(data, factionName, includeMatrizes, env) {
   const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
   const courseMentions = resolveCourseMentions(data);
   const title = includeMatrizes
     ? "## 📘 Central Policial | Registro Geral de Curso"
     : `## 📘 Central Policial | Curso Finalizado ${factionName}`;
+  const approvedChunks = splitCommaSeparatedList(data.aprovados);
+  const failedChunks = splitCommaSeparatedList(data.reprovados);
   const cardComponents = [
     textDisplay([
       title,
@@ -141,8 +169,8 @@ function buildFinalMessage(data, factionName, includeMatrizes, env) {
     separator(),
     textDisplay([
       "### ✅ Resultado da Turma",
-      `- **Aprovados:** ${data.aprovados || "Nenhum"}`,
-      `- **Reprovados:** ${data.reprovados || "Nenhum"}`,
+      `- **Aprovados:** ${approvedChunks[0] || "Nenhum"}`,
+      `- **Reprovados:** ${failedChunks[0] || "Nenhum"}`,
     ].join("\n")),
   ];
 
@@ -171,13 +199,52 @@ function buildFinalMessage(data, factionName, includeMatrizes, env) {
     );
   }
 
-  return {
+  const messages = [{
     flags: 32768,
     allowed_mentions: {
       parse: ["roles", "users"],
     },
     components,
-  };
+  }];
+
+  const continuationComponents = [];
+  approvedChunks.slice(1).forEach((chunk, index) => {
+    continuationComponents.push(
+      container(0x16a34a, [
+        textDisplay([
+          `## 📘 Continuação | ${includeMatrizes ? "Registro Geral de Curso" : `Curso Finalizado ${factionName}`}`,
+          `### ✅ Aprovados ${approvedChunks.length > 2 ? `(${index + 2}/${approvedChunks.length})` : ""}`.trim(),
+          chunk,
+        ].join("\n")),
+      ]),
+    );
+  });
+
+  failedChunks.slice(1).forEach((chunk, index) => {
+    continuationComponents.push(
+      container(0xdc2626, [
+        textDisplay([
+          `## 📘 Continuação | ${includeMatrizes ? "Registro Geral de Curso" : `Curso Finalizado ${factionName}`}`,
+          `### ❌ Reprovados ${failedChunks.length > 2 ? `(${index + 2}/${failedChunks.length})` : ""}`.trim(),
+          chunk,
+        ].join("\n")),
+      ]),
+    );
+  });
+
+  if (continuationComponents.length) {
+    continuationComponents.forEach((component) => {
+      messages.push({
+        flags: 32768,
+        allowed_mentions: {
+          parse: ["roles", "users"],
+        },
+        components: [component],
+      });
+    });
+  }
+
+  return messages;
 }
 
 async function sendDiscordMessage(channelId, botToken, payload) {
@@ -250,6 +317,7 @@ export default async function handler(req, res) {
     CH_PF_FINALIZADOS: process.env.CH_PF_FINALIZADOS,
     MATRIZES_ROLE_ID: process.env.MATRIZES_ROLE_ID,
     INSTRUTORES_ROLE_ID: process.env.INSTRUTORES_ROLE_ID,
+    COMANDO_GERAL: process.env.COMANDO_GERAL || process.env.COMANDO_GERAL_IDS,
     CURSO_BASICO_ID: process.env.CURSO_BASICO_ID,
     CURSO_COMP_ID: process.env.CURSO_COMP_ID,
     CURSO_ACOES_ID: process.env.CURSO_ACOES_ID,
@@ -262,6 +330,7 @@ export default async function handler(req, res) {
     if (action === "config" || !action) {
       return res.status(200).json({
         instrutorRoleId: env.INSTRUTORES_ROLE_ID || "",
+        comandoGeralRoleIds: env.COMANDO_GERAL || "",
         factionRoles: {
           pcerj: env.ROLE_ID_PCERJ || "",
           pmerj: env.ROLE_ID_PMERJ || "",
@@ -391,26 +460,20 @@ export default async function handler(req, res) {
         }
 
         const requests = [];
+        const factionMessages = faction.channelId
+          ? buildFinalMessages(data, faction.name, false, env)
+          : [];
+        const globalMessages = env.CHANNEL_CURSOS_FINALIZADOS
+          ? buildFinalMessages(data, faction.name, true, env)
+          : [];
 
-        if (faction.channelId) {
-          requests.push(
-            sendDiscordMessage(
-              faction.channelId,
-              DISCORD_BOT_TOKEN,
-              buildFinalMessage(data, faction.name, false, env),
-            ),
-          );
-        }
+        factionMessages.forEach((payload) => {
+          requests.push(sendDiscordMessage(faction.channelId, DISCORD_BOT_TOKEN, payload));
+        });
 
-        if (env.CHANNEL_CURSOS_FINALIZADOS) {
-          requests.push(
-            sendDiscordMessage(
-              env.CHANNEL_CURSOS_FINALIZADOS,
-              DISCORD_BOT_TOKEN,
-              buildFinalMessage(data, faction.name, true, env),
-            ),
-          );
-        }
+        globalMessages.forEach((payload) => {
+          requests.push(sendDiscordMessage(env.CHANNEL_CURSOS_FINALIZADOS, DISCORD_BOT_TOKEN, payload));
+        });
 
         await Promise.all(requests);
         return res.status(200).json({ success: true });
