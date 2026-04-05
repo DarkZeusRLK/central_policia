@@ -310,8 +310,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listeners de FormulÃ¡rio e Modal
   const formBO = document.getElementById("form-bo");
   if (formBO) formBO.addEventListener("submit", handleBOSubmit);
-  setupNewsForm();
-
   document.addEventListener("click", (e) => {
     const modal = document.getElementById("login-modal");
     if (e.target === modal) closeLoginModal();
@@ -526,7 +524,6 @@ function updateUI() {
     if (oldBadge) oldBadge.remove();
   }
 
-  updateJournalistPanelVisibility();
 }
 
 function updateFormAvatar() {
@@ -538,14 +535,6 @@ function updateFormAvatar() {
   if (userBadgeName && Session.user) {
     userBadgeName.innerText = Session.user.username;
   }
-}
-
-function updateJournalistPanelVisibility() {
-  const panel = document.getElementById("journalist-panel");
-  if (!panel) return;
-
-  const isJournalist = localStorage.getItem("revoada_is_journalist") === "true";
-  panel.classList.toggle("hidden", !(Session.isLoggedIn() && isJournalist));
 }
 
 /* ==========================================================================
@@ -573,7 +562,7 @@ async function loadNews() {
       grid.innerHTML += `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
-                <img src="${news.image}" alt="Capa da NotÃ­cia" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem IndisponÃ­vel%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                <img src="${news.image}" alt="Capa da NotÃ­cia" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem IndisponÃ­vel%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
                     <i class="fa-solid fa-camera"></i> ${news.author}
                 </div>
@@ -652,62 +641,6 @@ async function handleBOSubmit(e) {
 /* ==========================================================================
    8. CARREGAR COMANDANTES (DINÃ‚MICO)
    ========================================================================== */
-function setupNewsForm() {
-  const form = document.getElementById("news-form");
-  if (!form || form.dataset.bound === "true") return;
-
-  form.dataset.bound = "true";
-  form.addEventListener("submit", handleNewsSubmit);
-}
-
-async function handleNewsSubmit(e) {
-  e.preventDefault();
-
-  if (!Session.isLoggedIn()) return Notify.error("Login necessário.");
-  if (localStorage.getItem("revoada_is_journalist") !== "true") {
-    return Notify.error("Apenas jornalistas autorizados podem publicar no jornal.");
-  }
-
-  const submitButton = document.getElementById("btn-publish-news");
-  const originalHtml = submitButton ? submitButton.innerHTML : "";
-  const loadingToast = Notify.loading("Publicando notícia...");
-
-  try {
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicando...';
-    }
-
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.userId = Session.user.id;
-
-    const response = await fetch("/api/content?action=publish-news", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(payload.error || "Falha ao publicar notícia.");
-    }
-
-    Notify.success("Notícia publicada com sucesso.");
-    e.target.reset();
-    await loadNews();
-    setTimeout(() => showSection("jornal"), 1200);
-  } catch (error) {
-    console.error(error);
-    Notify.error(error.message || "Erro ao publicar notícia.");
-  } finally {
-    if (loadingToast) loadingToast.remove();
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalHtml;
-    }
-  }
-}
 async function loadCommanders() {
   const container = document.querySelector(".commanders-grid");
   if (!container) return;
@@ -756,7 +689,7 @@ async function loadCommanders() {
       container.innerHTML += `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${imagePath}" 
+                    <img src="${imagePath}" loading="lazy" decoding="async"
                          alt="${cmd.username}">
                 </div>
                 <h3>${cmd.username}</h3>
@@ -869,7 +802,7 @@ async function loadDepartmentLeadership() {
           container.innerHTML += `
                         <div class="commander-card">
                             <div class="cmd-img-container">
-                                <img src="${imagePath}" alt="${leader.username}">
+                                <img src="${imagePath}" loading="lazy" decoding="async" alt="${leader.username}">
                             </div>
                             <h3>${leader.username}</h3>
                             <span class="rank">${role.title}</span>

@@ -346,6 +346,7 @@ export default async function handler(req, res) {
     CH_PF_FINALIZADOS: process.env.CH_PF_FINALIZADOS,
     MATRIZES_ROLE_ID: process.env.MATRIZES_ROLE_ID,
     INSTRUTORES_ROLE_ID: process.env.INSTRUTORES_ROLE_ID,
+    ENSINO_PMERJ_ROLES: process.env.ENSINO_PMERJ_ROLES,
     COMANDO_GERAL: process.env.COMANDO_GERAL || process.env.COMANDO_GERAL_IDS,
     CURSO_BASICO_ID: process.env.CURSO_BASICO_ID,
     CURSO_COMP_ID: process.env.CURSO_COMP_ID,
@@ -359,6 +360,7 @@ export default async function handler(req, res) {
     if (action === "config" || !action) {
       return res.status(200).json({
         instrutorRoleId: env.INSTRUTORES_ROLE_ID || "",
+        ensinoPmerjRoleIds: env.ENSINO_PMERJ_ROLES || "",
         comandoGeralRoleIds: env.COMANDO_GERAL || "",
         factionRoles: {
           pcerj: env.ROLE_ID_PCERJ || "",
