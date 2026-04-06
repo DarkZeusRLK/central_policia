@@ -75,7 +75,36 @@ async function resolveMembersByRoleIds(roleIds, botToken, guildId) {
     .sort((a, b) => a.username.localeCompare(b.username, "pt-BR"));
 }
 
-function resolveLeadershipIds(group, env) {
+async function resolveMembersByConfiguredRoles(configuredRoles, botToken, guildId) {
+  const targets = parseIdList(configuredRoles);
+  if (!targets.length) return [];
+
+  const [roles, members] = await Promise.all([
+    fetchDiscordJson(`${DISCORD_API_BASE}/guilds/${guildId}/roles`, botToken),
+    fetchDiscordJson(`${DISCORD_API_BASE}/guilds/${guildId}/members?limit=1000`, botToken),
+  ]);
+
+  const resolvedRoleIds = targets
+    .map((target) => resolveRoleId(target, roles))
+    .filter(Boolean);
+
+  if (!resolvedRoleIds.length) return [];
+
+  return members
+    .filter((member) => !member.user?.bot)
+    .filter(
+      (member) =>
+        Array.isArray(member.roles) &&
+        member.roles.some((roleId) => resolvedRoleIds.includes(String(roleId))),
+    )
+    .map((member) => ({
+      username: member.nick || member.user.global_name || member.user.username,
+      avatarUrl: avatarUrlFromUser(member.user),
+    }))
+    .sort((a, b) => a.username.localeCompare(b.username, "pt-BR"));
+}
+
+function resolveLeadershipTargets(group, env) {
   const map = {
     commanders: env.COMANDO_GERAL || env.COMANDO_GERAL_IDS,
     pcerj: env.DELEGADOS_IDS,
@@ -84,7 +113,7 @@ function resolveLeadershipIds(group, env) {
     prf: env.DIRETORES_PRF_IDS,
   };
 
-  return parseIdList(map[group]);
+  return String(map[group] || "");
 }
 
 function resolveRoleId(targetRole, roles) {
@@ -161,19 +190,24 @@ export default async function handler(req, res) {
           ? "commanders"
           : normalize(req.query.group || "");
 
-      const ids = resolveLeadershipIds(group, process.env);
-      if (!ids.length) {
-        return res.status(500).json({ error: "IDs de lideranÃ§a nÃ£o configurados." });
+      const configuredTargets = resolveLeadershipTargets(group, process.env);
+      if (!parseIdList(configuredTargets).length) {
+        return res.status(500).json({ error: "Cargos de lideranÃ§a nÃ£o configurados." });
       }
 
       let members = [];
-
-      if (group === "commanders") {
-        members = await resolveMembersByRoleIds(ids, botToken, guildId);
-      }
+      members = await resolveMembersByConfiguredRoles(
+        configuredTargets,
+        botToken,
+        guildId,
+      );
 
       if (!members.length) {
-        members = await resolveMembersByIds(ids, botToken, guildId);
+        members = await resolveMembersByIds(
+          parseIdList(configuredTargets),
+          botToken,
+          guildId,
+        );
       }
 
       return res.status(200).json(members);
