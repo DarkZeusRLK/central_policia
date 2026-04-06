@@ -751,14 +751,11 @@ async function loadCommanders() {
     // Cria os cards dinÃ¢micos
     const cards = commanders.flatMap((cmd, index) => {
       if (index >= roles.length) return;
-      const imageIndex = index + 1;
-      // Tenta mÃºltiplos caminhos para resolver o problema do servidor     // Usa o primeiro caminho e adiciona fallback no onerror
-      const imagePath = `public/images/commanders/comando_geral_${imageIndex}.png`;
 
       return `
             <div class="commander-card">
                 <div class="cmd-img-container">
-                    <img src="${imagePath}" loading="lazy" decoding="async"
+                    <img src="${cmd.avatarUrl}" loading="lazy" decoding="async"
                          alt="${cmd.username}">
                 </div>
                 <h3>${cmd.username}</h3>
@@ -856,23 +853,10 @@ async function loadDepartmentLeadership() {
             desc: "Membro da diretoria.",
           };
 
-          // Determina o caminho da imagem local baseado no container
-          // As pÃ¡ginas de departamento estÃ£o em public/, entÃ£o o caminho Ã© relativo a partir de lÃ¡
-          let imagePath = "";
-          if (containerId === "pcerj-leadership") {
-            imagePath = `images/commanders/pcerj_${index + 1}.png`;
-          } else if (containerId === "pmerj-leadership") {
-            imagePath = `images/commanders/pmerj_${index + 1}.png`;
-          } else if (containerId === "pf-leadership") {
-            imagePath = `images/commanders/pf_${index + 1}.png`;
-          } else if (containerId === "prf-leadership") {
-            imagePath = `images/commanders/prf_${index + 1}.png`;
-          }
-
           return `
                         <div class="commander-card">
                             <div class="cmd-img-container">
-                                <img src="${imagePath}" loading="lazy" decoding="async" alt="${leader.username}">
+                                <img src="${leader.avatarUrl}" loading="lazy" decoding="async" alt="${leader.username}">
                             </div>
                             <h3>${leader.username}</h3>
                             <span class="rank">${role.title}</span>
