@@ -32,7 +32,7 @@ const Session = {
 
     if (typeof updateUI === "function") updateUI();
 
-    if (typeof Notify !== "undefined") Notify.info("VocÃª saiu do sistema.");
+    if (typeof Notify !== "undefined")     if (typeof Notify !== "undefined") Notify.info("Voc? saiu do sistema.");
 
     setTimeout(() => (window.location.href = "/"), 1000);
   },
@@ -270,7 +270,7 @@ function openAccessDeniedModal() {
         <div class="modal-box" style="border-color: #ef4444;">
             <div class="modal-icon"><i class="fa-solid fa-ban" style="color: #ef4444;"></i></div>
             <h2>Acesso Restrito</h2>
-            <p>VocÃª nÃ£o faz parte da corporaÃ§Ã£o oficial no Discord.</p>
+            <p>Voc? n?o faz parte da corpora??o oficial no Discord.</p>
             <div class="modal-actions">
                 <button class="btn-close-modal" onclick="document.getElementById('denied-modal').remove()">Fechar</button>
             </div>
@@ -553,7 +553,7 @@ async function handlePoliceAccess(e) {
     }
   } catch (error) {
     console.error(error);
-    Notify.error("Erro de comunicaÃ§Ã£o com a central.");
+    Notify.error("Erro de comunica??o com a central.");
   }
 }
 
@@ -623,38 +623,40 @@ async function loadNews() {
     grid.innerHTML = "";
 
     if (data.length === 0) {
-      grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Nenhuma notÃ­cia recente no mural.</p>`;
+      grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Nenhuma notícia recente no mural.</p>`;
       return;
     }
 
     grid.innerHTML = data
-      .map((news) => `
+      .map(
+        (news) => `
         <article class="news-card">
             <div class="news-image-container" style="height: 200px; overflow: hidden; position: relative; background: rgba(30, 41, 59, 0.5);">
-                <img src="${news.image}" alt="Capa da NotÃ­cia" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem IndisponÃ­vel%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                <img src="${news.image}" alt="Capa da Notícia" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transition: 0.3s;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'200\'%3E%3Crect fill=\'%231e293b\' width=\'400\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 <div style="position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; font-size: 0.8rem;">
                     <i class="fa-solid fa-camera"></i> ${news.author}
                 </div>
             </div>
-            
+
             <div class="news-content" style="padding: 20px;">
                 <div class="news-date" style="color: var(--accent-gold); font-size: 0.85rem; margin-bottom: 10px;">
                     <i class="fa-regular fa-calendar"></i> ${news.date}
                 </div>
-                
+
                 <h3 class="news-title" style="color: white; font-size: 1.2rem; margin-bottom: 10px; line-height: 1.4;">
                     ${news.title}
                 </h3>
-                
+
                 <p style="color: #94a3b8; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                     ${news.summary}
                 </p>
             </div>
-        </article>`)
+        </article>`,
+      )
       .join("");
   } catch (e) {
     console.error(e);
-    grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notÃ­cias do servidor.</p>`;
+    grid.innerHTML = `<p style="color: #cbd5e1; grid-column: span 3; text-align: center;">Erro ao carregar notícias do servidor.</p>`;
   }
 }
 
@@ -674,13 +676,13 @@ function loadRecruitment(deptId) {
       window.location.href = targetFile;
     }, 500);
   } else {
-    Notify.error("PÃ¡gina do departamento nÃ£o encontrada.");
+    Notify.error("Página do departamento não encontrada.");
   }
 }
 
 async function handleBOSubmit(e) {
   e.preventDefault();
-  if (!Session.isLoggedIn()) return Notify.error("Login necessÃ¡rio.");
+  if (!Session.isLoggedIn()) return Notify.error("Login necessário.");
 
   Notify.loading("Enviando...");
   const formData = new FormData(e.target);
@@ -719,13 +721,13 @@ async function loadCommanders() {
     const commanders = await req.json();
 
     if (!req.ok || !Array.isArray(commanders) || !commanders.length) {
-      console.warn("NÃ£o foi possÃ­vel carregar todos os comandantes.");
+      console.warn("Não foi possível carregar todos os comandantes.");
 
       // Remove o Ã­cone de loading se falhar
       const loadingIcon = container.querySelector(".fa-spinner");
       if (loadingIcon && loadingIcon.parentElement)
         loadingIcon.parentElement.innerHTML =
-          "<p>Comando indisponÃ­vel no momento.</p>";
+          "<p>Comando indisponível no momento.</p>";
 
       return;
     }
@@ -734,15 +736,15 @@ async function loadCommanders() {
     const roles = [
       {
         title: "Comandante Geral",
-        desc: "ResponsÃ¡vel geral pela PolÃ­cia Revoada, com atribuiÃ§Ãµes voltadas Ã  gestÃ£o interna, coordenaÃ§Ã£o operacional e supervisÃ£o dos setores da corporaÃ§Ã£o, assegurando o cumprimento das normas, a eficiÃªncia administrativa e a integridade institucional.",
+        desc: "Responsável geral pela Polícia Revoada, com atribuições voltadas à gestão interna, coordenação operacional e supervisão dos setores da corporação, assegurando o cumprimento das normas, a eficiência administrativa e a integridade institucional.",
       },
       {
         title: "Subcomandante Geral",
-        desc: "Dirige e fiscaliza a atuaÃ§Ã£o da Corregedoria de PolÃ­cia Revoada, coordena a atuaÃ§Ã£o dos comandantes de grupamentos e guarniÃ§Ãµes especiais, promove e realiza o gerenciamento tÃ¡tico das tropas em campo. Atua como consultor estratÃ©gico em pacificaÃ§Ãµes e operaÃ§Ãµes de alto risco.",
+        desc: "Dirige e fiscaliza a atuação da Corregedoria de Polícia Revoada, coordena a atuação dos comandantes de grupamentos e guarnições especiais, promove e realiza o gerenciamento tático das tropas em campo. Atua como consultor estratégico em pacificações e operações de alto risco.",
       },
       {
         title: "Subcomandante Geral",
-        desc: "Supervisionar a atuaÃ§Ã£o da corporaÃ§Ã£o, supervisionar os setores administrativos, o gerenciamento e a lideranÃ§a das guarniÃ§Ãµes, participar das decisÃµes do alto comando, bem como coordenar a atuaÃ§Ã£o operacional.",
+        desc: "Supervisionar a atuação da corporação, supervisionar os setores administrativos, o gerenciamento e a liderança das guarnições, participar das decisões do alto comando, bem como coordenar a atuação operacional.",
       },
     ];
 
@@ -770,7 +772,7 @@ async function loadCommanders() {
     const loadingIcon = container.querySelector(".fa-spinner");
     if (loadingIcon && loadingIcon.parentElement)
       loadingIcon.parentElement.innerHTML =
-        "<p>Comando indisponÃ­vel no momento.</p>";
+        "<p>Comando indisponível no momento.</p>";
   }
 }
 /* ==========================================================================
@@ -785,35 +787,35 @@ async function loadDepartmentLeadership() {
       roles: [
         {
           title: "Delegado Geral",
-          desc: "Delegado Investigativo responsÃ¡vel por todos os inquÃ©ritos policiais e atividades relacionadas ao Ã¢mbito investigativo.",
+          desc: "Delegado Investigativo responsável por todos os inquéritos policiais e atividades relacionadas ao âmbito investigativo.",
         },
         {
           title: "Delegado Adjunto",
-          desc: "Delegado Operacional, responsÃ¡vel pelas atividades dos Grupamentos e GuarniÃ§Ãµes especiais, sendo comandante das pacificaÃ§Ãµes.",
+          desc: "Delegado Operacional, responsável pelas atividades dos Grupamentos e Guarnições especiais, sendo comandante das pacificações.",
         },
         {
           title: "Delegado Adjunto",
-          desc: "Delegado Administrativo, responsÃ¡vel pelas atividades de inatividade e escrivÃ£es.",
+          desc: "Delegado Administrativo, responsável pelas atividades de inatividade e escrivães.",
         },
       ],
     },
     "pmerj-leadership": {
       api: "/api/discord?action=leadership&group=pmerj",
       roles: [
-        { title: "Comandante", desc: "ResponsÃ¡vel pelo batalhÃ£o." },
-        { title: "Subcomandante", desc: "GestÃ£o da tropa e disciplina." },
-        { title: "Subcomandante", desc: "Planejamento de operaÃ§Ãµes." },
+        { title: "Comandante", desc: "Responsável pelo batalhão." },
+        { title: "Subcomandante", desc: "Gestão da tropa e disciplina." },
+        { title: "Subcomandante", desc: "Planejamento de operações." },
       ],
     },
     "pf-leadership": {
       api: "/api/discord?action=leadership&group=pf",
       roles: [
-        { title: "Diretor Geral", desc: "Comando supremo da PolÃ­cia Federal." },
+        { title: "Diretor Geral", desc: "Comando supremo da Polícia Federal." },
         {
           title: "Vice-Diretor",
-          desc: "GestÃ£o Administrativa - para gestÃ£o tÃ¡tica, operacional",
+          desc: "Gestão Administrativa - para gestão tática, operacional",
         },
-        { title: "Vice-Diretor", desc: "FiscalizaÃ§Ã£o e conduta." },
+        { title: "Vice-Diretor", desc: "Fiscalização e conduta." },
       ],
     },
     "prf-leadership": {
@@ -821,10 +823,10 @@ async function loadDepartmentLeadership() {
       roles: [
         {
           title: "Diretor Geral",
-          desc: "Chefe da PolÃ­cia RodoviÃ¡ria Federal.",
+          desc: "Chefe da Polícia Rodoviária Federal.",
         },
-        { title: "Vice-Diretor", desc: "CoordenaÃ§Ã£o regional." },
-        { title: "Vice-Diretor", desc: "FiscalizaÃ§Ã£o nas rodovias." },
+        { title: "Vice-Diretor", desc: "Coordenação regional." },
+        { title: "Vice-Diretor", desc: "Fiscalização nas rodovias." },
       ],
     },
   };
@@ -840,7 +842,7 @@ async function loadDepartmentLeadership() {
 
         if (!req.ok || !leaders || leaders.length === 0) {
           container.innerHTML =
-            "<p style='text-align:center; color:#64748b;'>LideranÃ§a nÃ£o definida.</p>";
+            "<p style='text-align:center; color:#64748b;'>Liderança não definida.</p>";
           return;
         }
 
@@ -872,6 +874,33 @@ async function loadDepartmentLeadership() {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
