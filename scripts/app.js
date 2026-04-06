@@ -32,7 +32,7 @@ const Session = {
 
     if (typeof updateUI === "function") updateUI();
 
-    if (typeof Notify !== "undefined")     if (typeof Notify !== "undefined") Notify.info("Voc? saiu do sistema.");
+    if (typeof Notify !== "undefined") Notify.info("Você saiu do sistema.");
 
     setTimeout(() => (window.location.href = "/"), 1000);
   },
@@ -270,7 +270,7 @@ function openAccessDeniedModal() {
         <div class="modal-box" style="border-color: #ef4444;">
             <div class="modal-icon"><i class="fa-solid fa-ban" style="color: #ef4444;"></i></div>
             <h2>Acesso Restrito</h2>
-            <p>Voc? n?o faz parte da corpora??o oficial no Discord.</p>
+            <p>Você não faz parte da corporação oficial no Discord.</p>
             <div class="modal-actions">
                 <button class="btn-close-modal" onclick="document.getElementById('denied-modal').remove()">Fechar</button>
             </div>
@@ -553,7 +553,7 @@ async function handlePoliceAccess(e) {
     }
   } catch (error) {
     console.error(error);
-    Notify.error("Erro de comunica??o com a central.");
+    Notify.error("Erro de comunicação com a central.");
   }
 }
 
