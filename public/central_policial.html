@@ -176,6 +176,53 @@
       .quick-card span { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; margin-bottom: 14px; border-radius: 12px; background: rgba(212,175,55,.12); color: var(--accent); }
       .quick-card h3 { margin: 0 0 8px; font-size: 1.02rem; }
       .quick-card p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .ops-toolbar, .ops-meta, .ops-ranking-list, .ops-activity-list, .ops-warning-list { display: flex; gap: 12px; }
+      .ops-toolbar, .ops-meta { align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 22px; }
+      .ops-meta { margin-top: 14px; }
+      .ops-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.04); color: var(--muted-strong); font-size: .82rem; border: 1px solid rgba(255,255,255,.06); }
+      .ops-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-top: 24px; }
+      .ops-card { padding: 20px; border: 1px solid rgba(255,255,255,.06); border-radius: 18px; background: rgba(255,255,255,.02); }
+      .ops-card-label { margin: 0 0 10px; color: var(--muted); font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+      .ops-card-value { margin: 0; font-size: clamp(1.8rem, 2.4vw, 2.4rem); font-weight: 800; }
+      .ops-card small { display: block; margin-top: 10px; color: var(--muted); line-height: 1.5; }
+      .ops-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 24px; }
+      .ops-panel { padding: 22px; border: 1px solid rgba(255,255,255,.06); border-radius: 20px; background: rgba(255,255,255,.02); }
+      .ops-panel h3 { margin: 0 0 14px; font-size: 1.05rem; }
+      .ops-ranking-list, .ops-activity-list, .ops-warning-list { flex-direction: column; margin: 0; padding: 0; list-style: none; }
+      .ops-ranking-item, .ops-activity-item, .ops-warning-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 12px;
+        align-items: start;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+      }
+      .ops-activity-item { grid-template-columns: 1fr auto; }
+      .ops-warning-item { grid-template-columns: auto 1fr; color: #fde68a; }
+      .ops-ranking-item:last-child, .ops-activity-item:last-child, .ops-warning-item:last-child { border-bottom: none; }
+      .ops-rank-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-grid;
+        place-items: center;
+        background: rgba(212,175,55,.14);
+        color: var(--accent);
+        font-size: .84rem;
+        font-weight: 800;
+      }
+      .ops-item-title { font-weight: 700; color: var(--text); }
+      .ops-item-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+      .ops-item-value { color: #f8e7a6; font-weight: 800; white-space: nowrap; }
+      .ops-empty-state { padding: 18px; border-radius: 16px; background: rgba(255,255,255,.03); color: var(--muted); text-align: center; line-height: 1.6; }
+      .ops-period-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+      .ops-period-card { padding: 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 16px; background: rgba(255,255,255,.02); }
+      .ops-period-card strong { display: block; font-size: 1.2rem; margin-bottom: 6px; color: #fff7cf; }
+      .ops-period-card span { color: var(--muted); font-size: .84rem; }
+      .ops-collection-list { display: grid; gap: 10px; margin-top: 12px; }
+      .ops-collection-item { padding: 12px 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 14px; background: rgba(255,255,255,.02); }
+      .ops-collection-item strong { display: block; margin-bottom: 6px; }
+      .ops-collection-item code { color: #fff2ba; }
       .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 22px; }
       .course-card { border: 1px solid rgba(255,255,255,.06); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(32,40,54,.95), rgba(20,27,37,.98)); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: 1px 320px; }
       .course-thumb { min-height: 140px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(33,41,54,.35)); color: var(--accent); }
@@ -281,8 +328,8 @@
       .toast.loading { color: #bfdbfe; }
       @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.7); } 70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
       @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      @media (max-width: 1280px) { .dashboard-header { grid-template-columns: 1fr; height: auto; padding: 18px; } .forensic-layout { grid-template-columns: 1fr; } }
-      @media (max-width: 980px) { .sidebar { position: static; width: 100%; min-height: auto; } .dashboard-shell { flex-direction: column; } .main-content { width: 100%; margin-left: 0; padding: 18px; } .quick-grid, .field-row, .field-row.two, .teaching-grid, .teaching-toolbar, .upload-grid, .journal-form-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 1280px) { .dashboard-header { grid-template-columns: 1fr; height: auto; padding: 18px; } .forensic-layout, .ops-panels { grid-template-columns: 1fr; } .ops-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+      @media (max-width: 980px) { .sidebar { position: static; width: 100%; min-height: auto; } .dashboard-shell { flex-direction: column; } .main-content { width: 100%; margin-left: 0; padding: 18px; } .quick-grid, .field-row, .field-row.two, .teaching-grid, .teaching-toolbar, .upload-grid, .journal-form-grid, .ops-grid { grid-template-columns: 1fr; } }
       @media (max-width: 720px) { .header-actions { justify-content: flex-start; } .qra-picker { grid-template-columns: 1fr; } .segment-row, .button-row, .upload-header { flex-direction: column; align-items: stretch; } }
     </style>
   </head>
@@ -334,12 +381,54 @@
 
         <section id="sec-home" class="dash-section hidden">
           <div class="section-card">
-            <h1 class="page-title">Central Policial Intranet</h1>
-            <p class="page-subtitle">Ambiente interno das matrizes para perícia, triagem operacional e gestão de comunicações.</p>
-            <div class="quick-grid">
-              <article class="quick-card"><span><i class="fa-solid fa-clipboard-check"></i></span><h3>Perícias PCERJ</h3><p>Formulário unificado para caminhão, veículo, corpo e FAC/ORG com envio direto ao Discord.</p></article>
-              <article class="quick-card"><span><i class="fa-solid fa-building-shield"></i></span><h3>Matrizes Integradas</h3><p>PMERJ e PRF permanecem acessíveis na navegação, e a PRF agora conta com relatório próprio de blitz.</p></article>
-              <article class="quick-card"><span><i class="fa-solid fa-graduation-cap"></i></span><h3>Ensino por Permissão</h3><p>A aba de cursos só aparece para usuários com cargo autorizado em <code>api/course-manager.js</code>.</p></article>
+            <h1 class="page-title">Painel Operacional</h1>
+            <p class="page-subtitle">Leitura consolidada de dados operacionais do MongoDB em modo somente leitura, com métricas, rankings, atividades recentes e descoberta automática de schema.</p>
+
+            <div class="ops-toolbar">
+              <div class="ops-meta">
+                <span id="ops-source-badge" class="ops-badge"><i class="fa-solid fa-database"></i><span>MongoDB aguardando configuração</span></span>
+                <span id="ops-updated-badge" class="ops-badge"><i class="fa-regular fa-clock"></i><span>Sem sincronização recente</span></span>
+              </div>
+              <button id="ops-refresh-button" type="button" class="action-button"><i class="fa-solid fa-rotate"></i><span>Atualizar painel</span></button>
+            </div>
+
+            <div id="ops-warning-box" class="ops-panel hidden" style="margin-top: 20px;">
+              <h3><i class="fa-solid fa-triangle-exclamation"></i> Observações da descoberta automática</h3>
+              <ul id="ops-warning-list" class="ops-warning-list"></ul>
+            </div>
+
+            <div id="ops-overview-grid" class="ops-grid">
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-handcuffs"></i></span><div class="ops-card-label">Total de prisões</div><h3 id="ops-total-arrests" class="ops-card-value">--</h3><small id="ops-total-arrests-meta">Aguardando leitura da base operacional.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-road"></i></span><div class="ops-card-label">Horas patrulhadas</div><h3 id="ops-total-hours" class="ops-card-value">--</h3><small id="ops-total-hours-meta">Aguardando leitura da base operacional.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-bullseye"></i></span><div class="ops-card-label">Ações operacionais</div><h3 id="ops-total-actions" class="ops-card-value">--</h3><small id="ops-total-actions-meta">Abordagens, apreensões ou outras ações encontradas.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-layer-group"></i></span><div class="ops-card-label">Coleções lidas</div><h3 id="ops-total-collections" class="ops-card-value">--</h3><small id="ops-total-collections-meta">Estrutura descoberta automaticamente em modo leitura.</small></article>
+            </div>
+
+            <div class="ops-panels">
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-trophy"></i> Ranking de policiais com mais prisões</h3>
+                <div id="ops-arrests-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-stopwatch"></i> Ranking de policiais com mais horas patrulhadas</h3>
+                <div id="ops-hours-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-list-check"></i> Ranking de ações operacionais</h3>
+                <div id="ops-actions-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-chart-column"></i> Resumo geral por período</h3>
+                <div id="ops-period-summary" class="ops-empty-state">O resumo por período depende de um campo de data identificado no banco.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas atividades operacionais</h3>
+                <div id="ops-latest-activities" class="ops-empty-state">As últimas atividades aparecerão aqui quando a leitura estiver disponível.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-code-branch"></i> Schema descoberto automaticamente</h3>
+                <div id="ops-collections-summary" class="ops-empty-state">A inspeção de coleções e campos será exibida aqui após a primeira consulta.</div>
+              </section>
             </div>
           </div>
         </section>
@@ -705,6 +794,224 @@
       function renderJournalAccess() { const form = document.getElementById("form-jornal"); const emptyState = document.getElementById("journalist-empty-state"); if (!form || !emptyState) return; const allowed = isJournalist() || isOwner(); form.classList.toggle("hidden", !allowed); emptyState.classList.toggle("hidden", allowed); }
       function setupJournalForm() { const form = document.getElementById("form-jornal"); if (!form) return; form.addEventListener("submit", async (event) => { event.preventDefault(); if (!isJournalist() && !isOwner()) return Notify.error("Apenas jornalistas autorizados podem emitir notícias."); const submitButton = document.getElementById("journal-submit-button"); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Publicando notícia no Jornal Mare..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Publicando...</span>'; try { const data = Object.fromEntries(new FormData(form).entries()); data.userId = state.currentUser.id; const response = await fetch("/api/content?action=publish-news", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao publicar notícia."); Notify.success("Notícia publicada com sucesso."); form.reset(); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao publicar notícia."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }); }
       async function submitCourseForm(form, type) { const submitButton = form.querySelector('button[type="submit"]'); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Processando formulário de ensino..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Processando...</span>'; try { const data = Object.fromEntries(new FormData(form).entries()); if (type === "final") { const courseSelect = form.querySelector('select[name="curso_nome"]'); if (courseSelect && courseSelect.selectedIndex >= 0) { data.curso_id = courseSelect.value; data.curso_nome = courseSelect.options[courseSelect.selectedIndex].text; } } else { data.curso_ids = String(data.curso_ids || "").split(",").map((item) => item.trim()).filter(Boolean); data.curso_nomes = String(data.curso_nomes || "").split("||").map((item) => item.trim()).filter(Boolean); delete data.curso_nome; if (!data.curso_ids.length) throw new Error("Adicione pelo menos um curso ao anúncio."); } if (data.call_channel) { const rawCall = data.call_channel.trim(); if (/^https?:\/\//i.test(rawCall)) data.call_link = rawCall; else { const callId = state.discordCallsMap[rawCall]; if (callId && state.discordGuildId) data.call_link = `https://discord.com/channels/${state.discordGuildId}/${callId}`; } delete data.call_channel; } data.type = type; data.authorId = state.currentUser.id; data.userRoles = Array.isArray(state.currentUser.roles) ? state.currentUser.roles.map(String) : []; data.faction = resolveCurrentPoliceFactionPayload(); const response = await fetch("/api/course-manager", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao enviar formulário de ensino."); Notify.success(type === "anuncio" ? "Anúncio de curso enviado com sucesso." : "Relatório final de curso enviado com sucesso."); form.reset(); form.querySelectorAll(".selected-list-container").forEach((container) => { container.innerHTML = ""; }); form.querySelectorAll('input[type="hidden"]').forEach((input) => { if (input.id.startsWith("hidden-")) input.value = ""; }); state.selectedAnnouncementCourses = []; syncAnnouncementCourses(); renderCursosPorTipo(getTipoCursoSelecionado()); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao processar formulário de ensino."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }
+    </script>
+    <script>
+      const operationalDashboardState = {
+        loaded: false,
+        loading: false,
+        lastPayload: null,
+      };
+
+      function formatOperationalNumber(value, suffix = "") {
+        if (value === null || value === undefined || value === "") return "--";
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) return String(value);
+        return `${numeric.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}${suffix}`;
+      }
+
+      function formatOperationalDate(value) {
+        if (!value) return "Data não identificada";
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return String(value);
+        return parsed.toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function renderOperationalRanking(containerId, items, valueKey, suffix = "") {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!Array.isArray(items) || !items.length) {
+          container.innerHTML = '<div class="ops-empty-state">Nenhum dado compatível foi encontrado para esta métrica no schema atual.</div>';
+          return;
+        }
+
+        container.innerHTML = `<ol class="ops-ranking-list">${items.map((item, index) => `
+          <li class="ops-ranking-item">
+            <span class="ops-rank-number">${index + 1}</span>
+            <div>
+              <span class="ops-item-title">${item.officer || "Não identificado"}</span>
+              <span class="ops-item-subtitle">Fonte operacional consolidada para o painel</span>
+            </div>
+            <span class="ops-item-value">${formatOperationalNumber(item[valueKey], suffix)}</span>
+          </li>`).join("")}</ol>`;
+      }
+
+      function renderOperationalActivities(items) {
+        const container = document.getElementById("ops-latest-activities");
+        if (!container) return;
+        if (!Array.isArray(items) || !items.length) {
+          container.innerHTML = '<div class="ops-empty-state">Nenhuma atividade recente compatível foi identificada no banco.</div>';
+          return;
+        }
+
+        container.innerHTML = `<ul class="ops-activity-list">${items.map((item) => `
+          <li class="ops-activity-item">
+            <div>
+              <span class="ops-item-title">${item.activityType || item.source || "Atividade operacional"}</span>
+              <span class="ops-item-subtitle">${item.officer || "Não identificado"} • ${item.description || "Registro operacional"} • ${item.source || "origem não identificada"}</span>
+            </div>
+            <span class="ops-item-value">${formatOperationalDate(item.eventDate)}</span>
+          </li>`).join("")}</ul>`;
+      }
+
+      function renderOperationalPeriodSummary(items) {
+        const container = document.getElementById("ops-period-summary");
+        if (!container) return;
+        if (!Array.isArray(items) || !items.length) {
+          container.innerHTML = '<div class="ops-empty-state">Não foi possível gerar resumo por período com o schema atual. Isso normalmente depende de um campo de data em formato compatível.</div>';
+          return;
+        }
+
+        container.innerHTML = `<div class="ops-period-grid">${items.map((item) => `
+          <article class="ops-period-card">
+            <strong>${formatOperationalNumber(item.total)}</strong>
+            <span>${item.period || "Período não identificado"}</span>
+          </article>`).join("")}</div>`;
+      }
+
+      function renderOperationalCollections(collections, sources) {
+        const container = document.getElementById("ops-collections-summary");
+        if (!container) return;
+        if (!Array.isArray(collections) || !collections.length) {
+          container.innerHTML = '<div class="ops-empty-state">Nenhuma coleção foi descoberta no banco configurado.</div>';
+          return;
+        }
+
+        container.innerHTML = `<div class="ops-collection-list">${collections.slice(0, 8).map((collection) => `
+          <article class="ops-collection-item">
+            <strong>${collection.name}</strong>
+            <div class="ops-item-subtitle">Documentos estimados: ${formatOperationalNumber(collection.estimatedDocumentCount)}</div>
+            <div class="ops-item-subtitle">Fonte inferida: ${
+              sources?.arrests === collection.name ? "Prisões" :
+              sources?.patrol === collection.name ? "Patrulhamento" :
+              sources?.actions === collection.name ? "Ações operacionais" :
+              "Apenas descoberta de schema"
+            }</div>
+            <div class="ops-item-subtitle">Campos detectados: <code>${(collection.fields || []).slice(0, 5).map((field) => field.path).join(", ") || "nenhum campo amostrado"}</code></div>
+          </article>`).join("")}</div>`;
+      }
+
+      function renderOperationalWarnings(warnings) {
+        const box = document.getElementById("ops-warning-box");
+        const list = document.getElementById("ops-warning-list");
+        if (!box || !list) return;
+        if (!Array.isArray(warnings) || !warnings.length) {
+          box.classList.add("hidden");
+          list.innerHTML = "";
+          return;
+        }
+
+        box.classList.remove("hidden");
+        list.innerHTML = warnings.map((warning) => `
+          <li class="ops-warning-item">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>${warning}</span>
+          </li>`).join("");
+      }
+
+      function renderOperationalDashboard(payload) {
+        operationalDashboardState.lastPayload = payload;
+
+        document.getElementById("ops-total-arrests").textContent = formatOperationalNumber(payload?.metrics?.totalArrests);
+        document.getElementById("ops-total-arrests-meta").textContent = payload?.sources?.arrests ? `Coleção-base: ${payload.sources.arrests}` : "Coleção de prisões não identificada automaticamente.";
+        document.getElementById("ops-total-hours").textContent = formatOperationalNumber(payload?.metrics?.totalPatrolHours, "h");
+        document.getElementById("ops-total-hours-meta").textContent = payload?.sources?.patrol ? `Coleção-base: ${payload.sources.patrol}` : "Coleção de patrulhamento não identificada automaticamente.";
+        document.getElementById("ops-total-actions").textContent = formatOperationalNumber(payload?.metrics?.totalActions);
+        document.getElementById("ops-total-actions-meta").textContent = Array.isArray(payload?.metrics?.actionTypes) && payload.metrics.actionTypes.length
+          ? `Tipos encontrados: ${payload.metrics.actionTypes.slice(0, 4).join(", ")}`
+          : "Nenhum tipo de ação operacional identificado automaticamente.";
+        document.getElementById("ops-total-collections").textContent = formatOperationalNumber((payload?.collections || []).length);
+        document.getElementById("ops-total-collections-meta").textContent = `Banco: ${payload?.databaseName || "não identificado"}`;
+
+        const sourceBadge = document.getElementById("ops-source-badge");
+        const updatedBadge = document.getElementById("ops-updated-badge");
+        if (sourceBadge) sourceBadge.innerHTML = `<i class="fa-solid fa-database"></i><span>${payload?.databaseName ? `MongoDB conectado em ${payload.databaseName}` : "MongoDB sem database identificado"}</span>`;
+        if (updatedBadge) updatedBadge.innerHTML = `<i class="fa-regular fa-clock"></i><span>${payload?.generatedAt ? `Atualizado em ${formatOperationalDate(payload.generatedAt)}` : "Sem sincronização recente"}</span>`;
+
+        renderOperationalRanking("ops-arrests-ranking", payload?.metrics?.topArrestOfficers, "total");
+        renderOperationalRanking("ops-hours-ranking", payload?.metrics?.topPatrolOfficers, "totalHours", "h");
+        renderOperationalRanking("ops-actions-ranking", payload?.metrics?.topActionOfficers, "total");
+        renderOperationalActivities(payload?.metrics?.latestActivities);
+        renderOperationalPeriodSummary(payload?.metrics?.periodSummary);
+        renderOperationalCollections(payload?.collections, payload?.sources);
+        renderOperationalWarnings(payload?.warnings);
+      }
+
+      function renderOperationalDashboardError(message) {
+        const safeMessage = message || "Não foi possível carregar o Painel Operacional.";
+        ["ops-arrests-ranking", "ops-hours-ranking", "ops-actions-ranking", "ops-period-summary", "ops-latest-activities", "ops-collections-summary"].forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) element.innerHTML = `<div class="ops-empty-state">${safeMessage}</div>`;
+        });
+        document.getElementById("ops-total-arrests").textContent = "--";
+        document.getElementById("ops-total-hours").textContent = "--";
+        document.getElementById("ops-total-actions").textContent = "--";
+        document.getElementById("ops-total-collections").textContent = "--";
+        document.getElementById("ops-total-arrests-meta").textContent = "Sem leitura disponível.";
+        document.getElementById("ops-total-hours-meta").textContent = "Sem leitura disponível.";
+        document.getElementById("ops-total-actions-meta").textContent = "Sem leitura disponível.";
+        document.getElementById("ops-total-collections-meta").textContent = "Sem descoberta de schema.";
+        renderOperationalWarnings([safeMessage]);
+      }
+
+      async function loadOperationalDashboard(force = false) {
+        if (operationalDashboardState.loading) return;
+        if (operationalDashboardState.loaded && !force) return;
+
+        operationalDashboardState.loading = true;
+        const refreshButton = document.getElementById("ops-refresh-button");
+        const originalButtonHtml = refreshButton ? refreshButton.innerHTML : "";
+        if (refreshButton) {
+          refreshButton.disabled = true;
+          refreshButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Carregando...</span>';
+        }
+
+        try {
+          const response = await fetch("/api/operational");
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(payload.error || payload.details || "Falha ao carregar dados operacionais.");
+          }
+
+          renderOperationalDashboard(payload);
+          operationalDashboardState.loaded = true;
+        } catch (error) {
+          console.error("Erro ao carregar Painel Operacional:", error);
+          renderOperationalDashboardError(error.message || "Falha ao consultar o MongoDB.");
+        } finally {
+          operationalDashboardState.loading = false;
+          if (refreshButton) {
+            refreshButton.disabled = false;
+            refreshButton.innerHTML = originalButtonHtml;
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const refreshButton = document.getElementById("ops-refresh-button");
+        if (refreshButton) {
+          refreshButton.addEventListener("click", () => loadOperationalDashboard(true));
+        }
+
+        if (typeof switchSection === "function") {
+          const originalSwitchSection = switchSection;
+          switchSection = async function patchedSwitchSection(sectionName, linkElement = null) {
+            await originalSwitchSection(sectionName, linkElement);
+            if (sectionName === "home") {
+              await loadOperationalDashboard();
+            }
+          };
+        }
+
+        if (state?.currentSection === "home") {
+          loadOperationalDashboard();
+        }
+      });
     </script>
   </body>
 </html>
