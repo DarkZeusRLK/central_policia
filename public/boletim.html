@@ -335,7 +335,7 @@
               <span class="boletim-document-seal">Documento preliminar</span>
             </div>
             <div id="boletim-preview" class="boletim-document-body">
-              Eu, <strong>cidadão não identificado</strong>, declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
+              Eu, <strong>cidadão não identificado</strong>, inscrito no RG/Passaporte <strong>não informado</strong>, declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
 
               O relato informa que, na data de <strong>data não preenchida</strong>, por volta de <strong>horário não informado</strong>, ocorreu um fato descrito como <strong>ocorrência não informada</strong>, nas imediações de <strong>local não informado</strong>.
 
@@ -509,13 +509,14 @@
 
       const formData = new FormData(formBo);
       const nome = (formData.get('nome') || '').toString().trim() || 'cidadão não identificado';
+      const passaporte = (formData.get('passaporte') || '').toString().trim() || 'não informado';
       const ocorrencia = (formData.get('ocorrencia') || '').toString().trim() || 'ocorrência não informada';
       const local = (formData.get('local') || '').toString().trim() || 'local não informado';
       const itens = (formData.get('itens') || '').toString().trim() || 'itens não descritos';
       const profissao = (formData.get('profissao') || '').toString().trim();
       const horario = formatDateTimePreview((formData.get('horario') || '').toString());
 
-      previewEl.innerHTML = `Eu, <strong>${nome}</strong>${profissao ? `, profissão declarada como <strong>${profissao}</strong>,` : ','} declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
+      previewEl.innerHTML = `Eu, <strong>${nome}</strong>, inscrito no RG/Passaporte <strong>${passaporte}</strong>${profissao ? `, profissão declarada como <strong>${profissao}</strong>,` : ','} declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
 
 O relato informa que, na data de <strong>${horario.date}</strong>, por volta de <strong>${horario.time}</strong>, ocorreu um fato descrito como <strong>${ocorrencia}</strong>, nas imediações de <strong>${local}</strong>.
 

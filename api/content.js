@@ -37,6 +37,31 @@ function asLineList(values) {
   return values.join(", ");
 }
 
+function formatDateTimeParts(value) {
+  if (!value) {
+    return {
+      date: "data não preenchida",
+      time: "horário não informado",
+    };
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return {
+      date: "data não preenchida",
+      time: "horário não informado",
+    };
+  }
+
+  return {
+    date: parsed.toLocaleDateString("pt-BR"),
+    time: parsed.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+}
+
 async function sendDiscordMessage(channelId, botToken, payload) {
   const response = await fetch(
     `${DISCORD_API_BASE}/channels/${channelId}/messages`,
@@ -560,45 +585,44 @@ async function handleSubmitBo(req, res, env) {
   const protocolo = Math.floor(1000 + Math.random() * 9000);
   const boNumero = `${anoAtual}-${protocolo}`;
 
-  const dataObj = horario ? new Date(horario) : null;
-  const dataFormatada =
-    dataObj && !Number.isNaN(dataObj.getTime())
-      ? dataObj.toLocaleString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "Não informado";
+  const eventDateTime = formatDateTimeParts(horario);
+  const reporter = userId ? `<@${userId}>` : username || "Sistema";
+  const declaracao = [
+    `Eu, **${nome || "cidadão não identificado"}**, inscrito no **RG/Passaporte ${passaporte || "não informado"}**${profissao ? `, profissão declarada como **${profissao}**` : ""}, declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.`,
+    "",
+    `O relato informa que, na data de **${eventDateTime.date}**, por volta de **${eventDateTime.time}**, ocorreu um fato descrito como **${ocorrencia || "ocorrência não informada"}**, nas imediações de **${local || "local não informado"}**.`,
+    "",
+    `Registro ainda que os bens ou objetos mencionados neste atendimento correspondem a **${itens || "itens não descritos"}**, ficando a presente declaração sujeita à confirmação documental, checagem da autoridade policial e eventual complementação probatória quando necessário.`,
+  ].join("\n");
 
-  const relatorio = `
-\`\`\`md
-# BOLETIM DE OCORRÊNCIA Nº ${boNumero}
-DATA DO FATO: ${dataFormatada}
-LOCAL DO FATO: ${local || "Não informado"}
+  const payload = {
+    flags: 32768,
+    allowed_mentions: {
+      parse: ["users"],
+    },
+    components: [
+      container(0xfbbf24, [
+        textDisplay("## 📋 Central Policial | Boletim de Ocorrência"),
+        separator(),
+        textDisplay([
+          `### 🆔 Identificação do Registro`,
+          `- **Número do B.O.:** ${boNumero}`,
+          `- **Comunicante:** ${nome || "Não informado"}`,
+          `- **RG/Passaporte:** ${passaporte || "Não informado"}`,
+          `- **Telefone:** ${telefone || "Não informado"}`,
+          `- **Sexo:** ${sexo || "Não informado"}`,
+        ].join("\n")),
+        separator(),
+        textDisplay(`### 📝 Declaração Formal\n${declaracao}`),
+        separator(),
+        textDisplay(`### 🎥 Evidência\n${video_link || "Nenhum link de prova anexado."}`),
+        separator(),
+        textDisplay(`-# Relatório enviado por: ${reporter}${username ? ` (${username})` : ""}`),
+      ]),
+    ],
+  };
 
-# VÍTIMA / COMUNICANTE
-NOME: ${nome || "Não informado"}
-PASSAPORTE: ${passaporte || "Não informado"}
-TELEFONE: ${telefone || "Não informado"}
-PROFISSÃO: ${profissao || "Não informado"}
-SEXO: ${sexo || "Não informado"}
-
-# RELATO INDIVIDUAL
-${ocorrencia || "Não informado"}
-
-# BENS / OBJETOS
-${itens || "Nenhum bem declarado."}
-
-# EVIDÊNCIA
-${video_link || "N/A"}
-\`\`\``;
-
-  const contentMessage = `👮 **Novo registro enviado por:** <@${userId}> (${username})\n${relatorio}`;
-  await sendDiscordMessage(DISCORD_CHANNEL_ID_BO, DISCORD_BOT_TOKEN, {
-    content: contentMessage,
-  });
+  await sendDiscordMessage(DISCORD_CHANNEL_ID_BO, DISCORD_BOT_TOKEN, payload);
 
   return res.status(200).json({ success: true });
 }
