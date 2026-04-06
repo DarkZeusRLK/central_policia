@@ -425,6 +425,7 @@ export default async function handler(req, res) {
         instrutorRoleId: env.INSTRUTORES_ROLE_ID || "",
         ensinoPmerjRoleIds: env.ENSINO_PMERJ_ROLES || "",
         comandoGeralRoleIds: env.COMANDO_GERAL || "",
+        ownerIds: process.env.OWNER || "",
         factionRoles: {
           pcerj: env.ROLE_ID_PCERJ || "",
           pmerj: env.ROLE_ID_PMERJ || "",

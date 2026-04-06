@@ -131,6 +131,7 @@ export default async function handler(req, res) {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const guildId = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID;
   const action = req.query.action;
+  const ownerIds = parseIdList(process.env.OWNER);
 
   if (!action) {
     return res.status(400).json({ error: "AÃ§Ã£o nÃ£o informada." });
@@ -148,6 +149,7 @@ export default async function handler(req, res) {
 
       const { userId } = req.body || {};
       const journalistRoleId = process.env.JORNALISTA_ROLE_ID;
+      const isOwner = ownerIds.includes(String(userId || ""));
 
       if (!userId) {
         return res.status(400).json({ error: "userId Ã© obrigatÃ³rio." });
@@ -163,7 +165,12 @@ export default async function handler(req, res) {
       );
 
       if (response.status === 404) {
-        return res.status(200).json({ isMember: false, isJournalist: false });
+        return res.status(200).json({
+          isMember: isOwner,
+          isJournalist: false,
+          isOwner,
+          roles: [],
+        });
       }
 
       if (!response.ok) {
@@ -177,6 +184,7 @@ export default async function handler(req, res) {
         isJournalist: journalistRoleId
           ? memberData.roles.includes(journalistRoleId)
           : false,
+        isOwner,
       });
     }
 

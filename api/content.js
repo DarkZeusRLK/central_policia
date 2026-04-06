@@ -194,6 +194,95 @@ function getPericiaAccentColor(tipo) {
   return 0xd4af37;
 }
 
+function validateBlitzPayload(data) {
+  if (!required(data.dirigentes)) return "Informe pelo menos um dirigente da blitz.";
+  if (!required(data.participantes)) return "Informe pelo menos um participante da blitz.";
+  if (!required(data.data_realizacao)) return "Informe a data de realização da blitz.";
+  if (!required(data.horario_inicio)) return "Informe o horário de início da blitz.";
+  if (!required(data.horario_termino)) return "Informe o horário de término da blitz.";
+  return "";
+}
+
+async function handleSubmitBlitz(req, res, env) {
+  const botToken = env.DISCORD_BOT_TOKEN;
+  const channelId = env.CH_BLITZ_RELATORIO;
+
+  if (!botToken || !channelId) {
+    return res.status(500).json({
+      error: "Defina DISCORD_BOT_TOKEN e CH_BLITZ_RELATORIO no ambiente.",
+    });
+  }
+
+  const data = req.body || {};
+  const userRoles = Array.isArray(data.userRoles) ? data.userRoles.map(String) : [];
+  const ownerIds = parseIdList(env.OWNER);
+  const prfRoles = parseIdList(env.ROLE_ID_PRF);
+  const commandRoles = parseIdList(env.COMANDO_GERAL);
+  const isOwner = ownerIds.includes(String(data.authorId || ""));
+  const canSendBlitz =
+    isOwner ||
+    userRoles.some((roleId) => prfRoles.includes(roleId)) ||
+    userRoles.some((roleId) => commandRoles.includes(roleId));
+
+  if (!canSendBlitz) {
+    return res.status(403).json({ error: "Você não possui permissão para enviar relatório de blitz." });
+  }
+
+  const validationError = validateBlitzPayload(data);
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
+
+  const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
+  const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
+  const mainCard = container(0x1d4ed8, [
+    textDisplay([
+      "## 🚧 Central Policial | Relatório de Blitz",
+      `**👮 Enviado por:** ${reporter}`,
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 👔 Dirigentes",
+      String(data.dirigentes || "N/A"),
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 👥 Participantes",
+      String(data.participantes || "N/A"),
+    ].join("\n")),
+    separator(),
+    textDisplay([
+      "### 📅 Operação",
+      `- **Data de realização:** ${formatBrDate(data.data_realizacao)}`,
+      `- **Horário de início:** ${data.horario_inicio || "N/A"}`,
+      `- **Horário de término:** ${data.horario_termino || "N/A"}`,
+      `- **Participantes de outras Matrizes:** ${data.outras_matrizes || "Nenhum"}`,
+    ].join("\n")),
+    separator(),
+    textDisplay(
+      attachments.length
+        ? "### 🖼️ Imagem\nA imagem da blitz foi enviada em anexo nesta mensagem."
+        : "### 🖼️ Imagem\nNenhuma imagem anexada neste relatório."
+    ),
+  ]);
+
+  const payload = {
+    flags: 32768,
+    allowed_mentions: {
+      parse: ["users", "roles"],
+    },
+    components: [mainCard],
+  };
+
+  if (attachments.length) {
+    await sendDiscordMultipartMessage(channelId, botToken, payload, attachments.slice(0, 1));
+  } else {
+    await sendDiscordMessage(channelId, botToken, payload);
+  }
+
+  return res.status(200).json({ success: true });
+}
+
 function validatePericiaPayload(data) {
   if (!required(data.qra_participantes)) {
     return "Selecione pelo menos um policial no QRA.";
@@ -575,6 +664,10 @@ export default async function handler(req, res) {
 
     if (action === "submit-pericia" && req.method === "POST") {
       return await handleSubmitPericia(req, res, process.env);
+    }
+
+    if (action === "submit-blitz" && req.method === "POST") {
+      return await handleSubmitBlitz(req, res, process.env);
     }
 
     return res.status(405).json({ error: "MÃ©todo ou aÃ§Ã£o invÃ¡lidos." });
