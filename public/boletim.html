@@ -515,7 +515,7 @@
       const itens = (formData.get('itens') || '').toString().trim() || 'itens não descritos';
       const profissao = (formData.get('profissao') || '').toString().trim();
       const horario = formatDateTimePreview((formData.get('horario') || '').toString());
-      const localFormatado = /em\s+revoada\s*rj$/i.test(local) ? local : `${local} em Revoada RJ`;
+      const localFormatado = /na cidade de revoada\s*rj$/i.test(local) ? local : `${local} na cidade de Revoada RJ`;
 
       previewEl.innerHTML = `Eu, <strong>${nome}</strong>, inscrito no RG/Passaporte <strong>${passaporte}</strong>${profissao ? `, profissão declarada como <strong>${profissao}</strong>,` : ','} declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
 

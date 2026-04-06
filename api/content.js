@@ -64,9 +64,9 @@ function formatDateTimeParts(value) {
 
 function ensureRevoadaLocation(value) {
   const location = String(value || "").trim();
-  if (!location) return "local não informado em Revoada RJ";
-  if (/em\s+revoada\s*rj$/i.test(location)) return location;
-  return `${location} em Revoada RJ`;
+  if (!location) return "local não informado na cidade de Revoada RJ";
+  if (/na cidade de revoada\s*rj$/i.test(location)) return location;
+  return `${location} na cidade de Revoada RJ`;
 }
 
 function extractTextFromComponent(component, output = []) {
