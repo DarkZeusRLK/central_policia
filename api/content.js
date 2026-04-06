@@ -89,6 +89,7 @@ async function sendDiscordMultipartMessage(channelId, botToken, payload, attachm
     attachments: files.map((attachment, index) => ({
       id: String(index),
       filename: attachment.name || `anexo-${index + 1}`,
+      description: attachment.description || attachment.name || `anexo-${index + 1}`,
     })),
   };
 
@@ -238,7 +239,6 @@ async function handleSubmitBlitz(req, res, env) {
   const mainCard = container(0x1d4ed8, [
     textDisplay([
       "## 🚧 Central Policial | Relatório de Blitz",
-      `**👮 Enviado por:** ${reporter}`,
     ].join("\n")),
     separator(),
     textDisplay([
@@ -264,6 +264,8 @@ async function handleSubmitBlitz(req, res, env) {
         ? "### 🖼️ Imagem\nA imagem da blitz foi enviada em anexo nesta mensagem."
         : "### 🖼️ Imagem\nNenhuma imagem anexada neste relatório."
     ),
+    separator(),
+    textDisplay(`-# Relatório enviado por: ${reporter}`),
   ]);
 
   const payload = {
@@ -275,7 +277,15 @@ async function handleSubmitBlitz(req, res, env) {
   };
 
   if (attachments.length) {
-    await sendDiscordMultipartMessage(channelId, botToken, payload, attachments.slice(0, 1));
+    await sendDiscordMultipartMessage(
+      channelId,
+      botToken,
+      payload,
+      attachments.slice(0, 1).map((attachment) => ({
+        ...attachment,
+        description: "Imagem da blitz",
+      })),
+    );
   } else {
     await sendDiscordMessage(channelId, botToken, payload);
   }
@@ -600,7 +610,6 @@ async function handleSubmitPericia(req, res, env) {
   const mainCard = container(getPericiaAccentColor(data.tipo_pericia), [
     textDisplay([
       `## ${reportTemplate.title}`,
-      `**👮 Enviado por:** ${reporter}`,
     ].join("\n")),
     separator(),
     textDisplay([
@@ -620,7 +629,12 @@ async function handleSubmitPericia(req, res, env) {
       ? `### 🖼️ Anexos\n${data.imagens.map((name) => `- ${name}`).join("\n")}`
       : "### 🖼️ Anexos\nNenhuma imagem anexada nesta perícia.";
 
-  mainCard.components.push(separator(), textDisplay(attachmentText));
+  mainCard.components.push(
+    separator(),
+    textDisplay(attachmentText),
+    separator(),
+    textDisplay(`-# Relatório enviado por: ${reporter}`),
+  );
 
   const payload = {
     flags: 32768,
