@@ -1,285 +1,158 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PF | Central de Polícia</title>
+  <title>PF | Central de Pol�cia</title>
   <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../style/main.css">
-
   <style>
     :root {
-      --accent-gold: #94a3b8;
-      --primary-blue: #1f2937;
-      --bg-color: #0b0f19;
-      --glass-bg: rgba(12, 18, 28, 0.8);
-      --glass-border: rgba(148, 163, 184, 0.22);
+      --bg: #0b1220;
+      --panel: rgba(15, 23, 42, 0.88);
+      --border: rgba(148, 163, 184, 0.22);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #fbbf24;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      background: radial-gradient(circle at 20% 0%,
-          rgba(148, 163, 184, 0.2),
-          transparent 55%),
-        radial-gradient(circle at 80% 15%,
-          rgba(30, 41, 59, 0.45),
-          transparent 60%),
-        #0b0f19;
-    }
-
-    .dept-title {
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      padding: 24px;
+      font-family: Inter, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 35%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
+        linear-gradient(180deg, #020617 0%, #0b1220 100%);
+    }
+
+    .notice-card {
+      width: min(680px, 100%);
+      padding: 40px 36px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      text-align: center;
+    }
+
+    .logo {
+      width: 78px;
+      height: 78px;
+      object-fit: contain;
+      margin-bottom: 18px;
+    }
+
+    .icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(251, 191, 36, 0.12);
+      color: var(--accent);
+      font-size: 1.9rem;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .timer {
+      margin-top: 24px;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .timer strong {
+      color: var(--accent);
+    }
+
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
-    .dept-title-logo {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-    }
-
-    .hero-content h1 {
-      background: linear-gradient(to right, #ffffff 0%, var(--accent-gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* --- ESTILOS ESPECÃFICOS PF (CINZA/PRETO) --- */
-
-    .discord-code {
-      background-color: #2b2d31;
-      color: #dcddd4;
-      padding: 10px;
-      border-radius: 5px;
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-      border-left: 3px solid #94a3b8;
-      /* Cinza PF */
-      word-wrap: break-word;
-      user-select: text;
-    }
-
-    .discord-highlight {
-      background-color: #383a40;
-      padding: 2px 5px;
-      border-radius: 3px;
-      font-family: monospace;
-      color: #e3e5e8;
-    }
-
-    .list-item {
-      margin-bottom: 8px;
-      display: flex;
+    .button {
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      color: #cbd5e1;
-    }
-
-    /* --- GALERIA --- */
-    .gallery-title {
-      margin-top: 30px;
-      margin-bottom: 15px;
-      color: white;
-      border-left: 4px solid #94a3b8;
-      padding-left: 10px;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 10px;
-      margin-bottom: 20px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      background: rgba(251, 191, 36, 0.12);
+      color: #f8fafc;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease;
     }
 
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
-      border: 2px solid rgba(148, 163, 184, 0.3);
-      aspect-ratio: 16/9;
-      cursor: pointer;
-    }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .gallery-item:hover img {
-      transform: scale(1.1);
+    .button:hover {
+      transform: translateY(-1px);
+      background: rgba(251, 191, 36, 0.18);
     }
   </style>
 </head>
 
 <body>
-
-  <nav class="navbar">
-    <a href="../index.html" class="logo">
-      <img src="../public/images/Logo_policia.png" alt="Logo Revoada">
-    </a>
-
-    <ul class="nav-links">
-      <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
-
-      <li class="dropdown">
-        <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
-        <div class="dropdown-content">
-          <a href="departamentopcerj.html">
-            <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;"> PCERJ
-          </a>
-          <a href="batalhaopmerj.html">
-            <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;"> PMERJ
-          </a>
-          <a href="departamentoprf.html">
-            <img src="../public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
-          </a>
-        </div>
-      </li>
-      <li><a href="boletim.html"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
-      <li><a href="jornalmare.html"><i class="fa-solid fa-newspaper"></i> Jornal Mare</a></li>
-
-      <li><a href="https://policia-revoada.vercel.app" target="_blank"><i class="fa-solid fa-gavel"></i> Código Penal</a></li>
-      <li><a href="https://discord.gg/uCBKjAt2vm" target="_blank"><i class="fa-solid fa-scale-balanced"></i> Corregedoria de Polícia</a></li>
-    </ul>
-
-    <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-lock"></i> Acesso Policial
+  <main class="notice-card">
+    <img src="../public/images/Logo_policia.png" alt="Logo Pol�cia" class="logo">
+    <div class="icon">
+      <i class="fa-solid fa-circle-exclamation"></i>
+    </div>
+    <h1>Departamento Federal Desativado</h1>
+    <p>
+      No momento, a p�gina da Pol�cia Federal est� desativada e indispon�vel para acesso.
+      Voc� ser� redirecionado automaticamente para a p�gina inicial da Central de Pol�cia.
+    </p>
+    <p class="timer">
+      Redirecionando em <strong id="countdown">10</strong> segundos...
+    </p>
+    <div class="actions">
+      <a href="../index.html" class="button">
+        <i class="fa-solid fa-house"></i>
+        Ir agora para a p�gina inicial
       </a>
-      <div id="user-area" class="user-area">
-        <button id="btn-login" class="btn-login" onclick="window.location.href='/api/auth'">
-          <i class="fa-brands fa-discord"></i> Login
-        </button>
-      </div>
     </div>
-  </nav>
-
-  <header class="hero" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(15, 23, 42, 1)), url('images/Mural_PF.png'); background-size: cover; background-position: center;">
-    <div class="hero-content">
-      <h1 class="glitch-effect" data-text="POLÍCIA FEDERAL">POLÍCIA FEDERAL</h1>
-      <p>Servir, bem servido, preservando o Direito e a Ordem, neste povo feliz e aguerrido, que abjura, com horror, a desordem.</p>
-    </div>
-  </header>
-
-  <main>
-    <section class="container">
-      <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
-
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="color: white; text-transform: uppercase;">
-            <span class="dept-title">
-              <img src="../public/images/Logo_policia.png" alt="Logo PF" class="dept-title-logo">
-              DEPARTAMENTO DE POLÍCIA FEDERAL
-              <img src="../public/images/Logo_policia.png" alt="Logo PF" class="dept-title-logo">
-            </span>
-          </h2>
-        </div>
-
-        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
-          A Polícia Federal (PF) é a elite investigativa, atuando diretamente em crimes contra a União, corrupção, lavagem de dinheiro, tráfico internacional de drogas e terrorismo. Nossa missão é garantir a lei acima de tudo.
-        </p>
-
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <h3 style="color: #94a3b8; margin-bottom: 10px;">Força Especial:</h3>
-        <div class="list-item">
-          <i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i>
-          <strong>COT</strong> (Comando de Operações Táticas) <i class="fa-solid fa-user-ninja"></i>
-        </div>
-
-        <h3 style="color: #94a3b8; margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>GPI</strong> (Pronta Intervenção) <i class="fa-solid fa-gun"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #94a3b8;"></i> <strong>CAOP</strong> (Comando Aéreo) <i class="fa-solid fa-plane"></i></div>
-
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <h3 class="gallery-title">Galeria Federal</h3>
-        <div class="gallery-grid">
-          <div class="gallery-item">
-            <img src="images/MOTO_PF.png" alt="Viatura PF">
-          </div>
-          <div class="gallery-item">
-            <img src="images/PF_COT.png" alt="COT em ação">
-          </div>
-          <div class="gallery-item">
-            <img src="images/PF_FORMACAO.png" alt="Esquadrão Antibombas">
-          </div>
-          <div class="gallery-item">
-            <img src="images/PF_VIATURA_CAT.png" alt="Viatura Tática">
-          </div>
-        </div>
-
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <p>📢 <span class="discord-highlight">Processo Seletivo</span></p>
-        <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
-          <li>Horário: Todos os dias em qualquer horário</li>
-        </ul>
-
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-
-        <p style="margin-bottom: 5px;"><strong>Fardamento masculino:</strong></p>
-        <div class="discord-code">
-          mascara 0 0; maos 0 0; calca 35 0; mochila 0 0; sapatos 10 0; acessorios 0 0; blusa 15 0; colete 55 0; jaqueta 42 0; oculos -1 0;
-        </div>
-
-        <p style="margin-bottom: 5px;"><strong>Fardamento masculino:</strong></p>
-        <div class="discord-code">
-          mascara -1 0; maos 0 0; calca 36 0; mochila -1 0; sapatos 11 0; acessorios -1 0; blusa 15 0; colete 54 0; jaqueta 43 0; oculos -1 0;
-        </div>
-
-        <div style="margin-top: 20px; text-align: center;">
-          <a href="https://docs.google.com/document/d/1LjumUUiUuDc7Kmeo3qnulLTboSZ_kEsdSugitsJ_OGk/edit?usp=sharing" class="btn-submit" style="display: inline-block; text-decoration: none; background-color: #f9d85cd9; border-color: #334155;">
-            <i class="fa-solid fa-book"></i> Ver Manual do Conscrito
-          </a>
-        </div>
-
-        <blockquote style="border-left: 4px solid #94a3b8; padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
-          ⚖️ Integridade, honra e competência técnica. A excelência é o nosso padrão.
-        </blockquote>
-
-      </div>
-    </section>
-
-    <section class="container commanders-section">
-      <h2 class="section-title"><i class="fa-solid fa-star"></i> Diretoria da Polícia Federal</h2>
-
-      <div id="pf-leadership" class="commanders-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
-          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: #94a3b8; margin-bottom: 15px;"></i>
-          <p>Carregando diretores...</p>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <footer class="main-footer">
-    <div class="footer-bottom">
-      <p>&copy; 2026 Polícia Revoada RJ. Departamento Federal.</p>
-    </div>
-  </footer>
+  <script>
+    let remainingSeconds = 10;
+    const countdown = document.getElementById("countdown");
 
-  <script src="../scripts/app.js"></script>
+    const intervalId = window.setInterval(() => {
+      remainingSeconds -= 1;
+      countdown.textContent = String(remainingSeconds);
+
+      if (remainingSeconds <= 0) {
+        window.clearInterval(intervalId);
+        window.location.href = "../index.html";
+      }
+    }, 1000);
+  </script>
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
