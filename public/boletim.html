@@ -25,9 +25,34 @@
     .boletim-hero {
       background: linear-gradient(120deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.7)),
         radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.25), transparent 55%);
-      min-height: 40vh;
-      display: flex;
+      min-height: auto;
+      padding: 48px 0 24px;
+    }
+
+    .boletim-hero-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .boletim-intro {
+      padding-top: 24px;
+    }
+
+    .boletim-kicker {
+      display: inline-flex;
       align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.26);
+      background: rgba(251, 191, 36, 0.08);
+      color: #f6d87a;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     .boletim-tags {
@@ -55,8 +80,86 @@
       border: 1px solid rgba(251, 191, 36, 0.25);
     }
 
+    .boletim-panel.hero-panel {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      background: linear-gradient(180deg, rgba(25, 32, 44, 0.98), rgba(19, 25, 35, 0.98));
+    }
+
     .boletim-panel .section-title {
       justify-content: flex-start;
+    }
+
+    .boletim-panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .boletim-panel-header .section-title {
+      margin-bottom: 0;
+    }
+
+    .boletim-panel-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.18);
+      color: #86efac;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .boletim-panel-subtitle {
+      margin: 0 0 18px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .boletim-checklist {
+      margin-top: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .boletim-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .boletim-check i {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(251, 191, 36, 0.12);
+      color: var(--boletim-accent);
+      flex-shrink: 0;
+    }
+
+    .boletim-check strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #f8fafc;
+    }
+
+    .boletim-check span {
+      color: #94a3b8;
+      line-height: 1.55;
+      font-size: 0.95rem;
     }
 
     .form-actions {
@@ -95,12 +198,21 @@
 
     @media (max-width: 768px) {
       .boletim-hero {
-        min-height: 32vh;
-        padding-top: 2rem;
+        padding-top: 28px;
       }
 
       .form-actions {
         justify-content: center;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .boletim-hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .boletim-intro {
+        padding-top: 0;
       }
     }
   </style>
@@ -149,88 +261,104 @@
   </nav>
 
   <header class="hero boletim-hero">
-    <div class="hero-content">
-      <h1 class="glitch-effect" data-text="BOLETIM DE OCORRÊNCIA">BOLETIM DE OCORRÊNCIA</h1>
-      <p>Registre sua ocorrência com apoio oficial e acompanhamento da Central.</p>
-      <div class="boletim-tags">
-        <span class="boletim-tag"><i class="fa-solid fa-user-shield"></i> Identificação obrigatória</span>
-        <span class="boletim-tag"><i class="fa-solid fa-clock"></i> Preenchimento rápido</span>
-        <span class="boletim-tag"><i class="fa-solid fa-shield-halved"></i> Atendimento seguro</span>
+    <div class="container">
+      <div class="boletim-hero-grid">
+        <div class="hero-content boletim-intro">
+          <span class="boletim-kicker"><i class="fa-solid fa-file-shield"></i> Registro Oficial</span>
+          <h1 class="glitch-effect" data-text="BOLETIM DE OCORRÊNCIA">BOLETIM DE OCORRÊNCIA</h1>
+          <p>Preencha o formulário oficial da Central para registrar a ocorrência com identificação validada e envio direto ao sistema policial.</p>
+          <div class="boletim-tags">
+            <span class="boletim-tag"><i class="fa-solid fa-user-shield"></i> Identificação obrigatória</span>
+            <span class="boletim-tag"><i class="fa-solid fa-clock"></i> Preenchimento rápido</span>
+            <span class="boletim-tag"><i class="fa-solid fa-shield-halved"></i> Atendimento seguro</span>
+          </div>
+          <div class="boletim-checklist">
+            <div class="boletim-check">
+              <i class="fa-solid fa-id-card"></i>
+              <div><strong>Tenha seus dados em mãos</strong><span>Nome, passaporte, telefone e horário aproximado ajudam a acelerar a análise do registro.</span></div>
+            </div>
+            <div class="boletim-check">
+              <i class="fa-solid fa-location-dot"></i>
+              <div><strong>Descreva o local com clareza</strong><span>Informe pontos de referência e o tipo de ocorrência para facilitar o encaminhamento correto.</span></div>
+            </div>
+            <div class="boletim-check">
+              <i class="fa-solid fa-video"></i>
+              <div><strong>Anexe prova em link quando houver</strong><span>Vídeos do YouTube ou Medal ajudam a complementar o relato e a triagem policial.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel form-panel boletim-panel hero-panel">
+          <div class="boletim-panel-header">
+            <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
+            <div class="boletim-panel-status"><i class="fa-solid fa-circle-check"></i><span>Pronto para envio</span></div>
+          </div>
+          <p class="boletim-panel-subtitle">Comece por aqui. O boletim será encaminhado com sua identidade confirmada e os dados informados no formulário abaixo.</p>
+          <form id="form-bo">
+            <div class="user-badge">
+              <img id="form-avatar" src="" alt="Avatar">
+              <div>
+                <span id="form-username">Usuário</span>
+                <small>Identidade Confirmada</small>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="input-group">
+                <label>Nome do Cidadão**</label>
+                <input type="text" name="nome" required placeholder="Ex: João da Silva">
+              </div>
+              <div class="input-group">
+                <label>Passaporte (ID)**</label>
+                <input type="number" name="passaporte" required placeholder="Ex: 1234">
+              </div>
+              <div class="input-group">
+                <label>Profissão (Opcional)</label>
+                <input type="text" name="profissao" placeholder="Ex: Mecânico, Entregador...">
+              </div>
+              <div class="input-group">
+                <label>Sexo**</label>
+                <select name="sexo" required>
+                  <option value="" disabled selected>Selecione...</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Telefone**</label>
+                <input type="text" name="telefone" required placeholder="Ex: 555-0100">
+              </div>
+              <div class="input-group">
+                <label>Horário Aproximado**</label>
+                <input type="datetime-local" name="horario" required>
+              </div>
+              <div class="input-group full-width">
+                <label>Local do Ocorrido**</label>
+                <input type="text" name="local" required placeholder="Ex: Praça Central, ao lado do banco">
+              </div>
+              <div class="input-group full-width">
+                <label>Ocorrência**</label>
+                <input type="text" name="ocorrencia" required placeholder="Ex: Roubo de Veículo">
+              </div>
+              <div class="input-group full-width">
+                <label>Itens Perdidos**</label>
+                <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
+              </div>
+              <div class="input-group full-width">
+                <label><i class="fa-brands fa-youtube" style="color: #ff0000; margin-right:5px;"></i> Link de Provas (YouTube/Medal)</label>
+                <input type="url" name="video_link" placeholder="Cole o link do vídeo aqui (Opcional)">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-paper-plane"></i> Enviar Ocorrência
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </header>
-
-  <main>
-    <section class="container">
-      <div class="glass-panel form-panel boletim-panel">
-        <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Registrar Ocorrência</h2>
-        <form id="form-bo">
-          <div class="user-badge">
-            <img id="form-avatar" src="" alt="Avatar">
-            <div>
-              <span id="form-username">Usuário</span>
-              <small>Identidade Confirmada</small>
-            </div>
-          </div>
-          <div class="form-grid">
-
-            <div class="input-group">
-              <label>Nome do Cidadão**</label>
-              <input type="text" name="nome" required placeholder="Ex: João da Silva">
-            </div>
-            <div class="input-group">
-              <label>Passaporte (ID)**</label>
-              <input type="number" name="passaporte" required placeholder="Ex: 1234">
-            </div>
-
-            <div class="input-group">
-              <label>Profissão (Opcional)</label>
-              <input type="text" name="profissao" placeholder="Ex: Mecânico, Entregador...">
-            </div>
-            <div class="input-group">
-              <label>Sexo**</label>
-              <select name="sexo" required>
-                <option value="" disabled selected>Selecione...</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label>Telefone**</label>
-              <input type="text" name="telefone" required placeholder="Ex: 555-0100">
-            </div>
-            <div class="input-group">
-              <label>Horário Aproximado**</label>
-              <input type="datetime-local" name="horario" required>
-            </div>
-            <div class="input-group full-width">
-              <label>Local do Ocorrido**</label>
-              <input type="text" name="local" required placeholder="Ex: Praça Central, ao lado do banco">
-            </div>
-            <div class="input-group full-width">
-              <label>Ocorrência**</label>
-              <input type="text" name="ocorrencia" required placeholder="Ex: Roubo de Veículo">
-            </div>
-            <div class="input-group full-width">
-              <label>Itens Perdidos**</label>
-              <textarea name="itens" rows="3" placeholder="Ex: R$ 5.000, 1 Celular, Chave do carro..."></textarea>
-            </div>
-            <div class="input-group full-width">
-              <label><i class="fa-brands fa-youtube" style="color: #ff0000; margin-right:5px;"></i> Link de Provas (YouTube/Medal)</label>
-              <input type="url" name="video_link" placeholder="Cole o link do vídeo aqui (Opcional)">
-            </div>
-
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-submit">
-              <i class="fa-solid fa-paper-plane"></i> Enviar Ocorrência
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-  </main>
 
   <footer class="main-footer">
     <div class="footer-content">
