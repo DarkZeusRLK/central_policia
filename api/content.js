@@ -81,6 +81,20 @@ function container(accentColor, components) {
   };
 }
 
+function mediaGalleryFromAttachments(attachments) {
+  const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+  if (!files.length) return null;
+
+  return {
+    type: 12,
+    items: files.map((attachment) => ({
+      media: {
+        url: `attachment://${attachment.name || "anexo.jpg"}`,
+      },
+    })),
+  };
+}
+
 async function sendDiscordMultipartMessage(channelId, botToken, payload, attachments) {
   const form = new FormData();
   const files = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
@@ -236,6 +250,7 @@ async function handleSubmitBlitz(req, res, env) {
 
   const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
   const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
+  const mediaGallery = mediaGalleryFromAttachments(attachments.slice(0, 1));
   const mainCard = container(0x1d4ed8, [
     textDisplay([
       "## 🚧 Central Policial | Relatório de Blitz",
@@ -264,6 +279,7 @@ async function handleSubmitBlitz(req, res, env) {
         ? "### 🖼️ Imagem\nA imagem da blitz foi enviada em anexo nesta mensagem."
         : "### 🖼️ Imagem\nNenhuma imagem anexada neste relatório."
     ),
+    ...(mediaGallery ? [mediaGallery] : []),
     separator(),
     textDisplay(`-# Relatório enviado por: ${reporter}`),
   ]);
@@ -607,6 +623,7 @@ async function handleSubmitPericia(req, res, env) {
   const reporter = data.authorId ? `<@${data.authorId}>` : data.authorName || "Sistema";
   const qraMentions = Array.isArray(data.qra_participantes) ? data.qra_participantes : [];
   const attachments = Array.isArray(data.imageAttachments) ? data.imageAttachments : [];
+  const mediaGallery = mediaGalleryFromAttachments(attachments);
   const mainCard = container(getPericiaAccentColor(data.tipo_pericia), [
     textDisplay([
       `## ${reportTemplate.title}`,
@@ -632,6 +649,7 @@ async function handleSubmitPericia(req, res, env) {
   mainCard.components.push(
     separator(),
     textDisplay(attachmentText),
+    ...(mediaGallery ? [mediaGallery] : []),
     separator(),
     textDisplay(`-# Relatório enviado por: ${reporter}`),
   );
