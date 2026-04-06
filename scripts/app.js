@@ -256,6 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================================== */
 const Notify = {
   container: null,
+  activeLoadingToast: null,
 
   init() {
     if (!document.querySelector(".notification-container")) {
@@ -269,6 +270,12 @@ const Notify = {
 
   show(message, type = "info") {
     if (!this.container) this.init();
+
+    if (type === "loading" && this.activeLoadingToast) {
+      this.activeLoadingToast.remove();
+      this.activeLoadingToast = null;
+    }
+
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
 
@@ -285,13 +292,28 @@ const Notify = {
         toast.style.animation = "slideIn 0.3s reverse forwards";
         setTimeout(() => toast.remove(), 300);
       }, 4000);
+    } else {
+      this.activeLoadingToast = toast;
     }
+
+    return toast;
+  },
+
+  clearLoading() {
+    if (!this.activeLoadingToast) return;
+    this.activeLoadingToast.style.animation = "slideIn 0.3s reverse forwards";
+    setTimeout(() => {
+      this.activeLoadingToast?.remove();
+      this.activeLoadingToast = null;
+    }, 300);
   },
 
   success(msg) {
+    this.clearLoading();
     this.show(msg, "success");
   },
   error(msg) {
+    this.clearLoading();
     this.show(msg, "error");
   },
   info(msg) {
@@ -767,10 +789,11 @@ async function handleBOSubmit(e) {
       e.target.reset();
       setTimeout(() => showSection("jornal"), 2000);
     } else {
-      throw new Error("Erro");
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.error || "Erro ao enviar boletim.");
     }
   } catch (error) {
-    Notify.error("Erro ao enviar.");
+    Notify.error(error.message || "Erro ao enviar.");
   }
 }
 

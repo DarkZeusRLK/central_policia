@@ -62,6 +62,84 @@ function formatDateTimeParts(value) {
   };
 }
 
+function ensureRevoadaLocation(value) {
+  const location = String(value || "").trim();
+  if (!location) return "local não informado em Revoada RJ";
+  if (/em\s+revoada\s*rj$/i.test(location)) return location;
+  return `${location} em Revoada RJ`;
+}
+
+function extractTextFromComponent(component, output = []) {
+  if (!component || typeof component !== "object") return output;
+
+  if (component.type === 10 && typeof component.content === "string") {
+    output.push(component.content);
+  }
+
+  if (Array.isArray(component.components)) {
+    component.components.forEach((child) => extractTextFromComponent(child, output));
+  }
+
+  if (Array.isArray(component.items)) {
+    component.items.forEach((child) => extractTextFromComponent(child, output));
+  }
+
+  return output;
+}
+
+async function fetchDiscordChannelMessages(channelId, botToken, limit = 100, before) {
+  const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
+  url.searchParams.set("limit", String(limit));
+  if (before) url.searchParams.set("before", before);
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bot ${botToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Discord recusou a leitura do canal: ${text}`);
+  }
+
+  return response.json();
+}
+
+async function getNextBoNumber(channelId, botToken, year) {
+  const targetYear = String(year);
+  let before = "";
+  let maxSequence = 0;
+
+  for (let page = 0; page < 10; page += 1) {
+    const messages = await fetchDiscordChannelMessages(channelId, botToken, 100, before);
+    if (!Array.isArray(messages) || !messages.length) break;
+
+    for (const message of messages) {
+      const chunks = [];
+      if (typeof message.content === "string") chunks.push(message.content);
+      if (Array.isArray(message.components)) {
+        message.components.forEach((component) => extractTextFromComponent(component, chunks));
+      }
+
+      const text = chunks.join("\n");
+      const regex = new RegExp(`${targetYear}-(\\d{4})`, "g");
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        const number = Number.parseInt(match[1], 10);
+        if (!Number.isNaN(number)) {
+          maxSequence = Math.max(maxSequence, number);
+        }
+      }
+    }
+
+    before = messages[messages.length - 1]?.id || "";
+    if (!before) break;
+  }
+
+  return `${targetYear}-${String(maxSequence + 1).padStart(4, "0")}`;
+}
+
 async function sendDiscordMessage(channelId, botToken, payload) {
   const response = await fetch(
     `${DISCORD_API_BASE}/channels/${channelId}/messages`,
@@ -581,16 +659,20 @@ async function handleSubmitBo(req, res, env) {
     return res.status(500).json({ error: "Erro no Servidor: Bot nÃ£o configurado." });
   }
 
+  if (!required(nome) || !required(passaporte) || !required(telefone) || !required(sexo) || !required(ocorrencia) || !required(local) || !required(horario) || !required(itens)) {
+    return res.status(400).json({ error: "Preencha todos os campos obrigatórios do boletim, incluindo os itens perdidos." });
+  }
+
   const anoAtual = new Date().getFullYear();
-  const protocolo = Math.floor(1000 + Math.random() * 9000);
-  const boNumero = `${anoAtual}-${protocolo}`;
+  const boNumero = await getNextBoNumber(DISCORD_CHANNEL_ID_BO, DISCORD_BOT_TOKEN, anoAtual);
 
   const eventDateTime = formatDateTimeParts(horario);
   const reporter = userId ? `<@${userId}>` : username || "Sistema";
+  const localFormatado = ensureRevoadaLocation(local);
   const declaracao = [
     `Eu, **${nome || "cidadão não identificado"}**, inscrito no **RG/Passaporte ${passaporte || "não informado"}**${profissao ? `, profissão declarada como **${profissao}**` : ""}, declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.`,
     "",
-    `O relato informa que, na data de **${eventDateTime.date}**, por volta de **${eventDateTime.time}**, ocorreu um fato descrito como **${ocorrencia || "ocorrência não informada"}**, nas imediações de **${local || "local não informado"}**.`,
+    `O relato informa que, na data de **${eventDateTime.date}**, por volta de **${eventDateTime.time}**, ocorreu um fato descrito como **${ocorrencia || "ocorrência não informada"}**, nas imediações de **${localFormatado}**.`,
     "",
     `Registro ainda que os bens ou objetos mencionados neste atendimento correspondem a **${itens || "itens não descritos"}**, ficando a presente declaração sujeita à confirmação documental, checagem da autoridade policial e eventual complementação probatória quando necessário.`,
   ].join("\n");
@@ -611,6 +693,7 @@ async function handleSubmitBo(req, res, env) {
           `- **RG/Passaporte:** ${passaporte || "Não informado"}`,
           `- **Telefone:** ${telefone || "Não informado"}`,
           `- **Sexo:** ${sexo || "Não informado"}`,
+          `- **Local informado:** ${localFormatado}`,
         ].join("\n")),
         separator(),
         textDisplay(`### 📝 Declaração Formal\n${declaracao}`),
