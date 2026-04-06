@@ -128,43 +128,84 @@
       line-height: 1.6;
     }
 
-    .boletim-checklist {
-      margin-top: 24px;
-      display: grid;
-      gap: 14px;
+    .boletim-document {
+      margin-top: 26px;
+      padding: 28px;
+      border-radius: 24px;
+      border: 1px solid rgba(251, 191, 36, 0.18);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+        rgba(10, 15, 24, 0.78);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
     }
 
-    .boletim-check {
+    .boletim-document-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .boletim-document-title {
+      display: flex;
+      align-items: center;
       gap: 12px;
-      padding: 16px 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .boletim-check i {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      background: rgba(251, 191, 36, 0.12);
-      color: var(--boletim-accent);
-      flex-shrink: 0;
-    }
-
-    .boletim-check strong {
-      display: block;
-      margin-bottom: 4px;
+      font-size: 1.05rem;
+      font-weight: 700;
       color: #f8fafc;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
-    .boletim-check span {
+    .boletim-document-title i {
+      color: var(--boletim-accent);
+    }
+
+    .boletim-document-seal {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.24);
+      background: rgba(251, 191, 36, 0.08);
+      color: #f6d87a;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .boletim-document-body {
+      color: #dbe4f0;
+      line-height: 1.9;
+      font-size: 1rem;
+      text-align: justify;
+      white-space: pre-line;
+    }
+
+    .boletim-document-body strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .boletim-document-footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.14);
+      display: grid;
+      gap: 8px;
       color: #94a3b8;
-      line-height: 1.55;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+    }
+
+    .boletim-document-footer span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .boletim-document-footer i {
+      color: var(--boletim-accent);
     }
 
     .form-actions {
@@ -285,18 +326,24 @@
             <span class="boletim-tag"><i class="fa-solid fa-clock"></i> Preenchimento rápido</span>
             <span class="boletim-tag"><i class="fa-solid fa-shield-halved"></i> Atendimento seguro</span>
           </div>
-          <div class="boletim-checklist">
-            <div class="boletim-check">
-              <i class="fa-solid fa-id-card"></i>
-              <div><strong>Tenha seus dados em mãos</strong><span>Nome, passaporte, telefone e horário aproximado ajudam a acelerar a análise do registro.</span></div>
+          <div class="boletim-document" aria-live="polite">
+            <div class="boletim-document-header">
+              <div class="boletim-document-title">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>Prévia da Declaração</span>
+              </div>
+              <span class="boletim-document-seal">Documento preliminar</span>
             </div>
-            <div class="boletim-check">
-              <i class="fa-solid fa-location-dot"></i>
-              <div><strong>Descreva o local com clareza</strong><span>Informe pontos de referência e o tipo de ocorrência para facilitar o encaminhamento correto.</span></div>
+            <div id="boletim-preview" class="boletim-document-body">
+              Eu, <strong>cidadão não identificado</strong>, declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
+
+              O relato informa que, na data de <strong>data não preenchida</strong>, por volta de <strong>horário não informado</strong>, ocorreu um fato descrito como <strong>ocorrência não informada</strong>, nas imediações de <strong>local não informado</strong>.
+
+              Registro ainda que os bens ou objetos mencionados neste atendimento correspondem a <strong>itens não descritos</strong>, ficando a presente declaração sujeita à confirmação documental e à análise da autoridade competente.
             </div>
-            <div class="boletim-check">
-              <i class="fa-solid fa-video"></i>
-              <div><strong>Anexe prova em link quando houver</strong><span>Vídeos do YouTube ou Medal ajudam a complementar o relato e a triagem policial.</span></div>
+            <div class="boletim-document-footer">
+              <span><i class="fa-solid fa-user-check"></i> A identidade do comunicante será vinculada ao envio autenticado pelo Discord.</span>
+              <span><i class="fa-solid fa-scale-balanced"></i> O texto é atualizado automaticamente conforme os campos obrigatórios forem preenchidos.</span>
             </div>
           </div>
         </div>
@@ -418,6 +465,8 @@
   <script src="../scripts/app.js"></script>
   <script>
     const inputTelefone = document.querySelector('input[name="telefone"]');
+    const formBo = document.getElementById('form-bo');
+    const previewEl = document.getElementById('boletim-preview');
 
     if (inputTelefone) {
       inputTelefone.addEventListener('input', function (e) {
@@ -431,6 +480,52 @@
 
         e.target.value = value;
       });
+    }
+
+    function formatDateTimePreview(value) {
+      if (!value) {
+        return {
+          date: 'data não preenchida',
+          time: 'horário não informado'
+        };
+      }
+
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) {
+        return {
+          date: 'data não preenchida',
+          time: 'horário não informado'
+        };
+      }
+
+      return {
+        date: parsed.toLocaleDateString('pt-BR'),
+        time: parsed.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      };
+    }
+
+    function updateBoletimPreview() {
+      if (!formBo || !previewEl) return;
+
+      const formData = new FormData(formBo);
+      const nome = (formData.get('nome') || '').toString().trim() || 'cidadão não identificado';
+      const ocorrencia = (formData.get('ocorrencia') || '').toString().trim() || 'ocorrência não informada';
+      const local = (formData.get('local') || '').toString().trim() || 'local não informado';
+      const itens = (formData.get('itens') || '').toString().trim() || 'itens não descritos';
+      const profissao = (formData.get('profissao') || '').toString().trim();
+      const horario = formatDateTimePreview((formData.get('horario') || '').toString());
+
+      previewEl.innerHTML = `Eu, <strong>${nome}</strong>${profissao ? `, profissão declarada como <strong>${profissao}</strong>,` : ','} declaro para os devidos fins que compareço perante a Central de Polícia para registrar formalmente uma ocorrência.
+
+O relato informa que, na data de <strong>${horario.date}</strong>, por volta de <strong>${horario.time}</strong>, ocorreu um fato descrito como <strong>${ocorrencia}</strong>, nas imediações de <strong>${local}</strong>.
+
+Registro ainda que os bens ou objetos mencionados neste atendimento correspondem a <strong>${itens}</strong>, ficando a presente declaração sujeita à confirmação documental, checagem da autoridade policial e eventual complementação probatória quando necessário.`;
+    }
+
+    if (formBo) {
+      formBo.addEventListener('input', updateBoletimPreview);
+      formBo.addEventListener('change', updateBoletimPreview);
+      updateBoletimPreview();
     }
   </script>
 </body>
