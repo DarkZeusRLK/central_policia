@@ -12,9 +12,8 @@ export default async function handler(req, res) {
     console.error("Erro em /api/operational:", error);
     return res.status(503).json({
       error:
-        "Não foi possível carregar o Painel Operacional agora. Verifique a conexão com o MongoDB e tente novamente.",
+        "Não foi possível carregar o Painel Operacional agora. Tente novamente em instantes.",
       details: error.message,
     });
   }
 }
-

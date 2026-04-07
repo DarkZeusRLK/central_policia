@@ -211,6 +211,19 @@
         font-size: .84rem;
         font-weight: 800;
       }
+      .ops-person {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ops-person-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid rgba(255,255,255,.1);
+        background: rgba(255,255,255,.04);
+      }
       .ops-item-title { font-weight: 700; color: var(--text); }
       .ops-item-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
       .ops-item-value { color: #f8e7a6; font-weight: 800; white-space: nowrap; }
@@ -382,56 +395,52 @@
         <section id="sec-home" class="dash-section hidden">
           <div class="section-card">
             <h1 class="page-title">Painel Operacional</h1>
-            <p class="page-subtitle">Leitura consolidada do MongoDB em modo somente leitura, usando o schema real de estatísticas policiais e contagem de recrutamentos.</p>
+            <p class="page-subtitle">Acompanhe os principais indicadores operacionais da central com consolidação automática dos registros disponíveis.</p>
 
             <div class="ops-toolbar">
               <div class="ops-meta">
-                <span id="ops-source-badge" class="ops-badge"><i class="fa-solid fa-database"></i><span>MongoDB aguardando configuração</span></span>
+                <span id="ops-source-badge" class="ops-badge"><i class="fa-solid fa-chart-line"></i><span>Painel operacional aguardando atualização</span></span>
                 <span id="ops-updated-badge" class="ops-badge"><i class="fa-regular fa-clock"></i><span>Sem sincronização recente</span></span>
               </div>
               <button id="ops-refresh-button" type="button" class="action-button"><i class="fa-solid fa-rotate"></i><span>Atualizar painel</span></button>
             </div>
 
             <div id="ops-warning-box" class="ops-panel hidden" style="margin-top: 20px;">
-              <h3><i class="fa-solid fa-triangle-exclamation"></i> Observações da descoberta automática</h3>
+              <h3><i class="fa-solid fa-triangle-exclamation"></i> Avisos da central</h3>
               <ul id="ops-warning-list" class="ops-warning-list"></ul>
             </div>
 
             <div id="ops-overview-grid" class="ops-grid">
               <article class="ops-card quick-card"><span><i class="fa-solid fa-handcuffs"></i></span><div class="ops-card-label">Total de prisões</div><h3 id="ops-total-arrests" class="ops-card-value">--</h3><small id="ops-total-arrests-meta">Aguardando leitura do canal de prisões.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-road-barrier"></i></span><div class="ops-card-label">Total de blitz</div><h3 id="ops-total-blitz" class="ops-card-value">--</h3><small id="ops-total-blitz-meta">Aguardando leitura da coleção de estatísticas.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-bullseye"></i></span><div class="ops-card-label">Ações marcadas</div><h3 id="ops-total-actions" class="ops-card-value">--</h3><small id="ops-total-actions-meta">Aguardando leitura da coleção de estatísticas.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-user-plus"></i></span><div class="ops-card-label">Recrutamentos</div><h3 id="ops-total-recruitments" class="ops-card-value">--</h3><small id="ops-total-recruitments-meta">Aguardando leitura da coleção de recrutamentos.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-road-barrier"></i></span><div class="ops-card-label">Total de blitz</div><h3 id="ops-total-blitz" class="ops-card-value">--</h3><small id="ops-total-blitz-meta">Aguardando consolidação operacional.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-bullseye"></i></span><div class="ops-card-label">Ações marcadas</div><h3 id="ops-total-actions" class="ops-card-value">--</h3><small id="ops-total-actions-meta">Aguardando consolidação operacional.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-user-plus"></i></span><div class="ops-card-label">Recrutamentos</div><h3 id="ops-total-recruitments" class="ops-card-value">--</h3><small id="ops-total-recruitments-meta">Aguardando consolidação operacional.</small></article>
             </div>
 
             <div class="ops-panels">
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-trophy"></i> Ranking de policiais com mais prisões</h3>
-                <div id="ops-arrests-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <div id="ops-arrests-ranking" class="ops-empty-state">As métricas serão exibidas assim que o painel concluir a leitura operacional.</div>
               </section>
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-road-barrier"></i> Ranking de policiais com mais blitz</h3>
-                <div id="ops-blitz-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <div id="ops-blitz-ranking" class="ops-empty-state">As métricas serão exibidas assim que o painel concluir a leitura operacional.</div>
               </section>
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-list-check"></i> Ranking de ações marcadas</h3>
-                <div id="ops-actions-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <div id="ops-actions-ranking" class="ops-empty-state">As métricas serão exibidas assim que o painel concluir a leitura operacional.</div>
               </section>
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-shield-cat"></i> Ranking de operações CAT</h3>
-                <div id="ops-cat-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <div id="ops-cat-ranking" class="ops-empty-state">As métricas serão exibidas assim que o painel concluir a leitura operacional.</div>
               </section>
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-user-plus"></i> Ranking de recrutamentos</h3>
-                <div id="ops-recruitments-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <div id="ops-recruitments-ranking" class="ops-empty-state">As métricas serão exibidas assim que o painel concluir a leitura operacional.</div>
               </section>
               <section class="ops-panel">
                 <h3><i class="fa-solid fa-chart-column"></i> Resumo consolidado</h3>
                 <div id="ops-period-summary" class="ops-empty-state">Os totais consolidados de fianças, banco de dados e policiais monitorados aparecerão aqui.</div>
-              </section>
-              <section class="ops-panel">
-                <h3><i class="fa-solid fa-code-branch"></i> Coleções utilizadas</h3>
-                <div id="ops-collections-summary" class="ops-empty-state">A identificação das coleções reais do MongoDB aparecerá aqui após a primeira consulta.</div>
               </section>
             </div>
           </div>
@@ -830,22 +839,25 @@
         const container = document.getElementById(containerId);
         if (!container) return;
         if (!Array.isArray(items) || !items.length) {
-          container.innerHTML = '<div class="ops-empty-state">Nenhum dado compatível foi encontrado para esta métrica no schema atual.</div>';
+          container.innerHTML = '<div class="ops-empty-state">Nenhum dado compatível foi encontrado para esta métrica no momento.</div>';
           return;
         }
 
         const subtitle = containerId === "ops-arrests-ranking"
-          ? "Ranking prisional consolidado pela base operacional"
+          ? "Resultados consolidados da central"
           : containerId === "ops-recruitments-ranking"
-            ? "Ranking consolidado dos recrutamentos registrados"
-            : "Fonte operacional consolidada para o painel";
+            ? "Resultados consolidados dos recrutamentos"
+            : "Resultados consolidados da central";
 
         container.innerHTML = `<ol class="ops-ranking-list">${items.map((item, index) => `
           <li class="ops-ranking-item">
             <span class="ops-rank-number">${index + 1}</span>
-            <div>
-              <span class="ops-item-title">${item.officer || "Não identificado"}</span>
-              <span class="ops-item-subtitle">${subtitle}</span>
+            <div class="ops-person">
+              <img class="ops-person-avatar" src="${item.avatarUrl || "images/Logo_policia.png"}" alt="${item.officer || "Policial"}" loading="lazy" decoding="async" />
+              <div>
+                <span class="ops-item-title">${item.officer || "Não identificado"}</span>
+                <span class="ops-item-subtitle">${subtitle}</span>
+              </div>
             </div>
             <span class="ops-item-value">${formatOperationalNumber(item[valueKey], suffix)}</span>
           </li>`).join("")}</ol>`;
@@ -862,7 +874,7 @@
         ].filter((item) => item.total !== null && item.total !== undefined);
 
         if (!summaryItems.length) {
-          container.innerHTML = '<div class="ops-empty-state">Nenhum resumo adicional foi encontrado nas coleções informadas.</div>';
+          container.innerHTML = '<div class="ops-empty-state">Nenhum resumo adicional foi encontrado nesta atualização.</div>';
           return;
         }
 
@@ -870,26 +882,6 @@
           <article class="ops-period-card">
             <strong>${formatOperationalNumber(item.total)}</strong>
             <span>${item.label}</span>
-          </article>`).join("")}</div>`;
-      }
-
-      function renderOperationalCollections(collections, sources) {
-        const container = document.getElementById("ops-collections-summary");
-        if (!container) return;
-        if (!Array.isArray(collections) || !collections.length) {
-          container.innerHTML = '<div class="ops-empty-state">As bases operacionais conectadas não puderam ser identificadas automaticamente.</div>';
-          return;
-        }
-
-        container.innerHTML = `<div class="ops-collection-list">${collections.slice(0, 8).map((collection) => `
-          <article class="ops-collection-item">
-            <strong>${collection.type || "Base operacional"}</strong>
-            <div class="ops-item-subtitle">Fonte inferida: ${
-              sources?.policeStats === collection.name ? "Estatísticas policiais" :
-              sources?.recruitments === collection.name ? "Recrutamentos" :
-              "Consulta complementar"
-            }</div>
-            <div class="ops-item-subtitle">Campos disponíveis: <code>${(collection.fields || []).slice(0, 5).join(", ") || "nenhum campo amostrado"}</code></div>
           </article>`).join("")}</div>`;
       }
 
@@ -915,17 +907,17 @@
         operationalDashboardState.lastPayload = payload;
 
         document.getElementById("ops-total-arrests").textContent = formatOperationalNumber(payload?.metrics?.totalArrests);
-        document.getElementById("ops-total-arrests-meta").textContent = payload?.sources?.arrestsChannelId ? "Contagem baseada nos registros enviados ao canal de prisões." : "Canal de prisões indisponível no momento.";
+        document.getElementById("ops-total-arrests-meta").textContent = payload?.metrics?.totalArrests !== null && payload?.metrics?.totalArrests !== undefined ? "Total atualizado conforme os registros disponíveis da central." : "Total indisponível no momento.";
         document.getElementById("ops-total-blitz").textContent = formatOperationalNumber(payload?.metrics?.totalBlitz);
-        document.getElementById("ops-total-blitz-meta").textContent = payload?.sources?.policeStats ? "Total consolidado a partir da base operacional em leitura." : "Base operacional indisponível no momento.";
+        document.getElementById("ops-total-blitz-meta").textContent = payload?.metrics?.totalBlitz !== null && payload?.metrics?.totalBlitz !== undefined ? "Total consolidado das operações registradas." : "Total indisponível no momento.";
         document.getElementById("ops-total-actions").textContent = formatOperationalNumber(payload?.metrics?.totalMarkedActions);
-        document.getElementById("ops-total-actions-meta").textContent = payload?.sources?.policeStats ? "Total consolidado de ações marcadas pela base operacional." : "Base operacional indisponível no momento.";
+        document.getElementById("ops-total-actions-meta").textContent = payload?.metrics?.totalMarkedActions !== null && payload?.metrics?.totalMarkedActions !== undefined ? "Total consolidado das ações registradas." : "Total indisponível no momento.";
         document.getElementById("ops-total-recruitments").textContent = formatOperationalNumber(payload?.metrics?.totalRecruitments);
-        document.getElementById("ops-total-recruitments-meta").textContent = payload?.sources?.recruitments ? "Ranking e total de recrutamentos lidos em modo somente consulta." : "Base de recrutamentos indisponível no momento.";
+        document.getElementById("ops-total-recruitments-meta").textContent = payload?.metrics?.totalRecruitments !== null && payload?.metrics?.totalRecruitments !== undefined ? "Total consolidado dos recrutamentos registrados." : "Total indisponível no momento.";
 
         const sourceBadge = document.getElementById("ops-source-badge");
         const updatedBadge = document.getElementById("ops-updated-badge");
-        if (sourceBadge) sourceBadge.innerHTML = `<i class="fa-solid fa-database"></i><span>${payload?.databaseName ? `MongoDB conectado em ${payload.databaseName}` : "MongoDB sem database identificado"}</span>`;
+        if (sourceBadge) sourceBadge.innerHTML = `<i class="fa-solid fa-chart-line"></i><span>Painel operacional sincronizado</span>`;
         if (updatedBadge) updatedBadge.innerHTML = `<i class="fa-regular fa-clock"></i><span>${payload?.generatedAt ? `Atualizado em ${formatOperationalDate(payload.generatedAt)}` : "Sem sincronização recente"}</span>`;
 
         renderOperationalRanking("ops-arrests-ranking", payload?.metrics?.topArrestOfficers, "value");
@@ -934,13 +926,12 @@
         renderOperationalRanking("ops-cat-ranking", payload?.metrics?.topCatOperationOfficers, "value");
         renderOperationalRanking("ops-recruitments-ranking", payload?.metrics?.topRecruitmentOfficers, "value");
         renderOperationalPeriodSummary(payload);
-        renderOperationalCollections(payload?.collections, payload?.sources);
         renderOperationalWarnings(payload?.warnings);
       }
 
       function renderOperationalDashboardError(message) {
         const safeMessage = message || "Não foi possível carregar o Painel Operacional.";
-        ["ops-arrests-ranking", "ops-blitz-ranking", "ops-actions-ranking", "ops-cat-ranking", "ops-recruitments-ranking", "ops-period-summary", "ops-collections-summary"].forEach((id) => {
+        ["ops-arrests-ranking", "ops-blitz-ranking", "ops-actions-ranking", "ops-cat-ranking", "ops-recruitments-ranking", "ops-period-summary"].forEach((id) => {
           const element = document.getElementById(id);
           if (element) element.innerHTML = `<div class="ops-empty-state">${safeMessage}</div>`;
         });
@@ -971,14 +962,14 @@
           const response = await fetch("/api/operational");
           const payload = await response.json().catch(() => ({}));
           if (!response.ok) {
-            throw new Error(payload.error || payload.details || "Falha ao carregar dados operacionais.");
+            throw new Error(payload.error || payload.details || "Falha ao carregar o painel operacional.");
           }
 
           renderOperationalDashboard(payload);
           operationalDashboardState.loaded = true;
         } catch (error) {
           console.error("Erro ao carregar Painel Operacional:", error);
-          renderOperationalDashboardError(error.message || "Falha ao consultar o MongoDB.");
+          renderOperationalDashboardError(error.message || "Falha ao consultar o painel operacional.");
         } finally {
           operationalDashboardState.loading = false;
           if (refreshButton) {
