@@ -382,7 +382,7 @@
         <section id="sec-home" class="dash-section hidden">
           <div class="section-card">
             <h1 class="page-title">Painel Operacional</h1>
-            <p class="page-subtitle">Leitura consolidada de dados operacionais do MongoDB em modo somente leitura, com métricas, rankings, atividades recentes e descoberta automática de schema.</p>
+            <p class="page-subtitle">Leitura consolidada do MongoDB em modo somente leitura, usando o schema real de estatísticas policiais e contagem de recrutamentos.</p>
 
             <div class="ops-toolbar">
               <div class="ops-meta">
@@ -398,10 +398,10 @@
             </div>
 
             <div id="ops-overview-grid" class="ops-grid">
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-handcuffs"></i></span><div class="ops-card-label">Total de prisões</div><h3 id="ops-total-arrests" class="ops-card-value">--</h3><small id="ops-total-arrests-meta">Aguardando leitura da base operacional.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-road"></i></span><div class="ops-card-label">Horas patrulhadas</div><h3 id="ops-total-hours" class="ops-card-value">--</h3><small id="ops-total-hours-meta">Aguardando leitura da base operacional.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-bullseye"></i></span><div class="ops-card-label">Ações operacionais</div><h3 id="ops-total-actions" class="ops-card-value">--</h3><small id="ops-total-actions-meta">Abordagens, apreensões ou outras ações encontradas.</small></article>
-              <article class="ops-card quick-card"><span><i class="fa-solid fa-layer-group"></i></span><div class="ops-card-label">Coleções lidas</div><h3 id="ops-total-collections" class="ops-card-value">--</h3><small id="ops-total-collections-meta">Estrutura descoberta automaticamente em modo leitura.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-handcuffs"></i></span><div class="ops-card-label">Total de prisões</div><h3 id="ops-total-arrests" class="ops-card-value">--</h3><small id="ops-total-arrests-meta">Aguardando leitura da coleção de estatísticas.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-road-barrier"></i></span><div class="ops-card-label">Total de blitz</div><h3 id="ops-total-blitz" class="ops-card-value">--</h3><small id="ops-total-blitz-meta">Aguardando leitura da coleção de estatísticas.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-bullseye"></i></span><div class="ops-card-label">Ações marcadas</div><h3 id="ops-total-actions" class="ops-card-value">--</h3><small id="ops-total-actions-meta">Aguardando leitura da coleção de estatísticas.</small></article>
+              <article class="ops-card quick-card"><span><i class="fa-solid fa-user-plus"></i></span><div class="ops-card-label">Recrutamentos</div><h3 id="ops-total-recruitments" class="ops-card-value">--</h3><small id="ops-total-recruitments-meta">Aguardando leitura da coleção de recrutamentos.</small></article>
             </div>
 
             <div class="ops-panels">
@@ -410,24 +410,28 @@
                 <div id="ops-arrests-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
               </section>
               <section class="ops-panel">
-                <h3><i class="fa-solid fa-stopwatch"></i> Ranking de policiais com mais horas patrulhadas</h3>
-                <div id="ops-hours-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
+                <h3><i class="fa-solid fa-road-barrier"></i> Ranking de policiais com mais blitz</h3>
+                <div id="ops-blitz-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
               </section>
               <section class="ops-panel">
-                <h3><i class="fa-solid fa-list-check"></i> Ranking de ações operacionais</h3>
+                <h3><i class="fa-solid fa-list-check"></i> Ranking de ações marcadas</h3>
                 <div id="ops-actions-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
               </section>
               <section class="ops-panel">
-                <h3><i class="fa-solid fa-chart-column"></i> Resumo geral por período</h3>
-                <div id="ops-period-summary" class="ops-empty-state">O resumo por período depende de um campo de data identificado no banco.</div>
+                <h3><i class="fa-solid fa-shield-cat"></i> Ranking de operações CAT</h3>
+                <div id="ops-cat-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
               </section>
               <section class="ops-panel">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas atividades operacionais</h3>
-                <div id="ops-latest-activities" class="ops-empty-state">As últimas atividades aparecerão aqui quando a leitura estiver disponível.</div>
+                <h3><i class="fa-solid fa-user-plus"></i> Ranking de recrutamentos</h3>
+                <div id="ops-recruitments-ranking" class="ops-empty-state">As métricas serão exibidas assim que a leitura do MongoDB estiver disponível.</div>
               </section>
               <section class="ops-panel">
-                <h3><i class="fa-solid fa-code-branch"></i> Schema descoberto automaticamente</h3>
-                <div id="ops-collections-summary" class="ops-empty-state">A inspeção de coleções e campos será exibida aqui após a primeira consulta.</div>
+                <h3><i class="fa-solid fa-chart-column"></i> Resumo consolidado</h3>
+                <div id="ops-period-summary" class="ops-empty-state">Os totais consolidados de fianças, banco de dados e policiais monitorados aparecerão aqui.</div>
+              </section>
+              <section class="ops-panel">
+                <h3><i class="fa-solid fa-code-branch"></i> Coleções utilizadas</h3>
+                <div id="ops-collections-summary" class="ops-empty-state">A identificação das coleções reais do MongoDB aparecerá aqui após a primeira consulta.</div>
               </section>
             </div>
           </div>
@@ -841,36 +845,25 @@
           </li>`).join("")}</ol>`;
       }
 
-      function renderOperationalActivities(items) {
-        const container = document.getElementById("ops-latest-activities");
-        if (!container) return;
-        if (!Array.isArray(items) || !items.length) {
-          container.innerHTML = '<div class="ops-empty-state">Nenhuma atividade recente compatível foi identificada no banco.</div>';
-          return;
-        }
-
-        container.innerHTML = `<ul class="ops-activity-list">${items.map((item) => `
-          <li class="ops-activity-item">
-            <div>
-              <span class="ops-item-title">${item.activityType || item.source || "Atividade operacional"}</span>
-              <span class="ops-item-subtitle">${item.officer || "Não identificado"} • ${item.description || "Registro operacional"} • ${item.source || "origem não identificada"}</span>
-            </div>
-            <span class="ops-item-value">${formatOperationalDate(item.eventDate)}</span>
-          </li>`).join("")}</ul>`;
-      }
-
-      function renderOperationalPeriodSummary(items) {
+      function renderOperationalPeriodSummary(payload) {
         const container = document.getElementById("ops-period-summary");
         if (!container) return;
-        if (!Array.isArray(items) || !items.length) {
-          container.innerHTML = '<div class="ops-empty-state">Não foi possível gerar resumo por período com o schema atual. Isso normalmente depende de um campo de data em formato compatível.</div>';
+        const summaryItems = [
+          { label: "Fianças", total: payload?.metrics?.totalBail },
+          { label: "Banco de Dados", total: payload?.metrics?.totalDatabaseActions },
+          { label: "Operações CAT", total: payload?.metrics?.totalCatOperations },
+          { label: "Policiais Monitorados", total: payload?.metrics?.totalTrackedOfficers },
+        ].filter((item) => item.total !== null && item.total !== undefined);
+
+        if (!summaryItems.length) {
+          container.innerHTML = '<div class="ops-empty-state">Nenhum resumo adicional foi encontrado nas coleções informadas.</div>';
           return;
         }
 
-        container.innerHTML = `<div class="ops-period-grid">${items.map((item) => `
+        container.innerHTML = `<div class="ops-period-grid">${summaryItems.map((item) => `
           <article class="ops-period-card">
             <strong>${formatOperationalNumber(item.total)}</strong>
-            <span>${item.period || "Período não identificado"}</span>
+            <span>${item.label}</span>
           </article>`).join("")}</div>`;
       }
 
@@ -887,9 +880,8 @@
             <strong>${collection.name}</strong>
             <div class="ops-item-subtitle">Documentos estimados: ${formatOperationalNumber(collection.estimatedDocumentCount)}</div>
             <div class="ops-item-subtitle">Fonte inferida: ${
-              sources?.arrests === collection.name ? "Prisões" :
-              sources?.patrol === collection.name ? "Patrulhamento" :
-              sources?.actions === collection.name ? "Ações operacionais" :
+              sources?.policeStats === collection.name ? "Estatísticas policiais" :
+              sources?.recruitments === collection.name ? "Recrutamentos" :
               "Apenas descoberta de schema"
             }</div>
             <div class="ops-item-subtitle">Campos detectados: <code>${(collection.fields || []).slice(0, 5).map((field) => field.path).join(", ") || "nenhum campo amostrado"}</code></div>
@@ -918,44 +910,43 @@
         operationalDashboardState.lastPayload = payload;
 
         document.getElementById("ops-total-arrests").textContent = formatOperationalNumber(payload?.metrics?.totalArrests);
-        document.getElementById("ops-total-arrests-meta").textContent = payload?.sources?.arrests ? `Coleção-base: ${payload.sources.arrests}` : "Coleção de prisões não identificada automaticamente.";
-        document.getElementById("ops-total-hours").textContent = formatOperationalNumber(payload?.metrics?.totalPatrolHours, "h");
-        document.getElementById("ops-total-hours-meta").textContent = payload?.sources?.patrol ? `Coleção-base: ${payload.sources.patrol}` : "Coleção de patrulhamento não identificada automaticamente.";
-        document.getElementById("ops-total-actions").textContent = formatOperationalNumber(payload?.metrics?.totalActions);
-        document.getElementById("ops-total-actions-meta").textContent = Array.isArray(payload?.metrics?.actionTypes) && payload.metrics.actionTypes.length
-          ? `Tipos encontrados: ${payload.metrics.actionTypes.slice(0, 4).join(", ")}`
-          : "Nenhum tipo de ação operacional identificado automaticamente.";
-        document.getElementById("ops-total-collections").textContent = formatOperationalNumber((payload?.collections || []).length);
-        document.getElementById("ops-total-collections-meta").textContent = `Banco: ${payload?.databaseName || "não identificado"}`;
+        document.getElementById("ops-total-arrests-meta").textContent = payload?.sources?.policeStats ? `Coleção-base: ${payload.sources.policeStats}` : "Coleção de estatísticas não identificada automaticamente.";
+        document.getElementById("ops-total-blitz").textContent = formatOperationalNumber(payload?.metrics?.totalBlitz);
+        document.getElementById("ops-total-blitz-meta").textContent = payload?.sources?.policeStats ? `Coleção-base: ${payload.sources.policeStats}` : "Coleção de estatísticas não identificada automaticamente.";
+        document.getElementById("ops-total-actions").textContent = formatOperationalNumber(payload?.metrics?.totalMarkedActions);
+        document.getElementById("ops-total-actions-meta").textContent = payload?.sources?.policeStats ? `Ações marcadas somadas da coleção ${payload.sources.policeStats}` : "Coleção de estatísticas não identificada automaticamente.";
+        document.getElementById("ops-total-recruitments").textContent = formatOperationalNumber(payload?.metrics?.totalRecruitments);
+        document.getElementById("ops-total-recruitments-meta").textContent = payload?.sources?.recruitments ? `Coleção-base: ${payload.sources.recruitments}` : "Coleção de recrutamentos não identificada automaticamente.";
 
         const sourceBadge = document.getElementById("ops-source-badge");
         const updatedBadge = document.getElementById("ops-updated-badge");
         if (sourceBadge) sourceBadge.innerHTML = `<i class="fa-solid fa-database"></i><span>${payload?.databaseName ? `MongoDB conectado em ${payload.databaseName}` : "MongoDB sem database identificado"}</span>`;
         if (updatedBadge) updatedBadge.innerHTML = `<i class="fa-regular fa-clock"></i><span>${payload?.generatedAt ? `Atualizado em ${formatOperationalDate(payload.generatedAt)}` : "Sem sincronização recente"}</span>`;
 
-        renderOperationalRanking("ops-arrests-ranking", payload?.metrics?.topArrestOfficers, "total");
-        renderOperationalRanking("ops-hours-ranking", payload?.metrics?.topPatrolOfficers, "totalHours", "h");
-        renderOperationalRanking("ops-actions-ranking", payload?.metrics?.topActionOfficers, "total");
-        renderOperationalActivities(payload?.metrics?.latestActivities);
-        renderOperationalPeriodSummary(payload?.metrics?.periodSummary);
+        renderOperationalRanking("ops-arrests-ranking", payload?.metrics?.topArrestOfficers, "value");
+        renderOperationalRanking("ops-blitz-ranking", payload?.metrics?.topBlitzOfficers, "value");
+        renderOperationalRanking("ops-actions-ranking", payload?.metrics?.topMarkedActionOfficers, "value");
+        renderOperationalRanking("ops-cat-ranking", payload?.metrics?.topCatOperationOfficers, "value");
+        renderOperationalRanking("ops-recruitments-ranking", payload?.metrics?.topRecruitmentOfficers, "value");
+        renderOperationalPeriodSummary(payload);
         renderOperationalCollections(payload?.collections, payload?.sources);
         renderOperationalWarnings(payload?.warnings);
       }
 
       function renderOperationalDashboardError(message) {
         const safeMessage = message || "Não foi possível carregar o Painel Operacional.";
-        ["ops-arrests-ranking", "ops-hours-ranking", "ops-actions-ranking", "ops-period-summary", "ops-latest-activities", "ops-collections-summary"].forEach((id) => {
+        ["ops-arrests-ranking", "ops-blitz-ranking", "ops-actions-ranking", "ops-cat-ranking", "ops-recruitments-ranking", "ops-period-summary", "ops-collections-summary"].forEach((id) => {
           const element = document.getElementById(id);
           if (element) element.innerHTML = `<div class="ops-empty-state">${safeMessage}</div>`;
         });
         document.getElementById("ops-total-arrests").textContent = "--";
-        document.getElementById("ops-total-hours").textContent = "--";
+        document.getElementById("ops-total-blitz").textContent = "--";
         document.getElementById("ops-total-actions").textContent = "--";
-        document.getElementById("ops-total-collections").textContent = "--";
+        document.getElementById("ops-total-recruitments").textContent = "--";
         document.getElementById("ops-total-arrests-meta").textContent = "Sem leitura disponível.";
-        document.getElementById("ops-total-hours-meta").textContent = "Sem leitura disponível.";
+        document.getElementById("ops-total-blitz-meta").textContent = "Sem leitura disponível.";
         document.getElementById("ops-total-actions-meta").textContent = "Sem leitura disponível.";
-        document.getElementById("ops-total-collections-meta").textContent = "Sem descoberta de schema.";
+        document.getElementById("ops-total-recruitments-meta").textContent = "Sem leitura disponível.";
         renderOperationalWarnings([safeMessage]);
       }
 
