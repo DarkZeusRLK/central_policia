@@ -7,10 +7,17 @@ function parseIdList(value) {
     .filter(Boolean);
 }
 
-function avatarUrlFromUser(user) {
-  return user.avatar
-    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
-    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discriminator || 0, 10) % 5}.png`;
+function avatarUrlFromMember(member, guildId) {
+  const user = member?.user || member;
+  if (member?.avatar && guildId && user?.id) {
+    return `https://cdn.discordapp.com/guilds/${guildId}/users/${user.id}/avatars/${member.avatar}.png?size=512`;
+  }
+
+  if (user?.avatar) {
+    return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`;
+  }
+
+  return `https://cdn.discordapp.com/embed/avatars/${parseInt(user?.discriminator || 0, 10) % 5}.png`;
 }
 
 function normalize(value) {
@@ -43,7 +50,7 @@ async function resolveMembersByIds(ids, botToken, guildId) {
       const user = memberData.user;
       return {
         username: memberData.nick || user.global_name || user.username,
-        avatarUrl: avatarUrlFromUser(user),
+        avatarUrl: avatarUrlFromMember(memberData, guildId),
       };
     } catch {
       return null;
@@ -70,7 +77,7 @@ async function resolveMembersByRoleIds(roleIds, botToken, guildId) {
     )
     .map((member) => ({
       username: member.nick || member.user.global_name || member.user.username,
-      avatarUrl: avatarUrlFromUser(member.user),
+      avatarUrl: avatarUrlFromMember(member, guildId),
     }))
     .sort((a, b) => a.username.localeCompare(b.username, "pt-BR"));
 }
@@ -99,7 +106,7 @@ async function resolveMembersByConfiguredRoles(configuredRoles, botToken, guildI
     )
     .map((member) => ({
       username: member.nick || member.user.global_name || member.user.username,
-      avatarUrl: avatarUrlFromUser(member.user),
+      avatarUrl: avatarUrlFromMember(member, guildId),
     }))
     .sort((a, b) => a.username.localeCompare(b.username, "pt-BR"));
 }

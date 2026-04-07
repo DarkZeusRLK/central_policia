@@ -17,9 +17,9 @@ const Session = {
 
     // NotificaÃ§Ã£o de boas-vindas
     if (typeof Notify !== "undefined") {
-      Notify.success(`Bem-vindo, ${userData.username}!`);
+      Notify.success(`Bem-vindo, ${userData.displayName || userData.username}!`);
     } else {
-      console.log(`Login realizado: ${userData.username}`);
+      console.log(`Login realizado: ${userData.displayName || userData.username}`);
     }
   },
 
@@ -236,8 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Monta o objeto do usuÃ¡rio completo
     const userData = {
       username: params.get("username"),
+      displayName: params.get("displayName") || params.get("username"),
       id: params.get("id"),
       avatar: params.get("avatar"),
+      avatarUrl: params.get("avatarUrl") || "",
       roles: rolesArray, // Salva os cargos aqui!
     };
 
@@ -555,8 +557,10 @@ function checkUrlLogin() {
 
     const userData = {
       username: urlParams.get("username"),
+      displayName: urlParams.get("displayName") || urlParams.get("username"),
       id: urlParams.get("id"),
       avatar: urlParams.get("avatar"),
+      avatarUrl: urlParams.get("avatarUrl") || "",
       roles: rolesArray,
     };
     Session.login(userData);
@@ -661,8 +665,8 @@ function updateUI() {
     badge.style.cursor = "pointer";
     badge.onclick = () => Session.logout();
     badge.innerHTML = `
-            <span style="color: white; font-weight: bold;">${Session.user.username}</span>
-            <img src="https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png" 
+            <span style="color: white; font-weight: bold;">${Session.user.displayName || Session.user.username}</span>
+            <img src="${Session.user.avatarUrl || `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`}" 
                  alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-gold);">
         `;
     if (navUserGroup) {
@@ -686,10 +690,12 @@ function updateFormAvatar() {
   const userBadgeForm = document.querySelector(".user-badge img");
   const userBadgeName = document.querySelector(".user-badge span");
   if (userBadgeForm && Session.user) {
-    userBadgeForm.src = `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
+    userBadgeForm.src =
+      Session.user.avatarUrl ||
+      `https://cdn.discordapp.com/avatars/${Session.user.id}/${Session.user.avatar}.png`;
   }
   if (userBadgeName && Session.user) {
-    userBadgeName.innerText = Session.user.username;
+    userBadgeName.innerText = Session.user.displayName || Session.user.username;
   }
 }
 
@@ -775,7 +781,7 @@ async function handleBOSubmit(e) {
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData.entries());
   data.userId = Session.user.id;
-  data.username = Session.user.username;
+  data.username = Session.user.displayName || Session.user.username;
 
   try {
     const response = await fetch("/api/content?action=submit-bo", {
