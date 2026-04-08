@@ -297,9 +297,11 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
   const normalizedCourseId = String(courseId || "").trim();
   const approvedIds = extractMentionedUserIds(approvedList);
 
-  if (!normalizedCourseId || !approvedIds.length || !guildId) return;
+  if (!normalizedCourseId || !approvedIds.length || !guildId) {
+    return { applied: 0, failed: [] };
+  }
 
-  const requests = approvedIds.map(async (userId) => {
+  const settled = await Promise.allSettled(approvedIds.map(async (userId) => {
     const response = await fetch(
       `${DISCORD_API_BASE}/guilds/${guildId}/members/${userId}/roles/${normalizedCourseId}`,
       {
@@ -314,9 +316,20 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
       const text = await response.text();
       throw new Error(`Falha ao aplicar tag do curso no membro ${userId}: ${text}`);
     }
-  });
+  }));
 
-  await Promise.all(requests);
+  const failed = settled
+    .map((result, index) => ({ result, userId: approvedIds[index] }))
+    .filter(({ result }) => result.status === "rejected")
+    .map(({ result, userId }) => ({
+      userId,
+      reason: result.reason?.message || "Falha desconhecida ao aplicar cargo.",
+    }));
+
+  return {
+    applied: approvedIds.length - failed.length,
+    failed,
+  };
 }
 
 function resolveFaction(data, env) {
@@ -571,14 +584,29 @@ export default async function handler(req, res) {
         });
 
         await Promise.all(requests);
-        await applyCourseRoleToApprovedMembers(data.curso_id, data.aprovados, DISCORD_BOT_TOKEN, GUILD_ID);
-        return res.status(200).json({ success: true });
+        const roleSync = await applyCourseRoleToApprovedMembers(
+          data.curso_id,
+          data.aprovados,
+          DISCORD_BOT_TOKEN,
+          GUILD_ID,
+        );
+
+        return res.status(200).json({
+          success: true,
+          roleSync,
+          warning:
+            roleSync.failed.length > 0
+              ? `O relatório foi enviado, mas ${roleSync.failed.length} tag(s) de curso não puderam ser aplicadas automaticamente.`
+              : undefined,
+        });
       }
 
       return res.status(400).json({ error: "Tipo de envio invalido." });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Erro interno no envio." });
+      return res.status(500).json({
+        error: error.message || "Erro interno no envio.",
+      });
     }
   }
 
