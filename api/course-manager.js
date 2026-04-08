@@ -293,17 +293,18 @@ async function sendDiscordMessage(channelId, botToken, payload) {
   return response;
 }
 
-async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken, guildId) {
-  const normalizedCourseId = String(courseId || "").trim();
-  const approvedIds = extractMentionedUserIds(approvedList);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  if (!normalizedCourseId || !approvedIds.length || !guildId) {
-    return { applied: 0, failed: [] };
-  }
+async function applyRoleToMemberWithRetry(courseId, userId, botToken, guildId, maxAttempts = 5) {
+  let attempt = 0;
 
-  const settled = await Promise.allSettled(approvedIds.map(async (userId) => {
+  while (attempt < maxAttempts) {
+    attempt += 1;
+
     const response = await fetch(
-      `${DISCORD_API_BASE}/guilds/${guildId}/members/${userId}/roles/${normalizedCourseId}`,
+      `${DISCORD_API_BASE}/guilds/${guildId}/members/${userId}/roles/${courseId}`,
       {
         method: "PUT",
         headers: {
@@ -312,22 +313,63 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
       },
     );
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Falha ao aplicar tag do curso no membro ${userId}: ${text}`);
+    if (response.ok) {
+      return { ok: true };
     }
-  }));
 
-  const failed = settled
-    .map((result, index) => ({ result, userId: approvedIds[index] }))
-    .filter(({ result }) => result.status === "rejected")
-    .map(({ result, userId }) => ({
-      userId,
-      reason: result.reason?.message || "Falha desconhecida ao aplicar cargo.",
-    }));
+    if (response.status === 429) {
+      const retryPayload = await response.json().catch(() => ({}));
+      const retryAfterSeconds = Number(
+        retryPayload.retry_after || response.headers.get("retry-after") || 1,
+      );
+      const retryDelay = Math.max(1000, Math.ceil(retryAfterSeconds * 1000) + 250);
+      await sleep(retryDelay);
+      continue;
+    }
+
+    const text = await response.text();
+    throw new Error(`Falha ao aplicar tag do curso no membro ${userId}: ${text}`);
+  }
+
+  throw new Error(
+    `Falha ao aplicar tag do curso no membro ${userId}: limite de tentativas excedido.`,
+  );
+}
+
+async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken, guildId) {
+  const normalizedCourseId = String(courseId || "").trim();
+  const approvedIds = [...new Set(extractMentionedUserIds(approvedList))];
+
+  if (!normalizedCourseId || !approvedIds.length || !guildId) {
+    return { applied: 0, failed: [] };
+  }
+
+  const failed = [];
+  let applied = 0;
+
+  for (const userId of approvedIds) {
+    try {
+      await applyRoleToMemberWithRetry(
+        normalizedCourseId,
+        userId,
+        botToken,
+        guildId,
+      );
+      applied += 1;
+
+      // Pequeno espaçamento entre requests para reduzir chance de rate limit.
+      await sleep(350);
+    } catch (error) {
+      failed.push({
+        userId,
+        reason: error.message || "Falha desconhecida ao aplicar cargo.",
+      });
+      await sleep(500);
+    }
+  }
 
   return {
-    applied: approvedIds.length - failed.length,
+    applied,
     failed,
   };
 }
