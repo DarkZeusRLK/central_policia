@@ -1,4 +1,6 @@
-﻿const DISCORD_API_BASE = "https://discord.com/api/v10";
+import WebSocket from "ws";
+
+const DISCORD_API_BASE = "https://discord.com/api/v10";
 
 function parseIdList(value) {
   return String(value || "")
@@ -41,6 +43,18 @@ function hasAnyRole(userRoles, configuredRoles) {
   const allowed = parseIdList(configuredRoles).map(String);
   if (!allowed.length) return false;
   return Array.isArray(userRoles) && userRoles.map(String).some((roleId) => allowed.includes(roleId));
+}
+
+function canUseTeachingTools(data, env) {
+  const userRoles = Array.isArray(data.userRoles) ? data.userRoles.map(String) : [];
+  const ownerIds = parseIdList(process.env.OWNER).map(String);
+  if (ownerIds.includes(String(data.authorId || ""))) return true;
+
+  return (
+    hasAnyRole(userRoles, env.INSTRUTORES_ROLE_ID) ||
+    hasAnyRole(userRoles, env.ENSINO_PMERJ_ROLES) ||
+    hasAnyRole(userRoles, env.COMANDO_GERAL)
+  );
 }
 
 function resolveCourseTypeById(courseId, env) {
@@ -356,8 +370,6 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
         guildId,
       );
       applied += 1;
-
-      // Pequeno espaçamento entre requests para reduzir chance de rate limit.
       await sleep(350);
     } catch (error) {
       failed.push({
@@ -372,6 +384,141 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
     applied,
     failed,
   };
+}
+
+async function getVoiceChannelMembersFromGateway(guildId, channelId, botToken) {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
+    let heartbeatTimer = null;
+    let timeoutTimer = null;
+    let settled = false;
+
+    const finish = (handler, value) => {
+      if (settled) return;
+      settled = true;
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      if (timeoutTimer) clearTimeout(timeoutTimer);
+      try {
+        socket.close();
+      } catch {}
+      handler(value);
+    };
+
+    timeoutTimer = setTimeout(() => {
+      finish(reject, new Error("Tempo esgotado ao consultar os membros da call."));
+    }, 12000);
+
+    socket.on("message", (raw) => {
+      try {
+        const packet = JSON.parse(raw.toString());
+
+        if (packet.op === 10) {
+          const interval = Number(packet.d?.heartbeat_interval || 45000);
+          socket.send(JSON.stringify({ op: 1, d: null }));
+          heartbeatTimer = setInterval(() => {
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(JSON.stringify({ op: 1, d: null }));
+            }
+          }, interval);
+
+          socket.send(
+            JSON.stringify({
+              op: 2,
+              d: {
+                token: botToken,
+                intents: 129,
+                properties: {
+                  os: "linux",
+                  browser: "revoada-central",
+                  device: "revoada-central",
+                },
+              },
+            }),
+          );
+          return;
+        }
+
+        if (packet.op !== 0) return;
+        if (packet.t !== "GUILD_CREATE") return;
+        if (String(packet.d?.id || "") !== String(guildId)) return;
+
+        const voiceStates = Array.isArray(packet.d?.voice_states)
+          ? packet.d.voice_states
+          : [];
+        const members = Array.isArray(packet.d?.members) ? packet.d.members : [];
+        const membersById = new Map(
+          members
+            .filter((member) => member?.user?.id)
+            .map((member) => [String(member.user.id), member]),
+        );
+
+        const attendees = voiceStates
+          .filter((voiceState) => String(voiceState.channel_id || "") === String(channelId))
+          .map((voiceState) => {
+            const userId = String(voiceState.user_id || "");
+            const member = membersById.get(userId);
+            return {
+              id: userId,
+              name:
+                member?.nick ||
+                member?.user?.global_name ||
+                member?.user?.username ||
+                `ID ${userId}`,
+            };
+          })
+          .filter((member) => member.id);
+
+        finish(resolve, attendees);
+      } catch (error) {
+        finish(reject, error);
+      }
+    });
+
+    socket.on("error", (error) => {
+      finish(reject, error);
+    });
+
+    socket.on("close", () => {
+      if (!settled) {
+        finish(reject, new Error("A conexão com o Gateway foi encerrada antes da leitura da call."));
+      }
+    });
+  });
+}
+
+async function resolveCallIdFromRecentAnnouncements(courseId, channelId, botToken) {
+  const normalizedCourseId = String(courseId || "").trim();
+  if (!normalizedCourseId || !channelId || !botToken) return "";
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/channels/${channelId}/messages?limit=50`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    return "";
+  }
+
+  const messages = await response.json().catch(() => []);
+  if (!Array.isArray(messages)) return "";
+
+  for (const message of messages) {
+    const serialized = JSON.stringify(message.components || []);
+    if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
+      continue;
+    }
+
+    const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
+    if (buttonUrlMatch?.[1]) {
+      return buttonUrlMatch[1];
+    }
+  }
+
+  return "";
 }
 
 function resolveFaction(data, env) {
@@ -573,6 +720,39 @@ export default async function handler(req, res) {
     const data = req.body || {};
 
     try {
+      if (data.action === "voice-attendees") {
+        if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
+          return res.status(500).json({ error: "Configuração do Discord ausente." });
+        }
+
+        if (!canUseTeachingTools(data, env)) {
+          return res.status(403).json({ error: "Você não tem permissão para usar a leitura automática da call." });
+        }
+
+        let callId = String(data.callId || "").trim();
+        if (!callId) {
+          callId = await resolveCallIdFromRecentAnnouncements(
+            data.courseId,
+            env.CHANNEL_CURSOS_ANUNCIADOS,
+            DISCORD_BOT_TOKEN,
+          );
+        }
+        if (!callId) {
+          return res.status(400).json({ error: "Call não identificada para leitura automática." });
+        }
+
+        const attendees = await getVoiceChannelMembersFromGateway(
+          GUILD_ID,
+          callId,
+          DISCORD_BOT_TOKEN,
+        );
+
+        return res.status(200).json({
+          success: true,
+          attendees,
+        });
+      }
+
       if (data.type === "anuncio") {
         const hasCourse =
           (Array.isArray(data.curso_ids) && data.curso_ids.length > 0) ||
@@ -654,4 +834,3 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: "Method Not Allowed" });
 }
-
