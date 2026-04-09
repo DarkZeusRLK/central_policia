@@ -464,6 +464,7 @@ async function getVoiceChannelMembersFromGateway(guildId, channelId, botToken) {
                 member?.user?.global_name ||
                 member?.user?.username ||
                 `ID ${userId}`,
+              roles: Array.isArray(member?.roles) ? member.roles.map(String) : [],
             };
           })
           .filter((member) => member.id);
@@ -746,10 +747,22 @@ export default async function handler(req, res) {
           callId,
           DISCORD_BOT_TOKEN,
         );
+        const ignoredIds = new Set(
+          Array.isArray(data.ignoredIds) ? data.ignoredIds.map((id) => String(id)) : [],
+        );
+        const ignoredRoleIds = new Set([
+          String(data.courseId || "").trim(),
+          ...parseIdList(process.env.CONCLUSAO_CURSOS),
+        ].filter(Boolean).map(String));
 
         return res.status(200).json({
           success: true,
-          attendees,
+          attendees: attendees.filter((attendee) => {
+            const attendeeId = String(attendee.id || "");
+            const attendeeRoles = Array.isArray(attendee.roles) ? attendee.roles.map(String) : [];
+            const hasBlockedRole = attendeeRoles.some((roleId) => ignoredRoleIds.has(roleId));
+            return !ignoredIds.has(attendeeId) && !hasBlockedRole;
+          }),
         });
       }
 
