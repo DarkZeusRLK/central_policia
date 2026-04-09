@@ -750,9 +750,11 @@ export default async function handler(req, res) {
         const ignoredIds = new Set(
           Array.isArray(data.ignoredIds) ? data.ignoredIds.map((id) => String(id)) : [],
         );
+        const selectedCourseId = String(data.courseId || "").trim();
+        const selectedCourseType = resolveCourseTypeById(selectedCourseId, env);
         const ignoredRoleIds = new Set([
-          String(data.courseId || "").trim(),
-          ...parseIdList(process.env.CONCLUSAO_CURSOS),
+          selectedCourseId,
+          ...(selectedCourseType === "basico" ? parseIdList(process.env.CONCLUSAO_CURSOS) : []),
         ].filter(Boolean).map(String));
 
         return res.status(200).json({
