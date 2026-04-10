@@ -751,10 +751,14 @@ export default async function handler(req, res) {
           Array.isArray(data.ignoredIds) ? data.ignoredIds.map((id) => String(id)) : [],
         );
         const selectedCourseId = String(data.courseId || "").trim();
-        const selectedCourseType = resolveCourseTypeById(selectedCourseId, env);
+        const selectedCourseBucket = String(data.courseBucket || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim();
         const ignoredRoleIds = new Set([
           selectedCourseId,
-          ...(selectedCourseType === "basico" ? parseIdList(process.env.CONCLUSAO_CURSOS) : []),
+          ...(selectedCourseBucket === "basico" ? parseIdList(process.env.CONCLUSAO_CURSOS) : []),
         ].filter(Boolean).map(String));
 
         return res.status(200).json({
