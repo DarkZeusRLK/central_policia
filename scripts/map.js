@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "arcadius",
       name: "Arcadius",
-      coords: [600, 1080],
+      coords: [466  , 1290],
       description: "Região corporativa e densa do centro. Bom ponto para leitura de cruzamentos, entradas laterais e chamadas rápidas de apoio.",
       mapImage: "../public/images/locations/Arcadius/Arcadius_mapa.png",
       images: [
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "banco_central",
       name: "Banco Central",
-      coords: [338, 1160],
+      coords: [498, 1200],
       description: "Área comercial estratégica no centro urbano. Exige boa atualização de QTH e atenção a rotas de contenção e fuga limpa.",
       mapImage: "../public/images/locations/Banco_central/Banco_central_mapa.png",
       images: [
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "cinzinha",
       name: "Cinzinha",
-      coords: [250, 1030],
+      coords: [470, 1190],
       description: "Trecho alto com vias sinuosas e transição rápida para a malha urbana. Importante para orientar SPEEDS e motocicletas com antecedência.",
       mapImage: "../public/images/locations/Cinzinha/Cinzinha_mapa.png",
       images: [
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "cinzao",
       name: "Cinzão",
-      coords: [410, 1040],
+      coords: [310, 1280],
       description: "Região urbana de forte circulação, com cruzamentos curtos e múltiplas saídas. Ideal para treinar leitura de rota e coordenação por rádio.",
       mapImage: "../public/images/locations/Cinzão/Cinzao_mapa.png",
       images: [
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "life_invader",
       name: "Life Invader",
-      coords: [330, 1000],
+      coords: [368, 1250],
       description: "Ponto de referência clássico em área mista entre avenida larga e miolo urbano. Útil para orientar aproximação, contenção e perseguição curta.",
       mapImage: "../public/images/locations/Life_Invader/Life_Invader_mapa.png",
       images: [
