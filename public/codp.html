@@ -6,8 +6,10 @@
   <title>CODP | Curso Operacional de Direção Policial</title>
   <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="../style/main.css">
   <link rel="stylesheet" href="../style/codp.css">
+  <link rel="stylesheet" href="../style/codp-map.css">
 </head>
 <body class="codp-body">
   <div class="codp-progress">
@@ -126,7 +128,8 @@
       <div class="container codp-hero-inner">
         <div class="codp-hero-copy codp-reveal is-visible">
           <span class="codp-kicker"><i class="fa-solid fa-car-burst"></i> Formação Operacional</span>
-          <h1>CURSO OPERACIONAL DE DIREÇÃO POLICIAL</h1>
+          <p class="codp-cover-code">CODP</p>
+          <h1>Curso de Direção Policial</h1>
           <p class="codp-subtitle">Treinamento obrigatório para todos os oficiais, do mais experiente ao mais novo em formação</p>
           <p class="codp-description">Formação, aperfeiçoamento e padronização operacional voltados à condução de viaturas com técnica, disciplina, leitura tática do cenário e controle permanente de risco.</p>
           <div class="codp-hero-actions">
@@ -496,10 +499,14 @@
           </div>
         </article>
         <div class="codp-reveal">
-          <div class="codp-placeholder codp-map-placeholder">
-            <span class="codp-placeholder-tag">Mapa operacional</span>
-            <strong>Espaço para mapa e pontos de referência</strong>
-            <small>Adicione posteriormente o mapa com rotas, regiões, pontos de chamada e principais marcos urbanos da cidade.</small>
+          <div class="codp-map-shell">
+            <div class="codp-map-head">
+              <span class="codp-placeholder-tag">Mapa operacional</span>
+              <strong>Mapa interativo de referências</strong>
+              <small>Clique nos pontos para abrir detalhes, visualizar a rua e revisar os acessos da região.</small>
+            </div>
+            <div id="codp-reference-map" class="codp-reference-map" aria-label="Mapa interativo dos pontos de referência do CODP"></div>
+            <div class="codp-map-legend" id="codp-map-legend" aria-label="Lista de pontos de referência"></div>
           </div>
         </div>
       </div>
@@ -522,7 +529,41 @@
     </section>
   </main>
 
+  <div class="codp-map-modal hidden" id="codp-map-modal" aria-hidden="true" role="dialog" aria-labelledby="codp-map-modal-title">
+    <div class="codp-map-modal-backdrop" data-map-close></div>
+    <div class="codp-map-modal-panel">
+      <button type="button" class="codp-map-modal-close" aria-label="Fechar visualização do ponto" data-map-close>
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="codp-map-modal-copy">
+        <span class="codp-eyebrow">Ponto de referência</span>
+        <h3 id="codp-map-modal-title">Local</h3>
+        <p id="codp-map-modal-description">Descrição do local.</p>
+        <button type="button" class="codp-button codp-button-primary codp-map-view-more" id="codp-map-view-more">
+          <i class="fa-solid fa-images"></i><span>Ver mais</span>
+        </button>
+      </div>
+      <div class="codp-map-gallery">
+        <div class="codp-map-gallery-frame">
+          <button type="button" class="codp-map-gallery-arrow" id="codp-map-prev-image" aria-label="Imagem anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <img id="codp-map-modal-image" src="" alt="Visual da rua do ponto de referência">
+          <button type="button" class="codp-map-gallery-arrow" id="codp-map-next-image" aria-label="Próxima imagem">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="codp-map-gallery-meta">
+          <strong id="codp-map-image-caption">Visual da rua</strong>
+          <small id="codp-map-image-counter">1 / 1</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../scripts/app.js"></script>
   <script src="../scripts/codp.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="../scripts/codp-map.js"></script>
 </body>
 </html>

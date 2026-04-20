@@ -64,7 +64,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add("codp-cover-active");
     if (cover) cover.classList.remove("is-hidden");
     updateSidebar();
+    updateRailCounter();
+    updateButtons();
     updateProgressBar();
+    document.dispatchEvent(new CustomEvent("codp:slidechange", {
+      detail: {
+        slideId: "hero",
+        slideIndex: -1,
+        coverVisible: true,
+      },
+    }));
   }
 
   function hideCover() {
@@ -117,6 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (options.resetScroll !== false) resetActiveSlideScroll();
     revealActiveSlide();
+    document.dispatchEvent(new CustomEvent("codp:slidechange", {
+      detail: {
+        slideId: slides[activeSlideIndex]?.id || null,
+        slideIndex: activeSlideIndex,
+        coverVisible,
+      },
+    }));
   }
 
   function goToSlide(index) {

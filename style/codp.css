@@ -52,10 +52,11 @@ html {
   overflow: hidden;
 }
 
-.codp-body.codp-cover-active .codp-slide-nav {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(16px);
+.codp-body.codp-cover-active .codp-slide-section {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(72px) !important;
+  filter: blur(10px) !important;
 }
 
 .codp-rail {
@@ -195,6 +196,10 @@ html {
   transform: translateY(0);
   transition: opacity 0.45s ease, transform 0.45s ease;
   z-index: 6;
+  background:
+    linear-gradient(120deg, rgba(5, 10, 18, 0.82), rgba(5, 10, 18, 0.58)),
+    linear-gradient(160deg, rgba(7, 18, 35, 0.38), rgba(10, 25, 52, 0.64)),
+    url("../public/images/image.png") center/cover no-repeat;
 }
 
 .codp-hero.is-hidden {
@@ -230,8 +235,8 @@ html {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(6, 11, 18, 0.92), rgba(9, 15, 25, 0.72)),
-    linear-gradient(140deg, rgba(15, 45, 98, 0.25), rgba(185, 28, 28, 0.18));
+    linear-gradient(120deg, rgba(6, 11, 18, 0.78), rgba(9, 15, 25, 0.44)),
+    linear-gradient(140deg, rgba(15, 45, 98, 0.22), rgba(185, 28, 28, 0.14));
   z-index: -2;
 }
 
@@ -264,14 +269,32 @@ html {
   max-width: 860px;
   margin: 0 auto;
   text-align: center;
+  padding: 34px 38px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(6, 11, 18, 0.48), rgba(6, 11, 18, 0.72));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.codp-cover-code {
+  margin: 12px 0 10px;
+  font-size: clamp(4.2rem, 9vw, 7rem);
+  line-height: 0.92;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff6d5;
+  text-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.48),
+    0 0 30px rgba(251, 191, 36, 0.14);
 }
 
 .codp-hero-copy h1 {
-  margin: 14px 0 10px;
-  font-size: clamp(2.7rem, 5.2vw, 5rem);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
@@ -295,7 +318,7 @@ html {
 }
 
 .codp-subtitle {
-  margin: 0;
+  margin: 16px 0 0;
   color: #d9e6ff;
   font-size: clamp(1.16rem, 2vw, 1.4rem);
   font-weight: 700;
@@ -910,6 +933,11 @@ body.codp-presentation .codp-slide-section {
     padding: 14px;
   }
 
+  .codp-hero-copy {
+    padding: 28px 20px;
+    border-radius: 24px;
+  }
+
   .codp-summary-wrapper,
   .codp-section {
     padding: 22px 0 16px;
@@ -938,6 +966,11 @@ body.codp-presentation .codp-slide-section {
 
   .codp-hero-copy h1 {
     font-size: clamp(2.1rem, 9vw, 3rem);
+  }
+
+  .codp-cover-code {
+    font-size: clamp(3rem, 16vw, 5.2rem);
+    letter-spacing: 0.12em;
   }
 
   .codp-summary-links {
