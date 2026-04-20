@@ -29,7 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateRailCounter() {
     if (!railCounter || !slides.length) return;
-    railCounter.textContent = `${formatSlideNumber(activeSlideIndex + 1)} / ${formatSlideNumber(slides.length)}`;
+    railCounter.textContent = coverVisible
+      ? "Capa"
+      : `${formatSlideNumber(activeSlideIndex + 1)} / ${formatSlideNumber(slides.length)}`;
   }
 
   function updateButtons() {
@@ -40,7 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateSidebar() {
     const activeId = slides[activeSlideIndex]?.id;
     slideButtons.forEach((button) => {
-      button.classList.toggle("is-active", !coverVisible && button.dataset.sectionTarget === activeId);
+      const isCoverButton = button.dataset.sectionTarget === "hero";
+      const shouldActivate = isCoverButton
+        ? coverVisible
+        : !coverVisible && button.dataset.sectionTarget === activeId;
+      button.classList.toggle("is-active", shouldActivate);
     });
   }
 
@@ -144,6 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
     slideButtons.forEach((button) => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
+        if (button.dataset.sectionTarget === "hero") {
+          showCover();
+          return;
+        }
+
         const targetIndex = slides.findIndex((slide) => slide.id === button.dataset.sectionTarget);
         if (targetIndex >= 0) {
           hideCover();

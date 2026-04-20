@@ -74,7 +74,11 @@
       </button>
     </div>
     <nav class="codp-rail-nav" id="codp-rail-nav">
-      <button type="button" class="codp-rail-link is-active" data-section-target="introducao">
+      <button type="button" class="codp-rail-link codp-rail-link-cover is-active" data-section-target="hero">
+        <span><i class="fa-solid fa-image"></i></span>
+        <strong>Capa do curso</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="introducao">
         <span>01</span>
         <strong>Introdução</strong>
       </button>
@@ -107,6 +111,14 @@
         <strong>Conclusão</strong>
       </button>
     </nav>
+    <div class="codp-rail-controls">
+      <button type="button" class="codp-slide-button" id="codp-prev-section" aria-label="Seção anterior">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button type="button" class="codp-slide-button" id="codp-next-section" aria-label="Próxima seção">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 
   <main class="codp-main">
@@ -509,15 +521,6 @@
       </div>
     </section>
   </main>
-
-  <div class="codp-slide-nav">
-    <button type="button" class="codp-slide-button" id="codp-prev-section" aria-label="Seção anterior">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-    <button type="button" class="codp-slide-button" id="codp-next-section" aria-label="Próxima seção">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  </div>
 
   <script src="../scripts/app.js"></script>
   <script src="../scripts/codp.js"></script>

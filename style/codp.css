@@ -107,6 +107,14 @@ html {
   overflow-y: auto;
 }
 
+.codp-rail-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px 10px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .codp-rail-link {
   display: grid;
   grid-template-columns: 34px 1fr;
@@ -140,6 +148,10 @@ html {
 .codp-rail-link strong {
   font-size: 0.9rem;
   line-height: 1.35;
+}
+
+.codp-rail-link-cover span {
+  font-size: 0.95rem;
 }
 
 .codp-rail-link:hover,
@@ -742,18 +754,8 @@ html {
   font-size: 0.95rem;
 }
 
-.codp-slide-nav {
-  position: fixed;
-  right: 266px;
-  bottom: 22px;
-  z-index: 1200;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .codp-slide-button {
-  width: 48px;
+  width: 100%;
   height: 48px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
@@ -892,11 +894,6 @@ body.codp-presentation .codp-slide-section {
     flex-direction: column;
   }
 
-  .codp-slide-nav {
-    right: 14px;
-    bottom: 14px;
-  }
-
   .codp-slide-section > .container {
     width: min(100%, calc(100vw - 28px));
     max-height: calc(100vh - 120px);
@@ -964,11 +961,8 @@ body.codp-presentation .codp-slide-section {
     width: 100%;
   }
 
-  .codp-slide-nav {
-    flex-direction: row;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
+  .codp-rail-controls {
+    padding-bottom: 8px;
   }
 
   .codp-reveal {
