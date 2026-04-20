@@ -1,136 +1,122 @@
 document.addEventListener("DOMContentLoaded", () => {
   const progressBar = document.getElementById("codp-progress-bar");
-  const summaryLinks = Array.from(document.querySelectorAll("[data-section-target]"));
-  const sections = Array.from(document.querySelectorAll(".codp-slide-section"));
-  const revealElements = Array.from(document.querySelectorAll(".codp-reveal"));
+  const railCounter = document.getElementById("codp-rail-counter");
+  const slideButtons = Array.from(document.querySelectorAll("[data-section-target]"));
+  const slides = Array.from(document.querySelectorAll(".codp-slide-section"));
   const prevButton = document.getElementById("codp-prev-section");
   const nextButton = document.getElementById("codp-next-section");
   const presentationToggle = document.getElementById("presentation-toggle");
   const heroParallax = document.querySelector(".codp-hero-parallax");
-  const railCounter = document.getElementById("codp-rail-counter");
-  let activeSectionIndex = 0;
-
-  function updateProgressBar() {
-    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
-    if (progressBar) progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
-  }
+  const revealElements = Array.from(document.querySelectorAll(".codp-reveal"));
+  const isMobile = () => window.innerWidth <= 720;
+  let activeSlideIndex = 0;
+  let transitionLocked = false;
+  let wheelLocked = false;
 
   function formatSlideNumber(value) {
     return String(value).padStart(2, "0");
   }
 
+  function updateProgressBar() {
+    if (!progressBar || !slides.length) return;
+    const progress = ((activeSlideIndex + 1) / slides.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
   function updateRailCounter() {
-    if (!railCounter || !sections.length) return;
-    railCounter.textContent = `${formatSlideNumber(activeSectionIndex + 1)} / ${formatSlideNumber(sections.length)}`;
+    if (!railCounter || !slides.length) return;
+    railCounter.textContent = `${formatSlideNumber(activeSlideIndex + 1)} / ${formatSlideNumber(slides.length)}`;
   }
 
-  function updateNavButtons() {
-    if (prevButton) prevButton.disabled = activeSectionIndex <= 0;
-    if (nextButton) nextButton.disabled = activeSectionIndex >= sections.length - 1;
+  function updateButtons() {
+    if (prevButton) prevButton.disabled = activeSlideIndex <= 0;
+    if (nextButton) nextButton.disabled = activeSlideIndex >= slides.length - 1;
   }
 
-  function activateSummaryLink(sectionId) {
-    summaryLinks.forEach((link) => {
-      link.classList.toggle("is-active", link.dataset.sectionTarget === sectionId);
+  function updateSidebar() {
+    const activeId = slides[activeSlideIndex]?.id;
+    slideButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.sectionTarget === activeId);
     });
   }
 
-  function updateSlideStates(currentSectionId) {
-    const currentIndex = sections.findIndex((section) => section.id === currentSectionId);
-    if (currentIndex >= 0) activeSectionIndex = currentIndex;
+  function revealActiveSlide() {
+    const activeSlide = slides[activeSlideIndex];
+    if (!activeSlide) return;
 
-    sections.forEach((section, index) => {
-      section.classList.remove("is-before", "is-after", "is-focused");
-      if (index < activeSectionIndex) section.classList.add("is-before");
-      else if (index > activeSectionIndex) section.classList.add("is-after");
-      else section.classList.add("is-focused");
+    activeSlide.querySelectorAll(".codp-reveal").forEach((element, index) => {
+      element.classList.remove("is-visible");
+      window.setTimeout(() => {
+        element.classList.add("is-visible");
+      }, Math.min(index * 45, 220));
     });
+  }
 
+  function updateSlideClasses() {
+    slides.forEach((slide, index) => {
+      slide.classList.remove("active", "prev", "next");
+      if (index === activeSlideIndex) slide.classList.add("active");
+      else if (index < activeSlideIndex) slide.classList.add("prev");
+      else slide.classList.add("next");
+      slide.setAttribute("aria-hidden", index === activeSlideIndex ? "false" : "true");
+    });
+  }
+
+  function resetActiveSlideScroll() {
+    const container = slides[activeSlideIndex]?.querySelector(".container");
+    if (container) container.scrollTop = 0;
+  }
+
+  function setSlide(index, options = {}) {
+    if (!slides.length) return;
+
+    const boundedIndex = Math.max(0, Math.min(slides.length - 1, index));
+    if (boundedIndex === activeSlideIndex && !options.force) return;
+
+    activeSlideIndex = boundedIndex;
+    updateSlideClasses();
+    updateSidebar();
     updateRailCounter();
-    updateNavButtons();
+    updateButtons();
+    updateProgressBar();
+
+    if (options.resetScroll !== false) resetActiveSlideScroll();
+    revealActiveSlide();
   }
 
-  function goToSection(index) {
-    const target = sections[index];
-    if (!target) return;
-    activeSectionIndex = index;
-    activateSummaryLink(target.id);
-    updateSlideStates(target.id);
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  function goToSlide(index) {
+    if (transitionLocked) return;
+    if (index < 0 || index >= slides.length || index === activeSlideIndex) return;
+
+    transitionLocked = true;
+    setSlide(index);
+
+    window.setTimeout(() => {
+      transitionLocked = false;
+    }, 700);
   }
 
-  function setupAccordions() {
-    document.querySelectorAll("[data-expandable]").forEach((card) => {
-      const toggle = card.querySelector(".codp-card-toggle");
-      if (!toggle) return;
-
-      toggle.addEventListener("click", () => {
-        const willOpen = !card.classList.contains("is-open");
-        card.classList.toggle("is-open", willOpen);
-        toggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
-      });
-    });
+  function nextSlide() {
+    goToSlide(activeSlideIndex + 1);
   }
 
-  function setupRevealObserver() {
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.18, rootMargin: "0px 0px -40px 0px" });
-
-    revealElements.forEach((element) => {
-      if (element.classList.contains("is-visible")) return;
-      revealObserver.observe(element);
-    });
+  function prevSlide() {
+    goToSlide(activeSlideIndex - 1);
   }
 
-  function setupSectionObserver() {
-    const sectionObserver = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-      if (!visible) return;
-
-      const sectionId = visible.target.id;
-      activateSummaryLink(sectionId);
-      updateSlideStates(sectionId);
-    }, {
-      threshold: [0.3, 0.55, 0.8],
-      rootMargin: "-20% 0px -25% 0px",
-    });
-
-    sections.forEach((section) => sectionObserver.observe(section));
-  }
-
-  function setupSummaryNavigation() {
-    summaryLinks.forEach((link) => {
-      link.addEventListener("click", (event) => {
+  function setupRailNavigation() {
+    slideButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
         event.preventDefault();
-        const target = document.getElementById(link.dataset.sectionTarget);
-        if (!target) return;
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        const targetIndex = slides.findIndex((slide) => slide.id === button.dataset.sectionTarget);
+        if (targetIndex >= 0) goToSlide(targetIndex);
       });
     });
   }
 
-  function setupSlideButtons() {
-    if (prevButton) {
-      prevButton.addEventListener("click", () => {
-        goToSection(Math.max(0, activeSectionIndex - 1));
-      });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener("click", () => {
-        goToSection(Math.min(sections.length - 1, activeSectionIndex + 1));
-      });
-    }
+  function setupArrowButtons() {
+    if (prevButton) prevButton.addEventListener("click", prevSlide);
+    if (nextButton) nextButton.addEventListener("click", nextSlide);
   }
 
   function setupKeyboardNavigation() {
@@ -141,14 +127,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (event.key === "ArrowRight" || event.key === "PageDown") {
         event.preventDefault();
-        goToSection(Math.min(sections.length - 1, activeSectionIndex + 1));
+        nextSlide();
       }
 
       if (event.key === "ArrowLeft" || event.key === "PageUp") {
         event.preventDefault();
-        goToSection(Math.max(0, activeSectionIndex - 1));
+        prevSlide();
       }
     });
+  }
+
+  function setupWheelNavigation() {
+    document.addEventListener("wheel", (event) => {
+      const activeContainer = slides[activeSlideIndex]?.querySelector(".container");
+      if (!activeContainer) return;
+
+      const canScrollDown = activeContainer.scrollTop + activeContainer.clientHeight < activeContainer.scrollHeight - 2;
+      const canScrollUp = activeContainer.scrollTop > 2;
+
+      if (isMobile()) return;
+
+      if (event.deltaY > 0) {
+        if (canScrollDown) return;
+        event.preventDefault();
+        if (wheelLocked) return;
+        wheelLocked = true;
+        nextSlide();
+      }
+
+      if (event.deltaY < 0) {
+        if (canScrollUp) return;
+        event.preventDefault();
+        if (wheelLocked) return;
+        wheelLocked = true;
+        prevSlide();
+      }
+
+      window.setTimeout(() => {
+        wheelLocked = false;
+      }, 760);
+    }, { passive: false });
   }
 
   function setupPresentationMode() {
@@ -194,17 +212,26 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("scroll", updateParallax, { passive: true });
   }
 
-  updateProgressBar();
-  activateSummaryLink(sections[0]?.id || "introducao");
-  updateSlideStates(sections[0]?.id || "introducao");
+  function setupAccordions() {
+    document.querySelectorAll("[data-expandable]").forEach((card) => {
+      const toggle = card.querySelector(".codp-card-toggle");
+      if (!toggle) return;
+
+      toggle.addEventListener("click", () => {
+        const willOpen = !card.classList.contains("is-open");
+        card.classList.toggle("is-open", willOpen);
+        toggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      });
+    });
+  }
+
+  revealElements.forEach((element) => element.classList.remove("is-visible"));
   setupAccordions();
-  setupRevealObserver();
-  setupSectionObserver();
-  setupSummaryNavigation();
-  setupSlideButtons();
+  setupRailNavigation();
+  setupArrowButtons();
   setupKeyboardNavigation();
+  setupWheelNavigation();
   setupPresentationMode();
   setupParallax();
-
-  window.addEventListener("scroll", updateProgressBar, { passive: true });
+  setSlide(0, { force: true });
 });
