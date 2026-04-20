@@ -14,17 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevImageButton = document.getElementById("codp-map-prev-image");
   const nextImageButton = document.getElementById("codp-map-next-image");
   const closeTriggers = modal.querySelectorAll("[data-map-close]");
-  const mapImageUrl = "../public/images/map/gta_map.webp";
 
   // Adicione novos pontos duplicando um objeto deste array.
   // Para cada novo ponto, crie uma pasta em /public/images/locations/<id-do-local>/
   // e inclua ao menos um arquivo *_mapa e um arquivo *_rua do local.
-  // As coordenadas usam o formato [y, x] em pixels reais da imagem gta_map.webp.
   const locations = [
     {
       id: "arcadius",
       name: "Arcadius",
-      coords: [466  , 1290],
+      coords: [600, 1080],
       description: "Região corporativa e densa do centro. Bom ponto para leitura de cruzamentos, entradas laterais e chamadas rápidas de apoio.",
       mapImage: "../public/images/locations/Arcadius/Arcadius_mapa.png",
       images: [
@@ -34,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "banco_central",
       name: "Banco Central",
-      coords: [498, 1200],
+      coords: [338, 1160],
       description: "Área comercial estratégica no centro urbano. Exige boa atualização de QTH e atenção a rotas de contenção e fuga limpa.",
       mapImage: "../public/images/locations/Banco_central/Banco_central_mapa.png",
       images: [
@@ -44,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "cinzinha",
       name: "Cinzinha",
-      coords: [470, 1190],
+      coords: [250, 1030],
       description: "Trecho alto com vias sinuosas e transição rápida para a malha urbana. Importante para orientar SPEEDS e motocicletas com antecedência.",
       mapImage: "../public/images/locations/Cinzinha/Cinzinha_mapa.png",
       images: [
@@ -54,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "cinzao",
       name: "Cinzão",
-      coords: [310, 1280],
+      coords: [410, 1040],
       description: "Região urbana de forte circulação, com cruzamentos curtos e múltiplas saídas. Ideal para treinar leitura de rota e coordenação por rádio.",
       mapImage: "../public/images/locations/Cinzão/Cinzao_mapa.png",
       images: [
@@ -64,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "life_invader",
       name: "Life Invader",
-      coords: [368, 1250],
+      coords: [330, 1000],
       description: "Ponto de referência clássico em área mista entre avenida larga e miolo urbano. Útil para orientar aproximação, contenção e perseguição curta.",
       mapImage: "../public/images/locations/Life_Invader/Life_Invader_mapa.png",
       images: [
@@ -74,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const fallbackImage = "../public/images/Logo_policia.png";
+  const bounds = [[0, 0], [1000, 2000]];
   const map = L.map(mapElement, {
     crs: L.CRS.Simple,
     minZoom: -2,
@@ -81,6 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
     zoomControl: false,
     attributionControl: false,
   });
+
+  L.imageOverlay("../public/images/map/gta_map.webp", bounds).addTo(map);
+  map.fitBounds(bounds);
+  map.setMaxBounds(bounds);
 
   let activeLocation = locations[0] || null;
   let activeImageIndex = 0;
@@ -170,70 +173,43 @@ document.addEventListener("DOMContentLoaded", () => {
     updateImage();
   }
 
-  function mountMarkers() {
-    locations.forEach((location) => {
-      const icon = L.divIcon({
-        className: "",
-        html: '<div class="codp-map-marker" aria-hidden="true"></div>',
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-      });
-
-      const marker = L.marker(location.coords, { icon, keyboard: true }).addTo(map);
-      marker.bindTooltip(location.name, {
-        direction: "top",
-        offset: [0, -10],
-        opacity: 0.92,
-        className: "codp-map-tooltip",
-      });
-
-      marker.on("click", () => openLocation(location));
-
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "codp-map-legend-button";
-      button.dataset.locationId = location.id;
-      button.innerHTML = `
-        <span class="codp-map-legend-badge"></span>
-        <span>
-          <strong>${location.name}</strong>
-          <small>${location.description}</small>
-        </span>
-      `;
-
-      button.addEventListener("click", () => {
-        map.flyTo(location.coords, map.getZoom(), { duration: 0.5 });
-        openLocation(location);
-      });
-
-      legendElement.appendChild(button);
+  locations.forEach((location) => {
+    const icon = L.divIcon({
+      className: "",
+      html: '<div class="codp-map-marker" aria-hidden="true"></div>',
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
     });
-  }
 
-  function initializeMap() {
-    const loader = new Image();
-    loader.onload = () => {
-      const bounds = [[0, 0], [loader.naturalHeight, loader.naturalWidth]];
-      L.imageOverlay(mapImageUrl, bounds).addTo(map);
-      map.fitBounds(bounds);
-      map.setMaxBounds(bounds);
-      mountMarkers();
-      updateLegendState();
-    };
+    const marker = L.marker(location.coords, { icon, keyboard: true }).addTo(map);
+    marker.bindTooltip(location.name, {
+      direction: "top",
+      offset: [0, -10],
+      opacity: 0.92,
+      className: "codp-map-tooltip",
+    });
 
-    loader.onerror = () => {
-      const fallbackBounds = [[0, 0], [1000, 2000]];
-      L.imageOverlay(mapImageUrl, fallbackBounds).addTo(map);
-      map.fitBounds(fallbackBounds);
-      map.setMaxBounds(fallbackBounds);
-      mountMarkers();
-      updateLegendState();
-    };
+    marker.on("click", () => openLocation(location));
 
-    loader.src = mapImageUrl;
-  }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "codp-map-legend-button";
+    button.dataset.locationId = location.id;
+    button.innerHTML = `
+      <span class="codp-map-legend-badge"></span>
+      <span>
+        <strong>${location.name}</strong>
+        <small>${location.description}</small>
+      </span>
+    `;
 
-  initializeMap();
+    button.addEventListener("click", () => {
+      map.flyTo(location.coords, map.getZoom(), { duration: 0.5 });
+      openLocation(location);
+    });
+
+    legendElement.appendChild(button);
+  });
 
   closeTriggers.forEach((trigger) => trigger.addEventListener("click", closeModal));
   prevImageButton.addEventListener("click", () => shiftImage(-1));
@@ -256,4 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isReferenceSlide) return;
     window.setTimeout(() => map.invalidateSize(), 240);
   });
+
+  updateLegendState();
 });
