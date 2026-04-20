@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       id: "arcadius",
       name: "Arcadius",
-      coords: [300, 1080],
+      coords: [600, 1080],
       description: "Região corporativa e densa do centro. Bom ponto para leitura de cruzamentos, entradas laterais e chamadas rápidas de apoio.",
       mapImage: "../public/images/locations/Arcadius/Arcadius_mapa.png",
       images: [
