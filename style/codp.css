@@ -333,6 +333,40 @@ html {
   padding: 34px 0 24px;
 }
 
+.codp-slide-section > .container {
+  position: relative;
+  padding: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(13, 20, 33, 0.96), rgba(8, 14, 24, 0.96)),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 28%);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.codp-slide-section > .container::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.95), rgba(239, 68, 68, 0.45), rgba(29, 78, 216, 0.2));
+  opacity: 0.95;
+}
+
+.codp-slide-section > .container::after {
+  content: "";
+  position: absolute;
+  inset: auto -80px -120px auto;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.08), transparent 68%);
+  pointer-events: none;
+}
+
 .codp-summary-card,
 .codp-panel,
 .codp-panel-soft,
@@ -704,7 +738,22 @@ body.codp-presentation {
 }
 
 body.codp-presentation .navbar {
-  backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-130%);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+body.codp-presentation .codp-main {
+  padding-top: 20px;
+}
+
+body.codp-presentation .codp-rail {
+  top: 22px;
+}
+
+body.codp-presentation .codp-slide-section {
+  scroll-margin-top: 32px;
 }
 
 @media (max-width: 1180px) {
@@ -786,6 +835,11 @@ body.codp-presentation .navbar {
   .codp-conclusion {
     padding: 22px 18px;
     border-radius: 22px;
+  }
+
+  .codp-slide-section > .container {
+    padding: 22px 18px;
+    border-radius: 24px;
   }
 
   .codp-hero-copy h1 {
