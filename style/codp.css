@@ -52,6 +52,12 @@ html {
   overflow: hidden;
 }
 
+.codp-body.codp-cover-active .codp-slide-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+}
+
 .codp-rail {
   position: fixed;
   top: 110px;
@@ -74,12 +80,24 @@ html {
   gap: 8px;
 }
 
+.codp-rail-head > div {
+  display: grid;
+  gap: 8px;
+}
+
 .codp-rail-head strong {
   font-size: 1.02rem;
 }
 
 .codp-rail-head small {
   color: var(--codp-muted);
+}
+
+.codp-rail-toggle {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 14px;
+  font-size: 0.92rem;
 }
 
 .codp-rail-nav {
@@ -153,7 +171,24 @@ html {
 }
 
 .codp-hero {
-  display: none;
+  position: absolute;
+  inset: 82px 272px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  z-index: 6;
+}
+
+.codp-hero.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px);
 }
 
 .codp-slide-section.active {
@@ -208,6 +243,17 @@ html {
   align-items: center;
 }
 
+.codp-hero-inner {
+  width: min(1320px, 100%);
+  grid-template-columns: 1fr;
+}
+
+.codp-hero-copy {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+}
+
 .codp-hero-copy h1 {
   margin: 14px 0 10px;
   font-size: clamp(2.7rem, 5.2vw, 5rem);
@@ -256,7 +302,7 @@ html {
 
 .codp-description {
   max-width: 720px;
-  margin: 16px 0 0;
+  margin: 16px auto 0;
   font-size: 1.04rem;
 }
 
@@ -307,6 +353,10 @@ html {
 .codp-image-placeholder,
 .codp-map-placeholder {
   min-height: 280px;
+}
+
+.codp-hero-visual {
+  display: none;
 }
 
 .codp-placeholder {
@@ -771,6 +821,10 @@ body.codp-presentation .codp-rail {
   top: 22px;
 }
 
+body.codp-presentation .codp-hero {
+  inset: 20px 272px 0 0;
+}
+
 body.codp-presentation .codp-slide-section {
   padding-top: 8px;
 }
@@ -778,6 +832,10 @@ body.codp-presentation .codp-slide-section {
 @media (max-width: 1180px) {
   .codp-main {
     padding-right: 0;
+  }
+
+  .codp-hero {
+    inset: 82px 0 0 0;
   }
 
   .codp-rail {
@@ -816,6 +874,11 @@ body.codp-presentation .codp-slide-section {
     display: none;
   }
 
+  .codp-hero {
+    inset: 76px 0 0 0;
+    padding: 18px;
+  }
+
   .codp-hero-inner,
   .codp-section-grid,
   .codp-three-grid,
@@ -843,6 +906,11 @@ body.codp-presentation .codp-slide-section {
 @media (max-width: 720px) {
   .codp-main {
     padding-top: 72px;
+  }
+
+  .codp-hero {
+    inset: 72px 0 0 0;
+    padding: 14px;
   }
 
   .codp-summary-wrapper,

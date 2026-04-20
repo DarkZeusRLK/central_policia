@@ -64,9 +64,14 @@
 
   <div class="codp-rail" aria-label="Navegação do curso">
     <div class="codp-rail-head">
-      <span class="codp-eyebrow">Curso</span>
-      <strong>Slides CODP</strong>
-      <small id="codp-rail-counter">01 / 08</small>
+      <div>
+        <span class="codp-eyebrow">Curso</span>
+        <strong>Slides CODP</strong>
+        <small id="codp-rail-counter">01 / 08</small>
+      </div>
+      <button type="button" class="codp-button codp-button-ghost codp-rail-toggle" data-presentation-toggle>
+        <i class="fa-solid fa-expand"></i><span>Modo apresentação</span>
+      </button>
     </div>
     <nav class="codp-rail-nav" id="codp-rail-nav">
       <button type="button" class="codp-rail-link is-active" data-section-target="introducao">
@@ -110,18 +115,11 @@
         <div class="codp-hero-copy codp-reveal is-visible">
           <span class="codp-kicker"><i class="fa-solid fa-car-burst"></i> Formação Operacional</span>
           <h1>CURSO OPERACIONAL DE DIREÇÃO POLICIAL</h1>
-          <p class="codp-subtitle">Treinamento obrigatório para todos os oficiais</p>
-          <p class="codp-description">Formação, aperfeiçoamento e padronização operacional para condução de viaturas com técnica, consciência tática e controle de risco.</p>
+          <p class="codp-subtitle">Treinamento obrigatório para todos os oficiais, do mais experiente ao mais novo em formação</p>
+          <p class="codp-description">Formação, aperfeiçoamento e padronização operacional voltados à condução de viaturas com técnica, disciplina, leitura tática do cenário e controle permanente de risco.</p>
           <div class="codp-hero-actions">
-            <a href="#introducao" class="codp-button codp-button-primary"><i class="fa-solid fa-arrow-down"></i><span>Iniciar treinamento</span></a>
-            <button type="button" class="codp-button codp-button-ghost" id="presentation-toggle"><i class="fa-solid fa-expand"></i><span>Modo apresentação</span></button>
-          </div>
-        </div>
-        <div class="codp-hero-visual codp-reveal is-visible">
-          <div class="codp-placeholder codp-hero-placeholder">
-            <span class="codp-placeholder-tag">Hero visual</span>
-            <strong>Espaço para imagem de capa</strong>
-            <small>Adicione posteriormente uma imagem institucional da viatura ou aula prática.</small>
+            <button type="button" class="codp-button codp-button-primary" id="codp-start-course"><i class="fa-solid fa-arrow-down"></i><span>Iniciar curso</span></button>
+            <button type="button" class="codp-button codp-button-ghost" data-presentation-toggle><i class="fa-solid fa-expand"></i><span>Modo apresentação</span></button>
           </div>
         </div>
       </div>
@@ -135,23 +133,23 @@
             <span class="codp-section-index">01</span>
             <div>
               <h2>Introdução</h2>
-              <p>Base doutrinária do curso e alinhamento operacional para serviço em viatura.</p>
+              <p>Base doutrinária do curso e alinhamento operacional para o serviço policial motorizado.</p>
             </div>
           </div>
           <div class="codp-copy">
-            <p>A condução de uma viatura policial vai muito além de simplesmente dirigir em alta velocidade. Em ambiente operacional, cada tomada de decisão ao volante interfere diretamente na segurança da guarnição, na preservação da vida de terceiros, na continuidade da ocorrência e no êxito da missão.</p>
-            <p>O Curso Operacional de Direção Policial foi estruturado para padronizar procedimentos, aprimorar o controle técnico da viatura e alinhar o comportamento do oficial em situações de rotina, acompanhamento tático e resposta emergencial. A proposta não é formar o policial “mais rápido”, e sim o mais preparado para conduzir com disciplina, leitura de cenário e responsabilidade operacional.</p>
-            <p>Neste treinamento, o oficial revisará fundamentos de pilotagem policial, limites da QSV, uso correto da sinalização sonora, prioridades em perseguição e noções de posicionamento estratégico. O objetivo final é assegurar uma atuação uniforme, profissional e eficiente em qualquer cenário de emprego da viatura.</p>
+            <p>A condução de uma viatura policial vai muito além de simplesmente acelerar. Em ambiente operacional, cada tomada de decisão ao volante interfere diretamente na segurança da guarnição, na preservação da vida de terceiros, na continuidade da ocorrência e no êxito da missão.</p>
+            <p>O Curso Operacional de Direção Policial foi estruturado para padronizar procedimentos, aprimorar o controle técnico da viatura e alinhar o comportamento do oficial em situações de rotina, acompanhamento tático e resposta emergencial. A proposta não é formar o policial mais agressivo ao volante, mas sim o mais preparado para conduzir com disciplina, leitura de cenário, constância e responsabilidade operacional.</p>
+            <p>Ao longo deste treinamento, o oficial revisará fundamentos de pilotagem policial, limites da QSV, uso correto da sinalização sonora, prioridades em perseguição e noções de posicionamento estratégico. O objetivo final é assegurar uma atuação uniforme, profissional e eficiente em qualquer cenário de emprego da viatura.</p>
           </div>
         </article>
         <aside class="codp-panel codp-panel-soft codp-reveal">
           <span class="codp-eyebrow">Diretriz do curso</span>
-          <h3>Condução policial é técnica aplicada sob pressão.</h3>
-          <p>Velocidade sem controle compromete a missão. Técnica, constância e consciência operacional sustentam a resposta profissional da guarnição.</p>
+          <h3>Condução policial é técnica aplicada sob pressão e responsabilidade.</h3>
+          <p>Velocidade sem controle compromete a missão. Técnica, constância, leitura de risco e consciência operacional sustentam a resposta profissional da guarnição.</p>
           <div class="codp-mini-stats">
             <div>
               <strong>Padrão</strong>
-              <span>Condução uniforme</span>
+              <span>Condução padronizada</span>
             </div>
             <div>
               <strong>Risco</strong>
@@ -159,7 +157,7 @@
             </div>
             <div>
               <strong>Missão</strong>
-              <span>Eficiência da equipe</span>
+              <span>Eficiência da resposta</span>
             </div>
           </div>
         </aside>
@@ -172,7 +170,7 @@
           <span class="codp-section-index">02</span>
           <div>
             <h2>Conheça sua QSV</h2>
-            <p>Toda viatura possui comportamento próprio. Conhecer a resposta do veículo é o primeiro passo para conduzir com segurança e eficiência.</p>
+            <p>Toda viatura possui comportamento próprio. Conhecer a resposta do veículo é o primeiro passo para conduzir com segurança, eficiência e vantagem operacional.</p>
           </div>
         </div>
         <div class="codp-card-grid codp-four-grid">
@@ -185,7 +183,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Entenda o tempo de resposta da viatura ao arrancar, retomadas após frenagem e ganho de velocidade em retas curtas. Aceleração bem aplicada evita perda de tração e reduz erros em saída de curva.</p>
+              <p>O primeiro dever do condutor policial é compreender como a própria QSV reage ao comando do acelerador. Saber quando o veículo ganha velocidade com facilidade e quando passa a exigir maior controle evita exageros e melhora a tomada de decisão em acompanhamento.</p>
+              <p>Uma aceleração bem aplicada reduz perda de tração, melhora retomadas após frenagens e evita entradas desnecessariamente agressivas em curvas e cruzamentos.</p>
             </div>
           </article>
           <article class="codp-info-card codp-reveal" data-expandable>
@@ -197,7 +196,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Reconheça a distância necessária para desacelerar, o peso da viatura em frenagens bruscas e o comportamento em piso irregular. Frenar cedo e com progressão mantém a QSV controlada.</p>
+              <p>Frenagem é um dos pontos mais negligenciados por quem ainda não domina sua viatura. Cada QSV possui peso, resposta e distância de parada próprios, e esse comportamento muda ainda mais quando há mais oficiais embarcados.</p>
+              <p>Reconhecer o momento correto para reduzir, antecipar a frenagem e evitar entradas bruscas é o que mantém o veículo controlado e a perseguição viva.</p>
             </div>
           </article>
           <article class="codp-info-card codp-reveal" data-expandable>
@@ -209,7 +209,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Curvas exigem trajetória limpa, redução antecipada e retomada gradual. A entrada precipitada gera perda de tempo, risco de colisão e quebra do padrão de condução operacional.</p>
+              <p>Grande parte dos erros em serviço nasce justamente em curvas mal calculadas. Quando o policial desconhece a resposta da viatura, freia tarde, fecha demais a trajetória ou entra acelerando em excesso, perde estabilidade e compromete toda a operação.</p>
+              <p>Curvas bem feitas dependem de linha limpa, leitura do espaço e retomada progressiva. O objetivo é sair melhor posicionado, e não simplesmente entrar mais rápido.</p>
             </div>
           </article>
           <article class="codp-info-card codp-reveal" data-expandable>
@@ -221,7 +222,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>A aderência muda conforme peso, superfície e manobra executada. Conhecer o limite da QSV impede derrapagens, subesterço e perda da linha de perseguição.</p>
+              <p>A aderência varia conforme o peso da guarnição, o tipo de superfície, a velocidade da manobra e o estado geral da viatura. Um condutor que conhece esses limites evita derrapagens, perda da frente e correções desesperadas.</p>
+              <p>Em termos operacionais, isso significa manter a linha de perseguição, preservar o controle e continuar útil para a equipe até o encerramento da ocorrência.</p>
             </div>
           </article>
         </div>
@@ -235,7 +237,7 @@
             <span class="codp-section-index">03</span>
             <div>
               <h2>Controle da QSV</h2>
-              <p>Direção operacional exige previsibilidade, consistência e domínio progressivo da viatura.</p>
+              <p>Direção operacional exige previsibilidade, constância e domínio progressivo da viatura em serviço.</p>
             </div>
           </div>
           <div class="codp-accordion-stack">
@@ -249,9 +251,9 @@
               </button>
               <div class="codp-card-body">
                 <ul class="codp-list">
-                  <li>Observe piso, inclinação, visibilidade e fluxo urbano antes de aumentar o ritmo.</li>
-                  <li>Antecipe decisões em cruzamentos, retornos, vielas e pontos com visibilidade reduzida.</li>
-                  <li>Mantenha trajetória limpa para preservar controle, não para demonstrar velocidade.</li>
+                  <li>Observe piso, inclinação, visibilidade e fluxo urbano antes de aumentar o ritmo da ocorrência.</li>
+                  <li>Antecipe decisões em cruzamentos, retornos, becos, curvas fechadas e pontos com visibilidade reduzida.</li>
+                  <li>Mantenha trajetória limpa para preservar o controle da QSV, e não para demonstrar velocidade.</li>
                 </ul>
               </div>
             </article>
@@ -265,9 +267,11 @@
               </button>
               <div class="codp-card-body">
                 <ul class="codp-list">
-                  <li>Evite aceleração total sem necessidade objetiva da missão.</li>
-                  <li>Reduza de forma progressiva antes da curva e retome gradualmente na saída.</li>
-                  <li>Mantenha o volante sob correções curtas e intencionais.</li>
+                  <li>Evite aceleração total quando a situação não exigir ganho real de terreno.</li>
+                  <li>Em curvas, avalie se basta aliviar o acelerador em vez de frear de forma desnecessária.</li>
+                  <li>Ao parar de acelerar, você deixa de aumentar a velocidade, mas preserva embalo útil para sair da curva melhor posicionado.</li>
+                  <li>Use o freio quando a manobra exigir redução efetiva, e não por impulso.</li>
+                  <li>Mantenha o volante sob correções curtas, firmes e intencionais.</li>
                 </ul>
               </div>
             </article>
@@ -281,9 +285,10 @@
               </button>
               <div class="codp-card-body">
                 <ul class="codp-list">
-                  <li>Conduza pensando no posicionamento da equipe e não apenas no suspeito.</li>
-                  <li>Evite manobras desnecessárias que comprometam o acompanhamento.</li>
-                  <li>Priorize constância e visibilidade para a guarnição secundária.</li>
+                  <li>Conduza pensando no posicionamento da equipe, e não apenas no suspeito à frente.</li>
+                  <li>Lembre-se de que uma viatura com mais oficiais tende a ser mais pesada, exigindo mais distância de frenagem e mais cuidado em curvas.</li>
+                  <li>Evite manobras desnecessárias que comprometam o acompanhamento e desgastem a viatura sem necessidade.</li>
+                  <li>Priorize constância e previsibilidade para que as demais unidades possam acompanhar sua leitura de cenário.</li>
                 </ul>
               </div>
             </article>
@@ -292,7 +297,7 @@
         <aside class="codp-highlight-card codp-reveal">
           <span class="codp-eyebrow">Frase-chave</span>
           <blockquote>“Conduzir bem não é ser o mais rápido — é ser o mais consistente.”</blockquote>
-          <p>Consistência operacional mantém a equipe viva, reduz acidentes e sustenta a pressão sobre o alvo com muito mais eficiência do que excesso de velocidade sem leitura tática.</p>
+          <p>Consistência operacional mantém a equipe viva, reduz acidentes e sustenta a pressão sobre o alvo com muito mais eficiência do que velocidade sem leitura técnica e sem controle do veículo.</p>
         </aside>
       </div>
     </section>
@@ -303,7 +308,7 @@
           <span class="codp-section-index">04</span>
           <div>
             <h2>Prioridades em perseguição</h2>
-            <p>Perseguição não é corrida. É coordenação, hierarquia de papéis e manutenção do cerco com disciplina.</p>
+            <p>Perseguição não é corrida. É coordenação, hierarquia de papéis, leitura de risco e manutenção disciplinada do cerco.</p>
           </div>
         </div>
 
@@ -317,7 +322,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>A viatura primária dita o ritmo, faz a leitura do alvo e conduz a comunicação principal da perseguição. Ela não deve ser atropelada por unidades secundárias nem forçada a manobras por excesso de pressão traseira.</p>
+              <p>Durante um acompanhamento, as SPEEDS e as motocicletas operacionais, como GEM, BTM e BATEDOR, possuem prioridade natural para assumir ou sustentar a posição de viatura primária quando a leitura do cenário permitir.</p>
+              <p>Isso ocorre porque são meios mais adequados para manter pressão, leitura visual e resposta rápida. A viatura primária dita o ritmo da perseguição, conduz a leitura do alvo e orienta a progressão das demais unidades.</p>
             </div>
           </article>
 
@@ -330,7 +336,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Excesso de viaturas compromete espaço de manobra, leitura de tráfego e comunicação. Somente unidades úteis para o cerco devem permanecer na perseguição ativa, evitando sobreposição operacional.</p>
+              <p>Quantidade excessiva de viaturas compromete espaço de manobra, leitura de tráfego e comunicação. Em fugas limpas e em situações de código 3, a regra é manter somente três QSV no acompanhamento.</p>
+              <p>O padrão ideal é composto por uma motocicleta ou uma SPEED na linha principal, seguida por duas viaturas normais. As demais unidades devem organizar cerco, apoio e leitura de rota, sem colar na linha primária sem necessidade.</p>
             </div>
           </article>
 
@@ -343,7 +350,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Manter distância segura preserva tempo de reação em freadas, curvas e mudanças súbitas de rota. Aproximação excessiva elimina margem de erro e aumenta a chance de colisão entre viaturas.</p>
+              <p>Viaturas secundárias e terciárias devem manter distância funcional da unidade à frente. Caso a primária freie bruscamente, colida ou precise corrigir rota, a falta de espaço fará com que toda a linha se prejudique.</p>
+              <p>Distância segura evita colisões em cascata, preserva a capacidade de manobra e mantém o acompanhamento operacional mesmo diante de erro humano ou mudança repentina de cenário.</p>
             </div>
           </article>
 
@@ -356,7 +364,8 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>O motorista deve estar consciente do ambiente, da equipe, do alvo e das unidades no entorno. A perseguição exige rádio limpo, visão ampla e tomada de decisão disciplinada, nunca impulso.</p>
+              <p>O policial em perseguição deve pensar além da viatura à frente. É necessário avaliar tráfego, rota provável do alvo, espaço urbano, apoio disponível, segurança da equipe e risco para civis.</p>
+              <p>A prioridade não é transformar a ocorrência em espetáculo, e sim encerrá-la com controle, clareza e coordenação entre as unidades envolvidas.</p>
             </div>
           </article>
         </div>
@@ -370,15 +379,16 @@
             <span class="codp-section-index">05</span>
             <div>
               <h2>Distância segura</h2>
-              <p>Espaçamento correto evita colisões, preserva leitura do alvo e melhora a reação da equipe.</p>
+              <p>Espaço entre viaturas é margem de manobra, leitura de cenário e continuidade da missão.</p>
             </div>
           </div>
           <p class="codp-copy">Em acompanhamento tático, manter distância segura não significa perder contato. Significa construir tempo de reação para frenagens súbitas, curvas de baixa visibilidade, manobras evasivas do alvo e entrada de terceiros no trajeto. A viatura deve permanecer suficientemente próxima para não perder o acompanhamento, mas distante o bastante para continuar útil quando o cenário se deteriorar.</p>
+          <p class="codp-copy">O espaçamento funcional permite corrigir rota, absorver erros, reagir a colisões e preservar o cerco com muito mais eficiência. Distância, no contexto operacional, é controle e disciplina.</p>
           <div class="codp-alert-box">
             <i class="fa-solid fa-triangle-exclamation"></i>
             <div>
               <strong>Distância curta demais quebra a perseguição.</strong>
-              <span>Colidir na primária, bloquear a própria equipe ou perder reação em curva compromete toda a missão.</span>
+              <span>Colidir na primária, bloquear a própria equipe ou perder reação em curva compromete toda a missão e enfraquece o acompanhamento.</span>
             </div>
           </div>
         </div>
@@ -398,7 +408,7 @@
           <span class="codp-section-index">06</span>
           <div>
             <h2>Códigos de sirene</h2>
-            <p>A sinalização sonora comunica prioridade, urgência e modo de deslocamento. Deve ser usada com critério.</p>
+            <p>A sinalização sonora comunica prioridade, urgência e modo de deslocamento. Deve ser empregada com critério, padronização e leitura correta da ocorrência.</p>
           </div>
         </div>
 
@@ -412,7 +422,7 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Deslocamento ordinário, sem urgência imediata e sem prioridade de passagem. Utilizado em patrulhamento, ronda e posicionamento preventivo.</p>
+              <p>Indica ausência de risco imediato. Giroflex e sirene permanecem desligados, sendo o padrão mais comum para patrulhamento, rondas ordinárias e deslocamentos preventivos.</p>
             </div>
           </article>
 
@@ -425,7 +435,7 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Empregado em deslocamento rápido com necessidade operacional, exigindo atenção ampliada, porém sem o mesmo nível crítico do código máximo.</p>
+              <p>Representa situação de baixo ou médio risco. O giroflex permanece ligado e a sirene desligada, indicando deslocamento para ocorrência, reforço, averiguação ou acompanhamento de situação suspeita sem liberação de código máximo.</p>
             </div>
           </article>
 
@@ -438,7 +448,7 @@
               <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
             <div class="codp-card-body">
-              <p>Utilizado em ocorrências críticas, acompanhamento tático e resposta imediata. Exige controle total da viatura e comunicação disciplinada da equipe.</p>
+              <p>Representa alto risco. Giroflex e sirene permanecem acionados e seu uso normalmente está associado a perseguições, QRU de disparo, incursões e ocorrências de resposta máxima. Exige total controle da viatura e disciplina absoluta da equipe.</p>
             </div>
           </article>
         </div>
@@ -448,6 +458,7 @@
             <span class="codp-eyebrow">Controles de sirene</span>
             <h3>Padrão de acionamento</h3>
           </div>
+          <p class="codp-copy">Além do código operacional, a cidade conta com diferentes modelos de sirene. Todas as viaturas devem adequar o tipo de sirene ao código liberado na ocorrência, mantendo uniformidade sonora e clareza para toda a tropa em serviço.</p>
           <div class="codp-keycaps">
             <div class="codp-keycap"><kbd>Q</kbd><span>+</span><kbd>ALT</kbd><small>Ligar sirene</small></div>
             <div class="codp-keycap"><kbd>R</kbd><small>Trocar sirene</small></div>
@@ -463,19 +474,20 @@
             <span class="codp-section-index">07</span>
             <div>
               <h2>Pontos de referência</h2>
-              <p>Comunicação clara depende de referências simples, estáveis e compartilhadas por toda a tropa.</p>
+              <p>Comunicação clara depende de referências simples, estáveis e compartilhadas por toda a tropa em serviço.</p>
             </div>
           </div>
           <div class="codp-copy">
-            <p>Durante acompanhamento, deslocamento ou coordenação de cercos, a informação precisa chegar limpa e rápida. O uso de pontos de referência bem conhecidos evita ruído no rádio, acelera apoio entre matrizes e facilita a antecipação das unidades que estão fechando rota.</p>
-            <p>Ao comunicar posição, priorize marcos visuais relevantes, estruturas fixas, trechos de rodovia, entradas, retornos, pontes e zonas de circulação reconhecidas pela equipe. Mensagens curtas e objetivas mantêm a operação fluida.</p>
+            <p>Ao iniciar uma fuga, não basta atualizar apenas o seu QTH. A modulação verbal clara é indispensável para que oficiais em motocicletas, SPEEDS e unidades de apoio consigam antecipar rota, cortar caminho e prestar auxílio com mais rapidez.</p>
+            <p>Durante acompanhamento, deslocamento ou coordenação de cercos, a informação precisa chegar limpa e rápida. O uso de pontos de referência bem conhecidos evita ruído no rádio, acelera apoio entre matrizes e facilita a leitura das unidades que estão fechando rota.</p>
+            <p>Ao comunicar posição, priorize marcos visuais relevantes, estruturas fixas, trechos de rodovia, retornos, pontes, acessos e regiões de circulação reconhecidas pela tropa. Quanto mais objetiva a modulação, mais fluida será a operação.</p>
           </div>
         </article>
         <div class="codp-reveal">
           <div class="codp-placeholder codp-map-placeholder">
             <span class="codp-placeholder-tag">Mapa operacional</span>
-            <strong>Espaço para mapa / imagem de referência</strong>
-            <small>Adicione posteriormente o mapa com rotas, pontos de chamada e marcos da cidade.</small>
+            <strong>Espaço para mapa e pontos de referência</strong>
+            <small>Adicione posteriormente o mapa com rotas, regiões, pontos de chamada e principais marcos urbanos da cidade.</small>
           </div>
         </div>
       </div>
@@ -486,10 +498,11 @@
         <div class="codp-conclusion codp-reveal">
           <span class="codp-section-index">08</span>
           <h2>Conclusão</h2>
-          <p>O CODP consolida a direção policial como competência operacional obrigatória. A boa condução protege a equipe, preserva a ocorrência, reduz danos colaterais e aumenta a eficiência da resposta. O oficial que domina sua QSV, respeita a doutrina e comunica com clareza entrega uma atuação mais profissional em qualquer cenário.</p>
-          <p>Padronização não limita desempenho. Ela cria base para que toda a tropa opere com a mesma linguagem, o mesmo critério e a mesma segurança. Esse é o padrão esperado da Central Policial.</p>
+          <p>O CODP consolida a direção policial como competência operacional obrigatória. A boa condução protege a equipe, preserva a ocorrência, reduz danos colaterais e aumenta a eficiência da resposta em qualquer cenário de emprego da viatura.</p>
+          <p>O oficial que conhece sua QSV, respeita a doutrina, entende prioridades em perseguição, usa corretamente os códigos de sirene e modula com clareza entrega uma atuação muito mais profissional. Padronização não limita desempenho; ela cria base para que toda a tropa opere com a mesma linguagem, o mesmo critério e a mesma segurança.</p>
+          <p>Esse é o padrão esperado da Central Policial: condução técnica, postura responsável e compromisso com a vida, com a missão e com a equipe.</p>
           <div class="codp-conclusion-actions">
-            <a href="#hero" class="codp-button codp-button-primary"><i class="fa-solid fa-arrow-up"></i><span>Voltar ao topo</span></a>
+            <button type="button" class="codp-button codp-button-primary" id="codp-back-to-cover"><i class="fa-solid fa-arrow-up"></i><span>Voltar ao topo</span></button>
             <a href="central_policial.html" class="codp-button codp-button-ghost"><i class="fa-solid fa-shield-halved"></i><span>Voltar para a intranet</span></a>
           </div>
         </div>

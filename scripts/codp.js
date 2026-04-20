@@ -5,13 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const slides = Array.from(document.querySelectorAll(".codp-slide-section"));
   const prevButton = document.getElementById("codp-prev-section");
   const nextButton = document.getElementById("codp-next-section");
-  const presentationToggle = document.getElementById("presentation-toggle");
+  const presentationToggles = Array.from(document.querySelectorAll("[data-presentation-toggle]"));
+  const cover = document.getElementById("hero");
+  const startCourseButton = document.getElementById("codp-start-course");
+  const backToCoverButton = document.getElementById("codp-back-to-cover");
   const heroParallax = document.querySelector(".codp-hero-parallax");
   const revealElements = Array.from(document.querySelectorAll(".codp-reveal"));
   const isMobile = () => window.innerWidth <= 720;
   let activeSlideIndex = 0;
   let transitionLocked = false;
   let wheelLocked = false;
+  let coverVisible = true;
 
   function formatSlideNumber(value) {
     return String(value).padStart(2, "0");
@@ -19,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateProgressBar() {
     if (!progressBar || !slides.length) return;
-    const progress = ((activeSlideIndex + 1) / slides.length) * 100;
+    const progress = coverVisible ? 0 : ((activeSlideIndex + 1) / slides.length) * 100;
     progressBar.style.width = `${progress}%`;
   }
 
@@ -36,8 +40,33 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateSidebar() {
     const activeId = slides[activeSlideIndex]?.id;
     slideButtons.forEach((button) => {
-      button.classList.toggle("is-active", button.dataset.sectionTarget === activeId);
+      button.classList.toggle("is-active", !coverVisible && button.dataset.sectionTarget === activeId);
     });
+  }
+
+  function updatePresentationButtons() {
+    const isFullscreen = Boolean(document.fullscreenElement);
+    presentationToggles.forEach((button) => {
+      button.innerHTML = isFullscreen
+        ? '<i class="fa-solid fa-compress"></i><span>Sair do modo apresentação</span>'
+        : '<i class="fa-solid fa-expand"></i><span>Modo apresentação</span>';
+    });
+  }
+
+  function showCover() {
+    coverVisible = true;
+    document.body.classList.add("codp-cover-active");
+    if (cover) cover.classList.remove("is-hidden");
+    updateSidebar();
+    updateProgressBar();
+  }
+
+  function hideCover() {
+    coverVisible = false;
+    document.body.classList.remove("codp-cover-active");
+    if (cover) cover.classList.add("is-hidden");
+    updateSidebar();
+    updateProgressBar();
   }
 
   function revealActiveSlide() {
@@ -89,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (index < 0 || index >= slides.length || index === activeSlideIndex) return;
 
     transitionLocked = true;
+    hideCover();
     setSlide(index);
 
     window.setTimeout(() => {
@@ -97,10 +127,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function nextSlide() {
+    if (coverVisible) {
+      hideCover();
+      setSlide(0, { force: true });
+      return;
+    }
     goToSlide(activeSlideIndex + 1);
   }
 
   function prevSlide() {
+    if (coverVisible) return;
     goToSlide(activeSlideIndex - 1);
   }
 
@@ -109,7 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
         const targetIndex = slides.findIndex((slide) => slide.id === button.dataset.sectionTarget);
-        if (targetIndex >= 0) goToSlide(targetIndex);
+        if (targetIndex >= 0) {
+          hideCover();
+          if (targetIndex === activeSlideIndex) {
+            setSlide(targetIndex, { force: true });
+          } else {
+            goToSlide(targetIndex);
+          }
+        }
       });
     });
   }
@@ -148,6 +191,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isMobile()) return;
 
       if (event.deltaY > 0) {
+        if (coverVisible) {
+          event.preventDefault();
+          if (wheelLocked) return;
+          wheelLocked = true;
+          nextSlide();
+          window.setTimeout(() => {
+            wheelLocked = false;
+          }, 760);
+          return;
+        }
         if (canScrollDown) return;
         event.preventDefault();
         if (wheelLocked) return;
@@ -156,6 +209,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (event.deltaY < 0) {
+        if (coverVisible) {
+          event.preventDefault();
+          return;
+        }
         if (canScrollUp) return;
         event.preventDefault();
         if (wheelLocked) return;
@@ -170,28 +227,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setupPresentationMode() {
-    if (!presentationToggle) return;
+    if (!presentationToggles.length) return;
 
-    presentationToggle.addEventListener("click", async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-          document.body.classList.add("codp-presentation");
-          presentationToggle.innerHTML = '<i class="fa-solid fa-compress"></i><span>Sair do modo apresentação</span>';
-        } else {
-          await document.exitFullscreen();
+    presentationToggles.forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            document.body.classList.add("codp-presentation");
+          } else {
+            await document.exitFullscreen();
+          }
+        } catch (error) {
+          console.error("Falha ao alternar tela cheia:", error);
         }
-      } catch (error) {
-        console.error("Falha ao alternar tela cheia:", error);
-      }
+      });
     });
 
     document.addEventListener("fullscreenchange", () => {
       const isFullscreen = Boolean(document.fullscreenElement);
       document.body.classList.toggle("codp-presentation", isFullscreen);
-      presentationToggle.innerHTML = isFullscreen
-        ? '<i class="fa-solid fa-compress"></i><span>Sair do modo apresentação</span>'
-        : '<i class="fa-solid fa-expand"></i><span>Modo apresentação</span>';
+      updatePresentationButtons();
     });
   }
 
@@ -225,6 +281,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function setupCoverControls() {
+    if (startCourseButton) {
+      startCourseButton.addEventListener("click", () => {
+        hideCover();
+        setSlide(0, { force: true });
+      });
+    }
+
+    if (backToCoverButton) {
+      backToCoverButton.addEventListener("click", () => {
+        showCover();
+      });
+    }
+  }
+
   revealElements.forEach((element) => element.classList.remove("is-visible"));
   setupAccordions();
   setupRailNavigation();
@@ -232,6 +303,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setupKeyboardNavigation();
   setupWheelNavigation();
   setupPresentationMode();
+  setupCoverControls();
   setupParallax();
   setSlide(0, { force: true });
+  showCover();
+  updatePresentationButtons();
 });
