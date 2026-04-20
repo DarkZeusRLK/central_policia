@@ -1,11 +1,21 @@
 import WebSocket from "ws";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
+const COURSE_TYPE_OVERRIDES = {
+  "1164557461357867038": "complementar",
+};
 
 function parseIdList(value) {
   return String(value || "")
-    .split(",")
+    .split(/[\n,;]+/)
     .map((item) => item.trim())
+    .map((item) => {
+      const cleaned = item
+        .replace(/^[\[\("'`\s]+/, "")
+        .replace(/[\]\)"'`\s]+$/, "");
+      const mentionMatch = cleaned.match(/^<@&?(\d+)>$/);
+      return mentionMatch ? mentionMatch[1] : cleaned;
+    })
     .filter(Boolean);
 }
 
@@ -60,6 +70,7 @@ function canUseTeachingTools(data, env) {
 function resolveCourseTypeById(courseId, env) {
   const id = String(courseId || "").trim();
   if (!id) return "";
+  if (COURSE_TYPE_OVERRIDES[id]) return COURSE_TYPE_OVERRIDES[id];
   if (parseIdList(env.CURSO_ACOES_ID).includes(id)) return "acoes";
   if (parseIdList(env.CURSO_COMP_ID).includes(id)) return "complementar";
   if (parseIdList(env.CURSO_BASICO_ID).includes(id)) return "basico";
@@ -659,9 +670,24 @@ export default async function handler(req, res) {
         const members = await membersRes.json();
         const channels = await channelsRes.json();
 
-        const basicoIds = new Set(parseIdList(env.CURSO_BASICO_ID));
-        const complementarIds = new Set(parseIdList(env.CURSO_COMP_ID));
-        const acoesIds = new Set(parseIdList(env.CURSO_ACOES_ID));
+        const basicoIds = new Set(
+          Object.entries(COURSE_TYPE_OVERRIDES)
+            .filter(([, tipo]) => tipo === "basico")
+            .map(([id]) => id)
+            .concat(parseIdList(env.CURSO_BASICO_ID)),
+        );
+        const complementarIds = new Set(
+          Object.entries(COURSE_TYPE_OVERRIDES)
+            .filter(([, tipo]) => tipo === "complementar")
+            .map(([id]) => id)
+            .concat(parseIdList(env.CURSO_COMP_ID)),
+        );
+        const acoesIds = new Set(
+          Object.entries(COURSE_TYPE_OVERRIDES)
+            .filter(([, tipo]) => tipo === "acoes")
+            .map(([id]) => id)
+            .concat(parseIdList(env.CURSO_ACOES_ID)),
+        );
 
         const resolveTipoCurso = (id) => {
           if (basicoIds.has(id)) return "basico";
@@ -670,16 +696,27 @@ export default async function handler(req, res) {
           return null;
         };
 
+        const configuredCourseIds = new Set([
+          ...basicoIds,
+          ...complementarIds,
+          ...acoesIds,
+        ]);
+
         const cursos = roles
           .filter((role) => {
-            const name = role.name.toLowerCase();
+            const id = String(role.id || "");
+            const name = normalize(role.name);
             const blacklist = ["chefe", "instrutor", "diretor", "admin", "bot", "suporte"];
+
+            if (configuredCourseIds.has(id)) return true;
             if (blacklist.some((term) => name.includes(term))) return false;
+
             return (
               name.includes("curso") ||
               name.includes("treinamento") ||
               name.includes("aula") ||
-              name.includes("habilitacao")
+              name.includes("habilitacao") ||
+              name.includes("habilitação")
             );
           })
           .map((role) => ({

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CODP | Curso Operacional de Direção Policial</title>
+  <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../style/main.css">
+  <link rel="stylesheet" href="../style/codp.css">
+</head>
+<body class="codp-body">
+  <div class="codp-progress">
+    <span id="codp-progress-bar"></span>
+  </div>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">
+      <img src="../public/images/Logo_policia.png" alt="Logo Revoada">
+    </a>
+
+    <button class="nav-toggle" type="button" aria-label="Abrir navegação" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="nav-primary">
+      <ul class="nav-links">
+        <li><a href="../index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+
+        <li class="dropdown">
+          <a href="#"><i class="fa-solid fa-user-group"></i> Recrutamentos <i class="fa-solid fa-chevron-down"></i></a>
+          <div class="dropdown-content">
+            <a href="departamentopcerj.html">
+              <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="PCERJ" class="nav-icon" style="width: 25px; height: auto;"> PCERJ
+            </a>
+            <a href="batalhaopmerj.html">
+              <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" class="nav-icon" style="width: 25px; height: auto;"> PMERJ
+            </a>
+            <a href="departamentoprf.html">
+              <img src="../public/images/PRF_new.png" alt="PRF" class="nav-icon" style="width: 25px; height: auto;"> PRF
+            </a>
+          </div>
+        </li>
+        <li><a href="boletim.html"><i class="fa-solid fa-clipboard"></i> Boletim de Ocorrência</a></li>
+        <li><a href="jornalmare.html"><i class="fa-solid fa-newspaper"></i> Jornal Mare</a></li>
+        <li><a href="https://policia-revoada.vercel.app" target="_blank"><i class="fa-solid fa-gavel"></i> Código Penal</a></li>
+        <li><a href="https://discord.gg/uCBKjAt2vm" target="_blank"><i class="fa-solid fa-scale-balanced"></i> Corregedoria de Polícia</a></li>
+      </ul>
+
+      <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
+        <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-lock"></i> Acesso Policial
+        </a>
+        <div id="user-area" class="user-area">
+          <button id="btn-login" class="btn-login" onclick="proceedToLogin();">
+            <i class="fa-brands fa-discord"></i> Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="codp-rail" aria-label="Navegação do curso">
+    <div class="codp-rail-head">
+      <span class="codp-eyebrow">Curso</span>
+      <strong>Slides CODP</strong>
+      <small id="codp-rail-counter">01 / 08</small>
+    </div>
+    <nav class="codp-rail-nav" id="codp-rail-nav">
+      <button type="button" class="codp-rail-link is-active" data-section-target="introducao">
+        <span>01</span>
+        <strong>Introdução</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="qsv">
+        <span>02</span>
+        <strong>Conheça sua QSV</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="controle-qsv">
+        <span>03</span>
+        <strong>Controle da QSV</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="prioridades">
+        <span>04</span>
+        <strong>Prioridades</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="distancia-segura">
+        <span>05</span>
+        <strong>Distância segura</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="sirene">
+        <span>06</span>
+        <strong>Códigos de sirene</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="referencias">
+        <span>07</span>
+        <strong>Pontos de referência</strong>
+      </button>
+      <button type="button" class="codp-rail-link" data-section-target="conclusao">
+        <span>08</span>
+        <strong>Conclusão</strong>
+      </button>
+    </nav>
+  </div>
+
+  <main class="codp-main">
+    <header class="codp-hero" id="hero">
+      <div class="container codp-hero-inner">
+        <div class="codp-hero-copy codp-reveal is-visible">
+          <span class="codp-kicker"><i class="fa-solid fa-car-burst"></i> Formação Operacional</span>
+          <h1>CURSO OPERACIONAL DE DIREÇÃO POLICIAL</h1>
+          <p class="codp-subtitle">Treinamento obrigatório para todos os oficiais</p>
+          <p class="codp-description">Formação, aperfeiçoamento e padronização operacional para condução de viaturas com técnica, consciência tática e controle de risco.</p>
+          <div class="codp-hero-actions">
+            <a href="#introducao" class="codp-button codp-button-primary"><i class="fa-solid fa-arrow-down"></i><span>Iniciar treinamento</span></a>
+            <button type="button" class="codp-button codp-button-ghost" id="presentation-toggle"><i class="fa-solid fa-expand"></i><span>Modo apresentação</span></button>
+          </div>
+        </div>
+        <div class="codp-hero-visual codp-reveal is-visible">
+          <div class="codp-placeholder codp-hero-placeholder">
+            <span class="codp-placeholder-tag">Hero visual</span>
+            <strong>Espaço para imagem de capa</strong>
+            <small>Adicione posteriormente uma imagem institucional da viatura ou aula prática.</small>
+          </div>
+        </div>
+      </div>
+      <div class="codp-hero-parallax" aria-hidden="true"></div>
+    </header>
+
+    <section class="codp-summary-wrapper" id="sumario">
+      <div class="container">
+        <div class="codp-summary-card codp-reveal">
+          <div class="codp-summary-head">
+            <div>
+              <span class="codp-eyebrow">Sumário tático</span>
+              <h2>Navegue pelo conteúdo operacional</h2>
+            </div>
+            <p>Use o sumário para revisar o material por blocos, com transição suave e destaque automático da seção ativa.</p>
+          </div>
+          <div class="codp-summary-links" id="codp-summary-links">
+            <a href="#introducao" data-section-target="introducao">Introdução</a>
+            <a href="#qsv" data-section-target="qsv">Conheça sua QSV</a>
+            <a href="#controle-qsv" data-section-target="controle-qsv">Controle da QSV</a>
+            <a href="#prioridades" data-section-target="prioridades">Prioridades</a>
+            <a href="#sirene" data-section-target="sirene">Códigos de sirene</a>
+            <a href="#referencias" data-section-target="referencias">Pontos de referência</a>
+            <a href="#conclusao" data-section-target="conclusao">Conclusão</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="introducao" data-section-title="Introdução" data-slide-number="01">
+      <div class="container codp-section-grid">
+        <article class="codp-panel codp-reveal">
+          <div class="codp-section-header">
+            <span class="codp-section-index">01</span>
+            <div>
+              <h2>Introdução</h2>
+              <p>Base doutrinária do curso e alinhamento operacional para serviço em viatura.</p>
+            </div>
+          </div>
+          <div class="codp-copy">
+            <p>A condução de uma viatura policial vai muito além de simplesmente dirigir em alta velocidade. Em ambiente operacional, cada tomada de decisão ao volante interfere diretamente na segurança da guarnição, na preservação da vida de terceiros, na continuidade da ocorrência e no êxito da missão.</p>
+            <p>O Curso Operacional de Direção Policial foi estruturado para padronizar procedimentos, aprimorar o controle técnico da viatura e alinhar o comportamento do oficial em situações de rotina, acompanhamento tático e resposta emergencial. A proposta não é formar o policial “mais rápido”, e sim o mais preparado para conduzir com disciplina, leitura de cenário e responsabilidade operacional.</p>
+            <p>Neste treinamento, o oficial revisará fundamentos de pilotagem policial, limites da QSV, uso correto da sinalização sonora, prioridades em perseguição e noções de posicionamento estratégico. O objetivo final é assegurar uma atuação uniforme, profissional e eficiente em qualquer cenário de emprego da viatura.</p>
+          </div>
+        </article>
+        <aside class="codp-panel codp-panel-soft codp-reveal">
+          <span class="codp-eyebrow">Diretriz do curso</span>
+          <h3>Condução policial é técnica aplicada sob pressão.</h3>
+          <p>Velocidade sem controle compromete a missão. Técnica, constância e consciência operacional sustentam a resposta profissional da guarnição.</p>
+          <div class="codp-mini-stats">
+            <div>
+              <strong>Padrão</strong>
+              <span>Condução uniforme</span>
+            </div>
+            <div>
+              <strong>Risco</strong>
+              <span>Gestão de cenário</span>
+            </div>
+            <div>
+              <strong>Missão</strong>
+              <span>Eficiência da equipe</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="qsv" data-section-title="Conheça sua QSV" data-slide-number="02">
+      <div class="container">
+        <div class="codp-section-intro codp-reveal">
+          <span class="codp-section-index">02</span>
+          <div>
+            <h2>Conheça sua QSV</h2>
+            <p>Toda viatura possui comportamento próprio. Conhecer a resposta do veículo é o primeiro passo para conduzir com segurança e eficiência.</p>
+          </div>
+        </div>
+        <div class="codp-card-grid codp-four-grid">
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-gauge-high"></i>
+                <h3>Aceleração</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Entenda o tempo de resposta da viatura ao arrancar, retomadas após frenagem e ganho de velocidade em retas curtas. Aceleração bem aplicada evita perda de tração e reduz erros em saída de curva.</p>
+            </div>
+          </article>
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-road-circle-exclamation"></i>
+                <h3>Frenagem</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Reconheça a distância necessária para desacelerar, o peso da viatura em frenagens bruscas e o comportamento em piso irregular. Frenar cedo e com progressão mantém a QSV controlada.</p>
+            </div>
+          </article>
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-arrows-left-right-to-line"></i>
+                <h3>Curvas</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Curvas exigem trajetória limpa, redução antecipada e retomada gradual. A entrada precipitada gera perda de tempo, risco de colisão e quebra do padrão de condução operacional.</p>
+            </div>
+          </article>
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-tire"></i>
+                <h3>Aderência</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>A aderência muda conforme peso, superfície e manobra executada. Conhecer o limite da QSV impede derrapagens, subesterço e perda da linha de perseguição.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="controle-qsv" data-section-title="Controle da QSV" data-slide-number="03">
+      <div class="container codp-section-grid">
+        <article class="codp-panel codp-reveal">
+          <div class="codp-section-header">
+            <span class="codp-section-index">03</span>
+            <div>
+              <h2>Controle da QSV</h2>
+              <p>Direção operacional exige previsibilidade, consistência e domínio progressivo da viatura.</p>
+            </div>
+          </div>
+          <div class="codp-accordion-stack">
+            <article class="codp-accordion codp-reveal" data-expandable>
+              <button type="button" class="codp-card-toggle" aria-expanded="false">
+                <div>
+                  <h3>Leitura de terreno e ritmo operacional</h3>
+                  <p>Ajuste a condução ao ambiente antes de exigir performance do veículo.</p>
+                </div>
+                <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+              </button>
+              <div class="codp-card-body">
+                <ul class="codp-list">
+                  <li>Observe piso, inclinação, visibilidade e fluxo urbano antes de aumentar o ritmo.</li>
+                  <li>Antecipe decisões em cruzamentos, retornos, vielas e pontos com visibilidade reduzida.</li>
+                  <li>Mantenha trajetória limpa para preservar controle, não para demonstrar velocidade.</li>
+                </ul>
+              </div>
+            </article>
+            <article class="codp-accordion codp-reveal" data-expandable>
+              <button type="button" class="codp-card-toggle" aria-expanded="false">
+                <div>
+                  <h3>Aplicação de comandos suaves</h3>
+                  <p>Comandos bruscos transferem instabilidade para toda a ocorrência.</p>
+                </div>
+                <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+              </button>
+              <div class="codp-card-body">
+                <ul class="codp-list">
+                  <li>Evite aceleração total sem necessidade objetiva da missão.</li>
+                  <li>Reduza de forma progressiva antes da curva e retome gradualmente na saída.</li>
+                  <li>Mantenha o volante sob correções curtas e intencionais.</li>
+                </ul>
+              </div>
+            </article>
+            <article class="codp-accordion codp-reveal" data-expandable>
+              <button type="button" class="codp-card-toggle" aria-expanded="false">
+                <div>
+                  <h3>Disciplina de condução</h3>
+                  <p>A viatura precisa permanecer utilizável do início ao fim da missão.</p>
+                </div>
+                <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+              </button>
+              <div class="codp-card-body">
+                <ul class="codp-list">
+                  <li>Conduza pensando no posicionamento da equipe e não apenas no suspeito.</li>
+                  <li>Evite manobras desnecessárias que comprometam o acompanhamento.</li>
+                  <li>Priorize constância e visibilidade para a guarnição secundária.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </article>
+        <aside class="codp-highlight-card codp-reveal">
+          <span class="codp-eyebrow">Frase-chave</span>
+          <blockquote>“Conduzir bem não é ser o mais rápido — é ser o mais consistente.”</blockquote>
+          <p>Consistência operacional mantém a equipe viva, reduz acidentes e sustenta a pressão sobre o alvo com muito mais eficiência do que excesso de velocidade sem leitura tática.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="prioridades" data-section-title="Prioridades" data-slide-number="04">
+      <div class="container">
+        <div class="codp-section-intro codp-reveal">
+          <span class="codp-section-index">04</span>
+          <div>
+            <h2>Prioridades em perseguição</h2>
+            <p>Perseguição não é corrida. É coordenação, hierarquia de papéis e manutenção do cerco com disciplina.</p>
+          </div>
+        </div>
+
+        <div class="codp-card-grid codp-two-grid">
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-crosshairs"></i>
+                <h3>Viatura primária</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>A viatura primária dita o ritmo, faz a leitura do alvo e conduz a comunicação principal da perseguição. Ela não deve ser atropelada por unidades secundárias nem forçada a manobras por excesso de pressão traseira.</p>
+            </div>
+          </article>
+
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-car-on"></i>
+                <h3>Limite de viaturas</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Excesso de viaturas compromete espaço de manobra, leitura de tráfego e comunicação. Somente unidades úteis para o cerco devem permanecer na perseguição ativa, evitando sobreposição operacional.</p>
+            </div>
+          </article>
+
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-ruler-combined"></i>
+                <h3>Distância segura</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Manter distância segura preserva tempo de reação em freadas, curvas e mudanças súbitas de rota. Aproximação excessiva elimina margem de erro e aumenta a chance de colisão entre viaturas.</p>
+            </div>
+          </article>
+
+          <article class="codp-info-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <i class="fa-solid fa-brain"></i>
+                <h3>Consciência operacional</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>O motorista deve estar consciente do ambiente, da equipe, do alvo e das unidades no entorno. A perseguição exige rádio limpo, visão ampla e tomada de decisão disciplinada, nunca impulso.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="distancia-segura" data-section-title="Distância segura" data-slide-number="05">
+      <div class="container codp-section-grid">
+        <div class="codp-panel codp-reveal">
+          <div class="codp-section-header">
+            <span class="codp-section-index">05</span>
+            <div>
+              <h2>Distância segura</h2>
+              <p>Espaçamento correto evita colisões, preserva leitura do alvo e melhora a reação da equipe.</p>
+            </div>
+          </div>
+          <p class="codp-copy">Em acompanhamento tático, manter distância segura não significa perder contato. Significa construir tempo de reação para frenagens súbitas, curvas de baixa visibilidade, manobras evasivas do alvo e entrada de terceiros no trajeto. A viatura deve permanecer suficientemente próxima para não perder o acompanhamento, mas distante o bastante para continuar útil quando o cenário se deteriorar.</p>
+          <div class="codp-alert-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <strong>Distância curta demais quebra a perseguição.</strong>
+              <span>Colidir na primária, bloquear a própria equipe ou perder reação em curva compromete toda a missão.</span>
+            </div>
+          </div>
+        </div>
+        <div class="codp-reveal">
+          <div class="codp-placeholder codp-image-placeholder">
+            <span class="codp-placeholder-tag">Imagem tática</span>
+            <strong>Espaço para imagem de referência</strong>
+            <small>Exemplo visual de posicionamento entre viatura primária, secundária e alvo.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="sirene" data-section-title="Códigos de sirene" data-slide-number="06">
+      <div class="container">
+        <div class="codp-section-intro codp-reveal">
+          <span class="codp-section-index">06</span>
+          <div>
+            <h2>Códigos de sirene</h2>
+            <p>A sinalização sonora comunica prioridade, urgência e modo de deslocamento. Deve ser usada com critério.</p>
+          </div>
+        </div>
+
+        <div class="codp-card-grid codp-three-grid">
+          <article class="codp-siren-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <span class="codp-code-badge">Código 1</span>
+                <h3>Patrulhamento</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Deslocamento ordinário, sem urgência imediata e sem prioridade de passagem. Utilizado em patrulhamento, ronda e posicionamento preventivo.</p>
+            </div>
+          </article>
+
+          <article class="codp-siren-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <span class="codp-code-badge">Código 2</span>
+                <h3>Resposta acelerada</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Empregado em deslocamento rápido com necessidade operacional, exigindo atenção ampliada, porém sem o mesmo nível crítico do código máximo.</p>
+            </div>
+          </article>
+
+          <article class="codp-siren-card codp-reveal" data-expandable>
+            <button type="button" class="codp-card-toggle" aria-expanded="false">
+              <div>
+                <span class="codp-code-badge">Código 3</span>
+                <h3>Urgência máxima</h3>
+              </div>
+              <span class="codp-card-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+            </button>
+            <div class="codp-card-body">
+              <p>Utilizado em ocorrências críticas, acompanhamento tático e resposta imediata. Exige controle total da viatura e comunicação disciplinada da equipe.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="codp-controls-panel codp-reveal">
+          <div class="codp-controls-head">
+            <span class="codp-eyebrow">Controles de sirene</span>
+            <h3>Padrão de acionamento</h3>
+          </div>
+          <div class="codp-keycaps">
+            <div class="codp-keycap"><kbd>Q</kbd><span>+</span><kbd>ALT</kbd><small>Ligar sirene</small></div>
+            <div class="codp-keycap"><kbd>R</kbd><small>Trocar sirene</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="referencias" data-section-title="Pontos de referência" data-slide-number="07">
+      <div class="container codp-section-grid">
+        <article class="codp-panel codp-reveal">
+          <div class="codp-section-header">
+            <span class="codp-section-index">07</span>
+            <div>
+              <h2>Pontos de referência</h2>
+              <p>Comunicação clara depende de referências simples, estáveis e compartilhadas por toda a tropa.</p>
+            </div>
+          </div>
+          <div class="codp-copy">
+            <p>Durante acompanhamento, deslocamento ou coordenação de cercos, a informação precisa chegar limpa e rápida. O uso de pontos de referência bem conhecidos evita ruído no rádio, acelera apoio entre matrizes e facilita a antecipação das unidades que estão fechando rota.</p>
+            <p>Ao comunicar posição, priorize marcos visuais relevantes, estruturas fixas, trechos de rodovia, entradas, retornos, pontes e zonas de circulação reconhecidas pela equipe. Mensagens curtas e objetivas mantêm a operação fluida.</p>
+          </div>
+        </article>
+        <div class="codp-reveal">
+          <div class="codp-placeholder codp-map-placeholder">
+            <span class="codp-placeholder-tag">Mapa operacional</span>
+            <strong>Espaço para mapa / imagem de referência</strong>
+            <small>Adicione posteriormente o mapa com rotas, pontos de chamada e marcos da cidade.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="codp-section codp-slide-section" id="conclusao" data-section-title="Conclusão" data-slide-number="08">
+      <div class="container">
+        <div class="codp-conclusion codp-reveal">
+          <span class="codp-section-index">08</span>
+          <h2>Conclusão</h2>
+          <p>O CODP consolida a direção policial como competência operacional obrigatória. A boa condução protege a equipe, preserva a ocorrência, reduz danos colaterais e aumenta a eficiência da resposta. O oficial que domina sua QSV, respeita a doutrina e comunica com clareza entrega uma atuação mais profissional em qualquer cenário.</p>
+          <p>Padronização não limita desempenho. Ela cria base para que toda a tropa opere com a mesma linguagem, o mesmo critério e a mesma segurança. Esse é o padrão esperado da Central Policial.</p>
+          <div class="codp-conclusion-actions">
+            <a href="#hero" class="codp-button codp-button-primary"><i class="fa-solid fa-arrow-up"></i><span>Voltar ao topo</span></a>
+            <a href="central_policial.html" class="codp-button codp-button-ghost"><i class="fa-solid fa-shield-halved"></i><span>Voltar para a intranet</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="codp-slide-nav">
+    <button type="button" class="codp-slide-button" id="codp-prev-section" aria-label="Seção anterior">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button type="button" class="codp-slide-button" id="codp-next-section" aria-label="Próxima seção">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <script src="../scripts/app.js"></script>
+  <script src="../scripts/codp.js"></script>
+</body>
+</html>
