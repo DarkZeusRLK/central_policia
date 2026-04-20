@@ -19,6 +19,14 @@ function parseIdList(value) {
     .filter(Boolean);
 }
 
+function normalize(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function formatBr(dateStr) {
   return dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
 }

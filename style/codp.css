@@ -26,6 +26,7 @@ html {
     linear-gradient(180deg, #06101b 0%, #0b1421 48%, #08111d 100%);
   color: var(--codp-text);
   overflow: hidden;
+  font-family: "Inter", sans-serif;
 }
 
 .codp-progress {
@@ -55,8 +56,9 @@ html {
 .codp-body.codp-cover-active .codp-slide-section {
   opacity: 0 !important;
   pointer-events: none !important;
-  transform: translateX(72px) !important;
-  filter: blur(10px) !important;
+  transform: translateX(96px) scale(0.98) !important;
+  filter: blur(16px) !important;
+  visibility: hidden !important;
 }
 
 .codp-rail {
@@ -195,10 +197,10 @@ html {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.45s ease, transform 0.45s ease;
-  z-index: 6;
+  z-index: 12;
   background:
-    linear-gradient(120deg, rgba(5, 10, 18, 0.82), rgba(5, 10, 18, 0.58)),
-    linear-gradient(160deg, rgba(7, 18, 35, 0.38), rgba(10, 25, 52, 0.64)),
+    linear-gradient(120deg, rgba(4, 9, 16, 0.94), rgba(4, 9, 16, 0.82)),
+    linear-gradient(155deg, rgba(17, 28, 52, 0.52), rgba(65, 18, 18, 0.26)),
     url("../public/images/image.png") center/cover no-repeat;
 }
 
@@ -235,8 +237,9 @@ html {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(6, 11, 18, 0.78), rgba(9, 15, 25, 0.44)),
-    linear-gradient(140deg, rgba(15, 45, 98, 0.22), rgba(185, 28, 28, 0.14));
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.04), transparent 20%),
+    linear-gradient(180deg, rgba(3, 7, 14, 0.22), rgba(3, 7, 14, 0.74)),
+    linear-gradient(135deg, rgba(15, 45, 98, 0.18), rgba(185, 28, 28, 0.1));
   z-index: -2;
 }
 
@@ -244,9 +247,9 @@ html {
   position: absolute;
   inset: -8%;
   background:
-    radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.16), transparent 22%),
-    radial-gradient(circle at 78% 15%, rgba(59, 130, 246, 0.22), transparent 30%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.12), rgba(2, 6, 23, 0.8));
+    radial-gradient(circle at 18% 24%, rgba(251, 191, 36, 0.22), transparent 26%),
+    radial-gradient(circle at 82% 12%, rgba(59, 130, 246, 0.18), transparent 30%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(2, 6, 23, 0.82));
   transform: translate3d(0, 0, 0) scale(1.04);
   z-index: -1;
   transition: transform 0.2s linear;
@@ -266,35 +269,48 @@ html {
 }
 
 .codp-hero-copy {
-  max-width: 860px;
+  max-width: 940px;
   margin: 0 auto;
   text-align: center;
-  padding: 34px 38px;
+  padding: 48px 52px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  background: linear-gradient(180deg, rgba(6, 11, 18, 0.48), rgba(6, 11, 18, 0.72));
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(8px);
+  border-radius: 36px;
+  background:
+    linear-gradient(180deg, rgba(6, 11, 18, 0.42), rgba(6, 11, 18, 0.72)),
+    radial-gradient(circle at top, rgba(251, 191, 36, 0.06), transparent 38%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 36px 90px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(12px);
+}
+
+.codp-hero-title-lockup {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
 }
 
 .codp-cover-code {
-  margin: 12px 0 10px;
-  font-size: clamp(4.2rem, 9vw, 7rem);
+  margin: 14px 0 0;
+  font-family: "Cinzel", serif;
+  font-size: clamp(4.8rem, 11vw, 8.8rem);
   line-height: 0.92;
-  font-weight: 900;
-  letter-spacing: 0.18em;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #fff6d5;
+  color: #fff4c8;
   text-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.48),
-    0 0 30px rgba(251, 191, 36, 0.14);
+    0 14px 28px rgba(0, 0, 0, 0.52),
+    0 0 44px rgba(251, 191, 36, 0.12);
 }
 
 .codp-hero-copy h1 {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-wrap: balance;
 }
 
@@ -319,8 +335,8 @@ html {
 
 .codp-subtitle {
   margin: 16px 0 0;
-  color: #d9e6ff;
-  font-size: clamp(1.16rem, 2vw, 1.4rem);
+  color: #eef2ff;
+  font-size: clamp(1.08rem, 1.9vw, 1.32rem);
   font-weight: 700;
 }
 
@@ -339,6 +355,7 @@ html {
   max-width: 720px;
   margin: 16px auto 0;
   font-size: 1.04rem;
+  color: #b8c6db;
 }
 
 .codp-hero-actions,

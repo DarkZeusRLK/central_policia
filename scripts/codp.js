@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  document.title = "CODP | Curso Operacional de Direção Policial";
   const progressBar = document.getElementById("codp-progress-bar");
   const railCounter = document.getElementById("codp-rail-counter");
   const slideButtons = Array.from(document.querySelectorAll("[data-section-target]"));
@@ -16,6 +17,26 @@ document.addEventListener("DOMContentLoaded", () => {
   let transitionLocked = false;
   let wheelLocked = false;
   let coverVisible = true;
+
+  function hydrateHeroCover() {
+    if (!cover) return;
+    const copy = cover.querySelector(".codp-hero-copy");
+    if (!copy) return;
+
+    copy.innerHTML = `
+      <span class="codp-kicker"><i class="fa-solid fa-car-burst"></i> Formação Operacional</span>
+      <div class="codp-hero-title-lockup">
+        <p class="codp-cover-code">CODP</p>
+        <h1>Curso de Direção Policial</h1>
+      </div>
+      <p class="codp-subtitle">Treinamento obrigatório para todos os oficiais, do novato ao veterano, com foco em padronização, domínio técnico e consciência operacional.</p>
+      <p class="codp-description">Uma apresentação pensada para aula ao vivo, com progressão cinematográfica, leitura fluida e base doutrinária voltada à condução segura, eficiente e profissional da viatura policial.</p>
+      <div class="codp-hero-actions">
+        <button type="button" class="codp-button codp-button-primary" id="codp-start-course"><i class="fa-solid fa-arrow-down"></i><span>Iniciar curso</span></button>
+        <button type="button" class="codp-button codp-button-ghost" data-presentation-toggle><i class="fa-solid fa-expand"></i><span>Modo apresentação</span></button>
+      </div>
+    `;
+  }
 
   function formatSlideNumber(value) {
     return String(value).padStart(2, "0");
@@ -52,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updatePresentationButtons() {
     const isFullscreen = Boolean(document.fullscreenElement);
-    presentationToggles.forEach((button) => {
+    document.querySelectorAll("[data-presentation-toggle]").forEach((button) => {
       button.innerHTML = isFullscreen
         ? '<i class="fa-solid fa-compress"></i><span>Sair do modo apresentação</span>'
         : '<i class="fa-solid fa-expand"></i><span>Modo apresentação</span>';
@@ -254,9 +275,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setupPresentationMode() {
-    if (!presentationToggles.length) return;
+    const toggles = Array.from(document.querySelectorAll("[data-presentation-toggle]"));
+    if (!toggles.length) return;
 
-    presentationToggles.forEach((button) => {
+    toggles.forEach((button) => {
       button.addEventListener("click", async () => {
         try {
           if (!document.fullscreenElement) {
@@ -309,8 +331,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setupCoverControls() {
-    if (startCourseButton) {
-      startCourseButton.addEventListener("click", () => {
+    const currentStartCourseButton = document.getElementById("codp-start-course");
+
+    if (currentStartCourseButton) {
+      currentStartCourseButton.addEventListener("click", () => {
         hideCover();
         setSlide(0, { force: true });
       });
@@ -323,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  hydrateHeroCover();
   revealElements.forEach((element) => element.classList.remove("is-visible"));
   setupAccordions();
   setupRailNavigation();
