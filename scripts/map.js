@@ -17,17 +17,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Adicione novos pontos duplicando um objeto deste array.
   // Para cada novo ponto, crie uma pasta em /public/images/locations/<id-do-local>/
-  // com um map.webp e quantas imagens streetX.webp você quiser usar.
+  // e inclua ao menos um arquivo *_mapa e um arquivo *_rua do local.
   const locations = [
     {
-      id: "exemplo_local",
-      name: "Exemplo Local",
-      coords: [400, 1200],
-      description: "Exemplo inicial para a equipe posicionar pontos de referência da cidade e incluir prints reais do GTA RP.",
-      mapImage: "../public/images/locations/exemplo_local/map.webp",
+      id: "arcadius",
+      name: "Arcadius",
+      coords: [300, 1080],
+      description: "Região corporativa e densa do centro. Bom ponto para leitura de cruzamentos, entradas laterais e chamadas rápidas de apoio.",
+      mapImage: "../public/images/locations/Arcadius/Arcadius_mapa.png",
       images: [
-        "../public/images/locations/exemplo_local/street1.webp",
-        "../public/images/locations/exemplo_local/street2.webp",
+        "../public/images/locations/Arcadius/Arcadius_rua.png",
+      ],
+    },
+    {
+      id: "banco_central",
+      name: "Banco Central",
+      coords: [338, 1160],
+      description: "Área comercial estratégica no centro urbano. Exige boa atualização de QTH e atenção a rotas de contenção e fuga limpa.",
+      mapImage: "../public/images/locations/Banco_central/Banco_central_mapa.png",
+      images: [
+        "../public/images/locations/Banco_central/Banco_central_rua.png",
+      ],
+    },
+    {
+      id: "cinzinha",
+      name: "Cinzinha",
+      coords: [250, 1030],
+      description: "Trecho alto com vias sinuosas e transição rápida para a malha urbana. Importante para orientar SPEEDS e motocicletas com antecedência.",
+      mapImage: "../public/images/locations/Cinzinha/Cinzinha_mapa.png",
+      images: [
+        "../public/images/locations/Cinzinha/Cinzinha_rua.png",
+      ],
+    },
+    {
+      id: "cinzao",
+      name: "Cinzão",
+      coords: [410, 1040],
+      description: "Região urbana de forte circulação, com cruzamentos curtos e múltiplas saídas. Ideal para treinar leitura de rota e coordenação por rádio.",
+      mapImage: "../public/images/locations/Cinzão/Cinzao_mapa.png",
+      images: [
+        "../public/images/locations/Cinzão/Cinzao_rua.png",
+      ],
+    },
+    {
+      id: "life_invader",
+      name: "Life Invader",
+      coords: [330, 1000],
+      description: "Ponto de referência clássico em área mista entre avenida larga e miolo urbano. Útil para orientar aproximação, contenção e perseguição curta.",
+      mapImage: "../public/images/locations/Life_Invader/Life_Invader_mapa.png",
+      images: [
+        "../public/images/locations/Life_Invader/Life_Invader_rua.png",
       ],
     },
   ];
@@ -56,14 +95,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (location?.mapImage) {
       items.push({
         src: location.mapImage,
-        caption: "Visão tática do ponto no mapa",
+        caption: "Posição do local no mapa",
       });
     }
 
     (location?.images || []).forEach((src, index) => {
       items.push({
         src,
-        caption: `Visual da rua ${index + 1}`,
+        caption: `Visual da rua e da construção ${index + 1}`,
       });
     });
 
