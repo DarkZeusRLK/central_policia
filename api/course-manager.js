@@ -27,6 +27,15 @@ function normalize(value) {
     .trim();
 }
 
+function normalizeCourseBucket(value) {
+  const normalized = normalize(value);
+  if (!normalized) return "";
+  if (normalized.startsWith("bas")) return "basico";
+  if (normalized.startsWith("complement")) return "complementar";
+  if (normalized.startsWith("acao") || normalized.includes("acoes")) return "acoes";
+  return normalized;
+}
+
 function formatBr(dateStr) {
   return dateStr ? dateStr.split("-").reverse().join("/") : "N/A";
 }
@@ -796,11 +805,9 @@ export default async function handler(req, res) {
           Array.isArray(data.ignoredIds) ? data.ignoredIds.map((id) => String(id)) : [],
         );
         const selectedCourseId = String(data.courseId || "").trim();
-        const selectedCourseBucket = String(data.courseBucket || "")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase()
-          .trim();
+        const selectedCourseBucket =
+          resolveCourseTypeById(selectedCourseId, env) ||
+          normalizeCourseBucket(data.courseBucket);
         const ignoredRoleIds = new Set([
           selectedCourseId,
           ...(selectedCourseBucket === "basico" ? parseIdList(process.env.CONCLUSAO_CURSOS) : []),

@@ -14,10 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevImageButton = document.getElementById("codp-map-prev-image");
   const nextImageButton = document.getElementById("codp-map-next-image");
   const closeTriggers = modal.querySelectorAll("[data-map-close]");
+  const mapImageUrl = "../public/images/map/gta_map.webp";
 
   // Adicione novos pontos duplicando um objeto deste array.
   // Para cada novo ponto, crie uma pasta em /public/images/locations/<id-do-local>/
   // e inclua ao menos um arquivo *_mapa e um arquivo *_rua do local.
+  // As coordenadas usam o formato [y, x] em pixels reais da imagem gta_map.webp.
   const locations = [
     {
       id: "arcadius",
@@ -72,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const fallbackImage = "../public/images/Logo_policia.png";
-  const bounds = [[0, 0], [1000, 2000]];
   const map = L.map(mapElement, {
     crs: L.CRS.Simple,
     minZoom: -2,
@@ -80,10 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
     zoomControl: false,
     attributionControl: false,
   });
-
-  L.imageOverlay("../public/images/map/gta_map.webp", bounds).addTo(map);
-  map.fitBounds(bounds);
-  map.setMaxBounds(bounds);
 
   let activeLocation = locations[0] || null;
   let activeImageIndex = 0;
@@ -173,43 +170,70 @@ document.addEventListener("DOMContentLoaded", () => {
     updateImage();
   }
 
-  locations.forEach((location) => {
-    const icon = L.divIcon({
-      className: "",
-      html: '<div class="codp-map-marker" aria-hidden="true"></div>',
-      iconSize: [18, 18],
-      iconAnchor: [9, 9],
+  function mountMarkers() {
+    locations.forEach((location) => {
+      const icon = L.divIcon({
+        className: "",
+        html: '<div class="codp-map-marker" aria-hidden="true"></div>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+
+      const marker = L.marker(location.coords, { icon, keyboard: true }).addTo(map);
+      marker.bindTooltip(location.name, {
+        direction: "top",
+        offset: [0, -10],
+        opacity: 0.92,
+        className: "codp-map-tooltip",
+      });
+
+      marker.on("click", () => openLocation(location));
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "codp-map-legend-button";
+      button.dataset.locationId = location.id;
+      button.innerHTML = `
+        <span class="codp-map-legend-badge"></span>
+        <span>
+          <strong>${location.name}</strong>
+          <small>${location.description}</small>
+        </span>
+      `;
+
+      button.addEventListener("click", () => {
+        map.flyTo(location.coords, map.getZoom(), { duration: 0.5 });
+        openLocation(location);
+      });
+
+      legendElement.appendChild(button);
     });
+  }
 
-    const marker = L.marker(location.coords, { icon, keyboard: true }).addTo(map);
-    marker.bindTooltip(location.name, {
-      direction: "top",
-      offset: [0, -10],
-      opacity: 0.92,
-      className: "codp-map-tooltip",
-    });
+  function initializeMap() {
+    const loader = new Image();
+    loader.onload = () => {
+      const bounds = [[0, 0], [loader.naturalHeight, loader.naturalWidth]];
+      L.imageOverlay(mapImageUrl, bounds).addTo(map);
+      map.fitBounds(bounds);
+      map.setMaxBounds(bounds);
+      mountMarkers();
+      updateLegendState();
+    };
 
-    marker.on("click", () => openLocation(location));
+    loader.onerror = () => {
+      const fallbackBounds = [[0, 0], [1000, 2000]];
+      L.imageOverlay(mapImageUrl, fallbackBounds).addTo(map);
+      map.fitBounds(fallbackBounds);
+      map.setMaxBounds(fallbackBounds);
+      mountMarkers();
+      updateLegendState();
+    };
 
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "codp-map-legend-button";
-    button.dataset.locationId = location.id;
-    button.innerHTML = `
-      <span class="codp-map-legend-badge"></span>
-      <span>
-        <strong>${location.name}</strong>
-        <small>${location.description}</small>
-      </span>
-    `;
+    loader.src = mapImageUrl;
+  }
 
-    button.addEventListener("click", () => {
-      map.flyTo(location.coords, map.getZoom(), { duration: 0.5 });
-      openLocation(location);
-    });
-
-    legendElement.appendChild(button);
-  });
+  initializeMap();
 
   closeTriggers.forEach((trigger) => trigger.addEventListener("click", closeModal));
   prevImageButton.addEventListener("click", () => shiftImage(-1));
@@ -232,6 +256,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isReferenceSlide) return;
     window.setTimeout(() => map.invalidateSize(), 240);
   });
-
-  updateLegendState();
 });
