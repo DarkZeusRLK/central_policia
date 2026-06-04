@@ -372,6 +372,40 @@ async function writeAnnouncementMappings(mappings) {
   );
 }
 
+async function isDiscordMessageAvailable(channelId, messageId, botToken) {
+  if (!channelId || !messageId || !botToken) return false;
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/channels/${channelId}/messages/${messageId}`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+    },
+  );
+
+  return response.ok;
+}
+
+function normalizeAnnouncementInstructorIds(value) {
+  const values = Array.isArray(value) ? value : [value];
+  const ids = values.flatMap((item) => {
+    if (Array.isArray(item)) {
+      return item;
+    }
+
+    if (typeof item === "string") {
+      const mentionedIds = extractMentionedUserIds(item);
+      if (mentionedIds.length) return mentionedIds;
+      return String(item).match(/\b\d{15,}\b/g) || [];
+    }
+
+    return [];
+  });
+
+  return [...new Set(ids.map((item) => String(item).trim()).filter(Boolean))];
+}
+
 async function removeOldMappings() {
   const mappings = await readAnnouncementMappings();
   if (!mappings.length) {
@@ -388,6 +422,8 @@ async function saveAnnouncementMapping(mapping) {
     courseId: String(mapping?.courseId || "").trim(),
     callId: String(mapping?.callId || "").trim(),
     horario: String(mapping?.horario || "").trim(),
+    channelId: String(mapping?.channelId || "").trim() || String(process.env.CHANNEL_CURSOS_ANUNCIADOS || "").trim(),
+    instrutorIds: normalizeAnnouncementInstructorIds(mapping?.instrutores),
     createdAt: String(mapping?.createdAt || new Date().toISOString()),
   };
 
@@ -395,7 +431,8 @@ async function saveAnnouncementMapping(mapping) {
     !normalizedMapping.announcementMessageId ||
     !normalizedMapping.courseId ||
     !normalizedMapping.callId ||
-    !normalizedMapping.horario
+    !normalizedMapping.horario ||
+    !normalizedMapping.channelId
   ) {
     return null;
   }
@@ -411,30 +448,182 @@ async function saveAnnouncementMapping(mapping) {
   return normalizedMapping;
 }
 
-async function getAnnouncementMapping({ announcementMessageId, courseId, horario } = {}) {
+async function removeAnnouncementMapping(options = {}) {
+  const {
+    announcementMessageId,
+    courseId,
+    horario,
+    instructorIds,
+    instrutorIds,
+    selectedInstructorIds,
+  } = options;
+  const mappings = await readAnnouncementMappings();
+  const normalizedAnnouncementMessageId = String(announcementMessageId || "").trim();
+  const normalizedCourseId = String(courseId || "").trim();
+  const normalizedHorario = String(horario || "").trim();
+  const normalizedInstructorIds = normalizeAnnouncementInstructorIds(
+    instructorIds || instrutorIds || selectedInstructorIds || [],
+  );
+
+  if (!mappings.length) return null;
+
+  let matchIndex = -1;
+
+  if (normalizedAnnouncementMessageId) {
+    matchIndex = mappings.findIndex(
+      (mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId,
+    );
+  } else {
+    const matchingMappings = mappings.filter(
+      (mapping) =>
+        mapping.courseId === normalizedCourseId &&
+        (!normalizedHorario || mapping.horario === normalizedHorario),
+    );
+
+    if (normalizedInstructorIds.length) {
+      const scoredMappings = matchingMappings
+        .map((mapping, index) => {
+          const mappingInstructorIds = Array.isArray(mapping.instrutorIds)
+            ? mapping.instrutorIds.map(String)
+            : [];
+          const overlapCount = normalizedInstructorIds.filter((instructorId) =>
+            mappingInstructorIds.includes(String(instructorId)),
+          ).length;
+
+          return {
+            index: mappings.findIndex((entry) => entry.announcementMessageId === mapping.announcementMessageId),
+            overlapCount,
+          };
+        })
+        .filter((entry) => entry.index >= 0 && entry.overlapCount > 0)
+        .sort((left, right) => {
+          if (right.overlapCount !== left.overlapCount) return right.overlapCount - left.overlapCount;
+          return left.index - right.index;
+        });
+
+      matchIndex = scoredMappings[0]?.index ?? -1;
+    }
+
+    if (matchIndex < 0 && matchingMappings.length) {
+      matchIndex = mappings.findIndex(
+        (entry) => entry.announcementMessageId === matchingMappings[0].announcementMessageId,
+      );
+    }
+  }
+
+  if (matchIndex < 0) return null;
+
+  const removed = mappings.splice(matchIndex, 1)[0] || null;
+  await writeAnnouncementMappings(mappings);
+  console.log("[CALL MAP]", "removed", removed);
+  return removed;
+}
+
+async function getAnnouncementMapping(options = {}) {
+  const {
+    announcementMessageId,
+    courseId,
+    horario,
+    instructorIds,
+    instrutorIds,
+    selectedInstructorIds,
+  } = options;
   const mappings = await removeOldMappings();
   const normalizedAnnouncementMessageId = String(announcementMessageId || "").trim();
   const normalizedCourseId = String(courseId || "").trim();
   const normalizedHorario = String(horario || "").trim();
+  const normalizedInstructorIds = normalizeAnnouncementInstructorIds(
+    instructorIds || instrutorIds || selectedInstructorIds || [],
+  );
 
   if (normalizedAnnouncementMessageId) {
-    return (
-      mappings.find((mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId) || null
+    const directMatch = mappings.find(
+      (mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId,
     );
+    if (!directMatch) return null;
+    const isAlive = await isDiscordMessageAvailable(
+      directMatch.channelId || process.env.CHANNEL_CURSOS_ANUNCIADOS,
+      directMatch.announcementMessageId,
+      process.env.DISCORD_BOT_TOKEN,
+    );
+    if (!isAlive) {
+      await removeAnnouncementMapping({ announcementMessageId: normalizedAnnouncementMessageId });
+      return null;
+    }
+    return directMatch;
   }
 
-  if (normalizedCourseId && normalizedHorario) {
-    return (
-      mappings
-        .filter(
-          (mapping) =>
-            mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario,
-        )
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] || null
-    );
+  const matchingMappings = mappings.filter(
+    (mapping) =>
+      mapping.courseId === normalizedCourseId &&
+      (!normalizedHorario || mapping.horario === normalizedHorario),
+  );
+
+  if (!matchingMappings.length) {
+    return null;
   }
 
-  return null;
+  if (normalizedInstructorIds.length) {
+    const scoredMappings = matchingMappings
+      .map((mapping) => {
+        const mappingInstructorIds = Array.isArray(mapping.instrutorIds)
+          ? mapping.instrutorIds.map(String)
+          : [];
+        const overlapCount = normalizedInstructorIds.filter((instructorId) =>
+          mappingInstructorIds.includes(String(instructorId)),
+        ).length;
+
+        return {
+          mapping,
+          overlapCount,
+        };
+      })
+      .filter((entry) => entry.overlapCount > 0)
+      .sort((left, right) => {
+        if (right.overlapCount !== left.overlapCount) return right.overlapCount - left.overlapCount;
+        return new Date(left.mapping.createdAt).getTime() - new Date(right.mapping.createdAt).getTime();
+      });
+
+    if (scoredMappings.length) {
+      const candidate = scoredMappings[0].mapping;
+      const isAlive = await isDiscordMessageAvailable(
+        candidate.channelId || process.env.CHANNEL_CURSOS_ANUNCIADOS,
+        candidate.announcementMessageId,
+        process.env.DISCORD_BOT_TOKEN,
+      );
+      if (!isAlive) {
+        await removeAnnouncementMapping({ announcementMessageId: candidate.announcementMessageId });
+        return getAnnouncementMapping({
+          courseId: normalizedCourseId,
+          horario: normalizedHorario,
+          instructorIds: normalizedInstructorIds,
+        });
+      }
+      return candidate;
+    }
+  }
+
+  const oldestCandidate = matchingMappings.sort(
+    (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime(),
+  )[0] || null;
+
+  if (!oldestCandidate) return null;
+
+  const oldestAlive = await isDiscordMessageAvailable(
+    oldestCandidate.channelId || process.env.CHANNEL_CURSOS_ANUNCIADOS,
+    oldestCandidate.announcementMessageId,
+    process.env.DISCORD_BOT_TOKEN,
+  );
+  if (!oldestAlive) {
+    await removeAnnouncementMapping({ announcementMessageId: oldestCandidate.announcementMessageId });
+    return getAnnouncementMapping({
+      courseId: normalizedCourseId,
+      horario: normalizedHorario,
+      instructorIds: normalizedInstructorIds,
+    });
+  }
+
+  return oldestCandidate;
 }
 
 function sleep(ms) {
@@ -617,12 +806,14 @@ async function getVoiceChannelMembersFromGateway(guildId, channelId, botToken) {
   });
 }
 
-async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId, botToken) {
+async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId, botToken, instructorIds = []) {
   const normalizedCourseId = String(courseId || "").trim();
   if (!normalizedCourseId || !channelId || !botToken) return "";
   const normalizedHorario = String(horario || "").trim();
+  const normalizedInstructorIds = normalizeAnnouncementInstructorIds(instructorIds);
 
   let before = "";
+  const candidates = [];
 
   for (let page = 0; page < 2; page += 1) {
     const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
@@ -656,7 +847,11 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
 
       const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
       if (buttonUrlMatch?.[1]) {
-        return buttonUrlMatch[1];
+        candidates.push({
+          callId: buttonUrlMatch[1],
+          timestamp: message.timestamp || "",
+          text: serialized,
+        });
       }
     }
 
@@ -664,7 +859,37 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
     if (!before) break;
   }
 
-  return "";
+  if (!candidates.length) return "";
+
+  if (normalizedInstructorIds.length) {
+    const scoredCandidates = candidates
+      .map((candidate) => {
+        const candidateInstructorIds = Array.from(
+          candidate.text.matchAll(/<@!?(\d+)>/g),
+        ).map((match) => match[1]);
+        const overlapCount = normalizedInstructorIds.filter((instructorId) =>
+          candidateInstructorIds.includes(String(instructorId)),
+        ).length;
+
+        return {
+          ...candidate,
+          overlapCount,
+        };
+      })
+      .filter((candidate) => candidate.overlapCount > 0)
+      .sort((left, right) => {
+        if (right.overlapCount !== left.overlapCount) return right.overlapCount - left.overlapCount;
+        return new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime();
+      });
+
+    if (scoredCandidates.length) {
+      return scoredCandidates[0].callId;
+    }
+  }
+
+  return candidates.sort(
+    (left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime(),
+  )[0]?.callId || "";
 }
 
 function resolveFaction(data, env) {
@@ -910,6 +1135,7 @@ export default async function handler(req, res) {
             announcementMessageId: data.announcementMessageId,
             courseId: data.courseId,
             horario: data.horario,
+            instructorIds: data.instructorIds || data.instrutorIds || data.selectedInstructorIds,
           });
 
           if (mappedCall?.callId) {
@@ -929,6 +1155,7 @@ export default async function handler(req, res) {
             data.horario,
             env.CHANNEL_CURSOS_ANUNCIADOS,
             DISCORD_BOT_TOKEN,
+            data.instructorIds || data.instrutorIds || data.selectedInstructorIds,
           );
           if (callId) {
             console.log("[CALL MAP]", "resolved from recent announcements", {
@@ -1009,6 +1236,8 @@ export default async function handler(req, res) {
               courseId,
               callId,
               horario: data.horario,
+              channelId: env.CHANNEL_CURSOS_ANUNCIADOS,
+              instrutores: data.instrutores || "",
             });
           }
         }
@@ -1051,6 +1280,14 @@ export default async function handler(req, res) {
           DISCORD_BOT_TOKEN,
           GUILD_ID,
         );
+        if (String(data.announcementMessageId || "").trim()) {
+          await removeAnnouncementMapping({
+            announcementMessageId: data.announcementMessageId,
+            courseId: data.curso_id,
+            horario: data.horario,
+            instructorIds: data.instructorIds || data.instrutores || "",
+          });
+        }
 
         return res.status(200).json({
           success: true,
