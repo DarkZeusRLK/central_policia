@@ -4,6 +4,7 @@ import { readFile, writeFile } from "node:fs/promises";
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const ANNOUNCEMENT_MAPPINGS_PATH = new URL("../announcementMappings.json", import.meta.url);
 const ANNOUNCEMENT_MAPPING_TTL_MS = 48 * 60 * 60 * 1000;
+const SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS = process.env.VERCEL !== "1";
 const COURSE_TYPE_OVERRIDES = {
   "1164557461357867038": "complementar",
 };
@@ -345,6 +346,49 @@ function extractCallIdFromLink(callLink) {
   return match?.[1] || "";
 }
 
+function extractCallLinkFromDiscordMessage(message) {
+  const stack = Array.isArray(message?.components) ? [...message.components] : [];
+
+  while (stack.length) {
+    const current = stack.shift();
+    if (!current || typeof current !== "object") continue;
+
+    if (current.url && typeof current.url === "string") {
+      return current.url;
+    }
+
+    if (Array.isArray(current.components)) {
+      stack.push(...current.components);
+    }
+
+    if (Array.isArray(current.children)) {
+      stack.push(...current.children);
+    }
+
+    if (Array.isArray(current.sections)) {
+      stack.push(...current.sections);
+    }
+  }
+
+  return "";
+}
+
+async function fetchDiscordMessage(channelId, messageId, botToken) {
+  if (!channelId || !messageId || !botToken) return null;
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/channels/${channelId}/messages/${messageId}`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) return null;
+  return response.json();
+}
+
 function isAnnouncementMappingFresh(mapping) {
   const createdAt = new Date(mapping?.createdAt || "");
   if (Number.isNaN(createdAt.getTime())) return false;
@@ -352,6 +396,10 @@ function isAnnouncementMappingFresh(mapping) {
 }
 
 async function readAnnouncementMappings() {
+  if (!SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS) {
+    return [];
+  }
+
   try {
     const raw = await readFile(ANNOUNCEMENT_MAPPINGS_PATH, "utf8");
     const parsed = JSON.parse(raw);
@@ -365,6 +413,10 @@ async function readAnnouncementMappings() {
 }
 
 async function writeAnnouncementMappings(mappings) {
+  if (!SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS) {
+    return;
+  }
+
   await writeFile(
     ANNOUNCEMENT_MAPPINGS_PATH,
     `${JSON.stringify(mappings, null, 2)}\n`,
@@ -373,18 +425,7 @@ async function writeAnnouncementMappings(mappings) {
 }
 
 async function isDiscordMessageAvailable(channelId, messageId, botToken) {
-  if (!channelId || !messageId || !botToken) return false;
-
-  const response = await fetch(
-    `${DISCORD_API_BASE}/channels/${channelId}/messages/${messageId}`,
-    {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-    },
-  );
-
-  return response.ok;
+  return Boolean(await fetchDiscordMessage(channelId, messageId, botToken));
 }
 
 function normalizeAnnouncementInstructorIds(value) {
@@ -407,6 +448,10 @@ function normalizeAnnouncementInstructorIds(value) {
 }
 
 async function removeOldMappings() {
+  if (!SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS) {
+    return [];
+  }
+
   const mappings = await readAnnouncementMappings();
   if (!mappings.length) {
     return [];
@@ -417,6 +462,24 @@ async function removeOldMappings() {
 }
 
 async function saveAnnouncementMapping(mapping) {
+  if (!SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS) {
+    console.log("[CALL MAP]", "skipped save in production", {
+      announcementMessageId: String(mapping?.announcementMessageId || "").trim(),
+      courseId: String(mapping?.courseId || "").trim(),
+      callId: String(mapping?.callId || "").trim(),
+      horario: String(mapping?.horario || "").trim(),
+    });
+    return {
+      announcementMessageId: String(mapping?.announcementMessageId || "").trim(),
+      courseId: String(mapping?.courseId || "").trim(),
+      callId: String(mapping?.callId || "").trim(),
+      horario: String(mapping?.horario || "").trim(),
+      channelId: String(mapping?.channelId || "").trim() || String(process.env.CHANNEL_CURSOS_ANUNCIADOS || "").trim(),
+      instrutorIds: normalizeAnnouncementInstructorIds(mapping?.instrutores),
+      createdAt: String(mapping?.createdAt || new Date().toISOString()),
+    };
+  }
+
   const normalizedMapping = {
     announcementMessageId: String(mapping?.announcementMessageId || "").trim(),
     courseId: String(mapping?.courseId || "").trim(),
@@ -449,6 +512,10 @@ async function saveAnnouncementMapping(mapping) {
 }
 
 async function removeAnnouncementMapping(options = {}) {
+  if (!SHOULD_PERSIST_ANNOUNCEMENT_MAPPINGS) {
+    return null;
+  }
+
   const {
     announcementMessageId,
     courseId,
@@ -540,17 +607,44 @@ async function getAnnouncementMapping(options = {}) {
     const directMatch = mappings.find(
       (mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId,
     );
-    if (!directMatch) return null;
-    const isAlive = await isDiscordMessageAvailable(
-      directMatch.channelId || process.env.CHANNEL_CURSOS_ANUNCIADOS,
-      directMatch.announcementMessageId,
+    if (directMatch) {
+      const isAlive = await isDiscordMessageAvailable(
+        directMatch.channelId || process.env.CHANNEL_CURSOS_ANUNCIADOS,
+        directMatch.announcementMessageId,
+        process.env.DISCORD_BOT_TOKEN,
+      );
+      if (!isAlive) {
+        await removeAnnouncementMapping({ announcementMessageId: normalizedAnnouncementMessageId });
+        return null;
+      }
+      return directMatch;
+    }
+
+    const liveAnnouncementMessage = await fetchDiscordMessage(
+      process.env.CHANNEL_CURSOS_ANUNCIADOS,
+      normalizedAnnouncementMessageId,
       process.env.DISCORD_BOT_TOKEN,
     );
-    if (!isAlive) {
-      await removeAnnouncementMapping({ announcementMessageId: normalizedAnnouncementMessageId });
+
+    if (!liveAnnouncementMessage) {
       return null;
     }
-    return directMatch;
+
+    const callLink = extractCallLinkFromDiscordMessage(liveAnnouncementMessage);
+    const callId = extractCallIdFromLink(callLink);
+
+    if (!callId) {
+      return null;
+    }
+
+    return {
+      announcementMessageId: normalizedAnnouncementMessageId,
+      courseId: normalizedCourseId,
+      horario: normalizedHorario,
+      callId,
+      channelId: process.env.CHANNEL_CURSOS_ANUNCIADOS || "",
+      createdAt: new Date().toISOString(),
+    };
   }
 
   const matchingMappings = mappings.filter(
