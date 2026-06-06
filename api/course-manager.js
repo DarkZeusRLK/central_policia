@@ -4,9 +4,33 @@ import { readFile, writeFile } from "node:fs/promises";
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const ANNOUNCEMENT_MAPPINGS_PATH = new URL("../announcementMappings.json", import.meta.url);
 const ANNOUNCEMENT_MAPPING_TTL_MS = 48 * 60 * 60 * 1000;
+const ANNOUNCEMENT_SCAN_PAGE_LIMIT = 10;
 const COURSE_TYPE_OVERRIDES = {
   "1164557461357867038": "complementar",
 };
+const FACTION_REPORT_TARGETS = [
+  {
+    name: "PCERJ",
+    roleEnv: "ROLE_ID_PCERJ",
+    channelEnv: "CH_PCERJ_FINALIZADOS",
+  },
+  {
+    name: "PMERJ",
+    roleEnv: "ROLE_ID_PMERJ",
+    channelEnv: "CH_PMERJ_FINALIZADOS",
+    actionChannelEnv: "CH_PMERJ_FINALIZADOS_ACAO",
+  },
+  {
+    name: "PRF",
+    roleEnv: "ROLE_ID_PRF",
+    channelEnv: "CH_PRF_FINALIZADOS",
+  },
+  {
+    name: "PF",
+    roleEnv: "ROLE_ID_PF",
+    channelEnv: "CH_PF_FINALIZADOS",
+  },
+];
 
 function parseIdList(value) {
   return String(value || "")
@@ -121,6 +145,195 @@ function resolveCourseMentions(data) {
 
 function extractMentionedUserIds(value) {
   return Array.from(String(value || "").matchAll(/<@!?(\d+)>/g)).map((match) => match[1]);
+}
+
+function splitSelectedMemberTokens(value) {
+  return String(value || "")
+    .split(/[\n,;]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function getFactionChannelId(factionName, env, courseId) {
+  const faction = String(factionName || "").trim().toUpperCase();
+
+  if (faction === "PCERJ") {
+    return env.CH_PCERJ_FINALIZADOS || "";
+  }
+
+  if (faction === "PMERJ") {
+    const courseType = resolveCourseTypeById(courseId, env);
+    return courseType === "acoes"
+      ? env.CH_PMERJ_FINALIZADOS_ACAO || env.CH_PMERJ_FINALIZADOS || ""
+      : env.CH_PMERJ_FINALIZADOS || "";
+  }
+
+  if (faction === "PRF") {
+    return env.CH_PRF_FINALIZADOS || "";
+  }
+
+  if (faction === "PF") {
+    return env.CH_PF_FINALIZADOS || "";
+  }
+
+  return "";
+}
+
+function resolveFactionByRoleIds(roleIds, env) {
+  const normalizedRoleIds = Array.isArray(roleIds) ? roleIds.map(String) : [];
+  if (!normalizedRoleIds.length) return null;
+
+  if (normalizedRoleIds.some((roleId) => parseIdList(env.ROLE_ID_PCERJ).includes(roleId))) {
+    return { name: "PCERJ", channelId: getFactionChannelId("PCERJ", env) };
+  }
+
+  if (normalizedRoleIds.some((roleId) => parseIdList(env.ROLE_ID_PMERJ).includes(roleId))) {
+    return { name: "PMERJ", channelId: getFactionChannelId("PMERJ", env) };
+  }
+
+  if (normalizedRoleIds.some((roleId) => parseIdList(env.ROLE_ID_PRF).includes(roleId))) {
+    return { name: "PRF", channelId: getFactionChannelId("PRF", env) };
+  }
+
+  if (normalizedRoleIds.some((roleId) => parseIdList(env.ROLE_ID_PF).includes(roleId))) {
+    return { name: "PF", channelId: getFactionChannelId("PF", env) };
+  }
+
+  return null;
+}
+
+async function fetchGuildMemberById(guildId, userId, botToken) {
+  const normalizedGuildId = String(guildId || "").trim();
+  const normalizedUserId = String(userId || "").trim();
+  if (!normalizedGuildId || !normalizedUserId || !botToken) return null;
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/guilds/${normalizedGuildId}/members/${normalizedUserId}`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+    },
+  );
+
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Falha ao consultar membro ${normalizedUserId}: ${text}`);
+  }
+
+  return response.json();
+}
+
+async function fetchGuildMembers(guildId, botToken) {
+  const normalizedGuildId = String(guildId || "").trim();
+  if (!normalizedGuildId || !botToken) return [];
+
+  const response = await fetch(
+    `${DISCORD_API_BASE}/guilds/${normalizedGuildId}/members?limit=1000`,
+    {
+      headers: {
+        Authorization: `Bot ${botToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Falha ao consultar membros do servidor: ${text}`);
+  }
+
+  const members = await response.json();
+  return Array.isArray(members) ? members : [];
+}
+
+function resolveMemberDisplayName(member) {
+  return (
+    member?.nick ||
+    member?.user?.global_name ||
+    member?.user?.username ||
+    ""
+  );
+}
+
+async function resolveMembersFromText(value, botToken, guildId, cachedMembers = { value: null }) {
+  const tokens = splitSelectedMemberTokens(value);
+  if (!tokens.length) return [];
+
+  const resolved = [];
+  const seenIds = new Set();
+  const unresolvedNames = [];
+
+  for (const token of tokens) {
+    const mentionMatch = token.match(/^<@!?(\d+)>$/);
+    if (mentionMatch?.[1]) {
+      const userId = mentionMatch[1];
+      if (seenIds.has(userId)) continue;
+      seenIds.add(userId);
+      const member = await fetchGuildMemberById(guildId, userId, botToken);
+      if (member?.user?.id) {
+        resolved.push(member);
+      }
+      continue;
+    }
+
+    unresolvedNames.push(token);
+  }
+
+  if (unresolvedNames.length) {
+    if (!Array.isArray(cachedMembers.value)) {
+      cachedMembers.value = await fetchGuildMembers(guildId, botToken);
+    }
+
+    const members = cachedMembers.value;
+    for (const rawName of unresolvedNames) {
+      const normalizedName = normalize(rawName);
+      const member =
+        members.find((entry) => normalize(resolveMemberDisplayName(entry)) === normalizedName) ||
+        members.find((entry) => normalize(resolveMemberDisplayName(entry)).includes(normalizedName)) ||
+        members.find((entry) => normalize(entry?.user?.username || "") === normalizedName) ||
+        members.find((entry) => normalize(entry?.user?.username || "").includes(normalizedName));
+
+      if (member?.user?.id && !seenIds.has(member.user.id)) {
+        seenIds.add(member.user.id);
+        resolved.push(member);
+      }
+    }
+  }
+
+  return resolved;
+}
+
+async function resolveFactionTargetsFromReport(data, env, botToken, guildId) {
+  const cachedMembers = { value: null };
+  const targetMap = new Map();
+
+  const addTarget = (factionName) => {
+    const channelId = getFactionChannelId(factionName, env, data.curso_id);
+    if (!channelId || targetMap.has(channelId)) return;
+    targetMap.set(channelId, {
+      name: factionName,
+      channelId,
+    });
+  };
+
+  const baseFaction = resolveFaction(data, env);
+  if (baseFaction?.name && baseFaction.channelId) {
+    addTarget(baseFaction.name);
+  }
+
+  const peopleFields = [data.instrutores, data.auxiliares];
+  for (const fieldValue of peopleFields) {
+    const members = await resolveMembersFromText(fieldValue, botToken, guildId, cachedMembers);
+    for (const member of members) {
+      const faction = resolveFactionByRoleIds(member.roles, env);
+      if (faction?.name) {
+        addTarget(faction.name);
+      }
+    }
+  }
+
+  return Array.from(targetMap.values());
 }
 
 function textDisplay(content) {
@@ -624,7 +837,7 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
 
   let before = "";
 
-  for (let page = 0; page < 2; page += 1) {
+  for (let page = 0; page < ANNOUNCEMENT_SCAN_PAGE_LIMIT; page += 1) {
     const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
     url.searchParams.set("limit", "100");
     if (before) {
@@ -1023,21 +1236,26 @@ export default async function handler(req, res) {
           });
         }
 
-        const faction = resolveFaction(data, env);
-        if (!faction) {
-          return res.status(400).json({ error: "Faccao nao identificada." });
-        }
+        const factionTargets = await resolveFactionTargetsFromReport(
+          data,
+          env,
+          DISCORD_BOT_TOKEN,
+          GUILD_ID,
+        );
 
         const requests = [];
-        const factionMessages = faction.channelId
-          ? buildFinalMessages(data, faction.name, false, env)
-          : [];
+        const factionMessagesByTarget = factionTargets.map((target) => ({
+          target,
+          messages: buildFinalMessages(data, target.name, false, env),
+        }));
         const globalMessages = env.CHANNEL_CURSOS_FINALIZADOS
-          ? buildFinalMessages(data, faction.name, true, env)
+          ? buildFinalMessages(data, "Geral", true, env)
           : [];
 
-        factionMessages.forEach((payload) => {
-          requests.push(sendDiscordMessage(faction.channelId, DISCORD_BOT_TOKEN, payload));
+        factionMessagesByTarget.forEach(({ target, messages }) => {
+          messages.forEach((payload) => {
+            requests.push(sendDiscordMessage(target.channelId, DISCORD_BOT_TOKEN, payload));
+          });
         });
 
         globalMessages.forEach((payload) => {
