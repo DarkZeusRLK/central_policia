@@ -1183,6 +1183,89 @@ export default async function handler(req, res) {
         });
       }
 
+      if (data.action === "lock-call" || data.action === "unlock-call") {
+        if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
+          return res.status(500).json({ error: "Configuração do Discord ausente." });
+        }
+
+        if (!canUseTeachingTools(data, env)) {
+          return res.status(403).json({ error: "Você não tem permissão para usar esta ação." });
+        }
+
+        const action = data.action;
+        const isLock = action === "lock-call";
+        let callId = String(data.callId || "").trim();
+
+        if (!callId) {
+          const mappedCall = await getAnnouncementMapping({
+            announcementMessageId: data.announcementMessageId,
+            courseId: data.courseId,
+            horario: data.horario,
+          });
+
+          if (mappedCall?.callId) {
+            callId = mappedCall.callId;
+          }
+        }
+
+        if (!callId) {
+          callId = await resolveCallIdFromRecentAnnouncements(
+            data.courseId,
+            data.horario,
+            env.CHANNEL_CURSOS_ANUNCIADOS,
+            DISCORD_BOT_TOKEN,
+          );
+        }
+
+        if (!callId) {
+          return res.status(400).json({ error: "Call não identificada. Faça o anúncio primeiro ou informe a call manualmente." });
+        }
+
+        const matrizesRoleIds = parseIdList(env.MATRIZES_ROLE_ID).filter(Boolean);
+
+        if (!matrizesRoleIds.length) {
+          return res.status(500).json({ error: "MATRIZES_ROLE_ID não configurado no ambiente." });
+        }
+
+        const results = [];
+
+        for (const roleId of matrizesRoleIds) {
+          const permissionPayload = {
+            type: 0,
+            id: roleId,
+            allow: isLock ? "0" : String(1n << 20n),
+            deny: isLock ? String(1n << 20n) : "0",
+          };
+
+          const response = await fetch(
+            `${DISCORD_API_BASE}/channels/${callId}/permissions/${roleId}`,
+            {
+              method: "PUT",
+              headers: {
+                Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(permissionPayload),
+            },
+          );
+
+          if (response.ok) {
+            results.push({ roleId, status: "ok" });
+          } else {
+            const text = await response.text();
+            results.push({ roleId, status: "error", error: text });
+          }
+        }
+
+        const hasErrors = results.some((r) => r.status === "error");
+        return res.status(hasErrors ? 207 : 200).json({
+          success: !hasErrors,
+          action: isLock ? "locked" : "unlocked",
+          callId,
+          results,
+        });
+      }
+
       if (data.type === "anuncio") {
         const hasCourse =
           (Array.isArray(data.curso_ids) && data.curso_ids.length > 0) ||
