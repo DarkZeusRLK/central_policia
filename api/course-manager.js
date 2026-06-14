@@ -4,7 +4,7 @@ import { readFile, writeFile } from "node:fs/promises";
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const ANNOUNCEMENT_MAPPINGS_PATH = new URL("../announcementMappings.json", import.meta.url);
 const ANNOUNCEMENT_MAPPING_TTL_MS = 48 * 60 * 60 * 1000;
-const ANNOUNCEMENT_SCAN_PAGE_LIMIT = 10;
+const ANNOUNCEMENT_SCAN_PAGE_LIMIT = 50; // 5000 mensagens máximas (50 páginas de 100)
 const COURSE_TYPE_OVERRIDES = {
   "1164557461357867038": "complementar",
 };
@@ -591,8 +591,27 @@ async function removeOldMappings() {
     return [];
   }
 
-  await writeAnnouncementMappings(mappings);
-  return mappings;
+  // Remove mapeamentos inválidos
+  const validMappings = mappings.filter((mapping) => {
+    // Remove se não tem callId
+    if (!mapping.callId) return false;
+
+    // Remove se callId não é um ID válido (17-18 dígitos)
+    if (!/^\d{17,18}$/.test(mapping.callId)) return false;
+
+    // Remove se muito antigo (mais de 7 dias)
+    const createdAt = new Date(mapping.createdAt);
+    if (Date.now() - createdAt.getTime() > 7 * 24 * 60 * 60 * 1000) return false;
+
+    return true;
+  });
+
+  // Só escreve se houver alteração
+  if (validMappings.length !== mappings.length) {
+    await writeAnnouncementMappings(validMappings);
+  }
+
+  return validMappings;
 }
 
 async function saveAnnouncementMapping(mapping) {
@@ -631,20 +650,25 @@ async function getAnnouncementMapping({ announcementMessageId, courseId, horario
   const normalizedHorario = String(horario || "").trim();
 
   if (normalizedAnnouncementMessageId) {
-    return (
-      mappings.find((mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId) || null
-    );
+    const mapping = mappings.find((mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId);
+    if (mapping && mapping.callId) {
+      return mapping;
+    }
+    return null;
   }
 
   if (normalizedCourseId && normalizedHorario) {
-    return (
-      mappings
-        .filter(
-          (mapping) =>
-            mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario,
-        )
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] || null
+    const matching = mappings.filter(
+      (mapping) =>
+        mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario && mapping.callId
     );
+    if (!matching.length) return null;
+
+    // Ordena por createdAt decrescente (mais recente primeiro)
+    const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Retorna o mais recente
+    return sorted[0];
   }
 
   return null;
@@ -858,6 +882,7 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
     if (!Array.isArray(messages) || !messages.length) return "";
 
     for (const message of messages) {
+      // Verifica se é um anúncio de curso (tem o role do curso e um botão de call)
       const serialized = JSON.stringify(message);
       if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
         continue;
@@ -867,15 +892,66 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
         continue;
       }
 
+      // Busca por botões de call (link de canal Discord)
+      // O Discord transforma links de canal em botões com o formato: https://discord.com/channels/GUILD_ID/CHANNEL_ID
       const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
       if (buttonUrlMatch?.[1]) {
-        return buttonUrlMatch[1];
+        const callId = buttonUrlMatch[1];
+        // Valida se o callId é um ID de canal válido (18 dígitos)
+        if (/^\d{17,18}$/.test(callId)) {
+          return callId;
+        }
       }
     }
 
     before = String(messages[messages.length - 1]?.id || "");
     if (!before) break;
   }
+
+  // Se não encontrou com o horário, tenta só com o courseId (último recurso)
+  if (normalizedHorario) {
+    before = "";
+    for (let page = 0; page < ANNOUNCEMENT_SCAN_PAGE_LIMIT; page += 1) {
+      const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
+      url.searchParams.set("limit", "100");
+      if (before) {
+        url.searchParams.set("before", before);
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bot ${botToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        return "";
+      }
+
+      const messages = await response.json().catch(() => []);
+      if (!Array.isArray(messages) || !messages.length) return "";
+
+      for (const message of messages) {
+        const serialized = JSON.stringify(message);
+        if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
+          continue;
+        }
+
+        const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
+        if (buttonUrlMatch?.[1]) {
+          const callId = buttonUrlMatch[1];
+          if (/^\d{17,18}$/.test(callId)) {
+            return callId;
+          }
+        }
+      }
+
+      before = String(messages[messages.length - 1]?.id || "");
+      if (!before) break;
+    }
+  }
+
+  return "";
 
   return "";
 }
@@ -1228,6 +1304,7 @@ export default async function handler(req, res) {
         }
 
         const CONNECT_BIT = 1n << 20n;
+        const VIEW_CHANNEL_BIT = 1n << 10n; // Sempre permitir ver canal
 
         const results = [];
 
@@ -1254,12 +1331,17 @@ export default async function handler(req, res) {
           const currentAllow = BigInt(typeof existingAllow === "string" ? existingAllow : "0");
           const currentDeny = BigInt(typeof existingDeny === "string" ? existingDeny : "0");
 
+          // Sempre garantir VIEW_CHANNEL = true (permitir ver canal)
+          const finalAllow = (currentAllow | VIEW_CHANNEL_BIT);
+          const finalDeny = (currentDeny & ~VIEW_CHANNEL_BIT);
+
+          // Agora ajusta CONNECT conforme ação
           const newAllow = isLock
-            ? (currentAllow & ~CONNECT_BIT).toString()
-            : (currentAllow | CONNECT_BIT).toString();
+            ? (finalAllow & ~CONNECT_BIT).toString()
+            : (finalAllow | CONNECT_BIT).toString();
           const newDeny = isLock
-            ? (currentDeny | CONNECT_BIT).toString()
-            : (currentDeny & ~CONNECT_BIT).toString();
+            ? (finalDeny | CONNECT_BIT).toString()
+            : (finalDeny & ~CONNECT_BIT).toString();
 
           const permissionPayload = {
             type: 0,
