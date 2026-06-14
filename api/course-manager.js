@@ -1227,14 +1227,45 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: "MATRIZES_ROLE_ID não configurado no ambiente." });
         }
 
+        const CONNECT_BIT = 1n << 20n;
+
         const results = [];
 
         for (const roleId of matrizesRoleIds) {
+          let existingAllow = "0";
+          let existingDeny = "0";
+
+          try {
+            const existingRes = await fetch(
+              `${DISCORD_API_BASE}/channels/${callId}/permissions/${roleId}`,
+              {
+                headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+              },
+            );
+            if (existingRes.ok) {
+              const existing = await existingRes.json();
+              existingAllow = existing.allow || "0";
+              existingDeny = existing.deny || "0";
+            }
+          } catch {
+            /* sem overwrite existente — usa "0" */
+          }
+
+          const currentAllow = BigInt(typeof existingAllow === "string" ? existingAllow : "0");
+          const currentDeny = BigInt(typeof existingDeny === "string" ? existingDeny : "0");
+
+          const newAllow = isLock
+            ? (currentAllow & ~CONNECT_BIT).toString()
+            : (currentAllow | CONNECT_BIT).toString();
+          const newDeny = isLock
+            ? (currentDeny | CONNECT_BIT).toString()
+            : (currentDeny & ~CONNECT_BIT).toString();
+
           const permissionPayload = {
             type: 0,
             id: roleId,
-            allow: isLock ? "0" : String(1n << 20n),
-            deny: isLock ? String(1n << 20n) : "0",
+            allow: newAllow,
+            deny: newDeny,
           };
 
           const response = await fetch(
