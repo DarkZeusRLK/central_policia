@@ -2,7 +2,7 @@ import WebSocket from "ws";
 import { readFile, writeFile } from "node:fs/promises";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
-const ANNOUNCEMENT_MAPPINGS_PATH = new URL("../announcementMappings.json", import.meta.url);
+const ANNOUNCEMENT_MAPPINGS_PATH = "/tmp/announcementMappings.json"; // Vercel Serverless: /tmp é o único diretório gravável
 const ANNOUNCEMENT_MAPPING_TTL_MS = 48 * 60 * 60 * 1000;
 const ANNOUNCEMENT_SCAN_PAGE_LIMIT = 50; // 5000 mensagens máximas (50 páginas de 100)
 const COURSE_TYPE_OVERRIDES = {
@@ -632,9 +632,10 @@ async function saveAnnouncementMapping(mapping) {
     return null;
   }
 
+  const mappingKey = (entry) => `${entry.announcementMessageId}:${entry.courseId}:${entry.horario}`;
   const mappings = await readAnnouncementMappings();
   const updatedMappings = [
-    ...mappings.filter((entry) => entry.announcementMessageId !== normalizedMapping.announcementMessageId),
+    ...mappings.filter((entry) => mappingKey(entry) !== mappingKey(normalizedMapping)),
     normalizedMapping,
   ];
 
@@ -643,18 +644,20 @@ async function saveAnnouncementMapping(mapping) {
   return normalizedMapping;
 }
 
-async function getAnnouncementMapping({ announcementMessageId, courseId, horario } = {}) {
+async function getAnnouncementMapping({ announcementMessageId, courseId, horario, returnAll } = {}) {
   const mappings = await removeOldMappings();
   const normalizedAnnouncementMessageId = String(announcementMessageId || "").trim();
   const normalizedCourseId = String(courseId || "").trim();
   const normalizedHorario = String(horario || "").trim();
 
   if (normalizedAnnouncementMessageId) {
-    const mapping = mappings.find((mapping) => mapping.announcementMessageId === normalizedAnnouncementMessageId);
-    if (mapping && mapping.callId) {
-      return mapping;
-    }
-    return null;
+    const matching = mappings.filter((mapping) =>
+      mapping.announcementMessageId === normalizedAnnouncementMessageId && mapping.callId
+    );
+    if (!matching.length) return null;
+    const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (returnAll) return sorted;
+    return sorted[0];
   }
 
   if (normalizedCourseId && normalizedHorario) {
@@ -663,11 +666,18 @@ async function getAnnouncementMapping({ announcementMessageId, courseId, horario
         mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario && mapping.callId
     );
     if (!matching.length) return null;
-
-    // Ordena por createdAt decrescente (mais recente primeiro)
     const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (returnAll) return sorted;
+    return sorted[0];
+  }
 
-    // Retorna o mais recente
+  if (normalizedCourseId) {
+    const matching = mappings.filter(
+      (mapping) => mapping.courseId === normalizedCourseId && mapping.callId
+    );
+    if (!matching.length) return null;
+    const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (returnAll) return sorted;
     return sorted[0];
   }
 
@@ -854,10 +864,30 @@ async function getVoiceChannelMembersFromGateway(guildId, channelId, botToken) {
   });
 }
 
-async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId, botToken) {
+async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId, botToken, announcementMessageId) {
   const normalizedCourseId = String(courseId || "").trim();
   if (!normalizedCourseId || !channelId || !botToken) return "";
   const normalizedHorario = String(horario || "").trim();
+  const normalizedAnnouncementId = String(announcementMessageId || "").trim();
+
+  // Se temos announcementMessageId, busca direto a mensagem específica
+  if (normalizedAnnouncementId) {
+    try {
+      const response = await fetch(`${DISCORD_API_BASE}/channels/${channelId}/messages/${normalizedAnnouncementId}`, {
+        headers: { Authorization: `Bot ${botToken}` },
+      });
+      if (response.ok) {
+        const message = await response.json();
+        const serialized = JSON.stringify(message);
+        if (serialized.includes(`<@&${normalizedCourseId}>`)) {
+          const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
+          if (buttonUrlMatch?.[1] && /^\d{17,18}$/.test(buttonUrlMatch[1])) {
+            return buttonUrlMatch[1];
+          }
+        }
+      }
+    } catch { /* fallback para scan */ }
+  }
 
   let before = "";
 
@@ -882,7 +912,6 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
     if (!Array.isArray(messages) || !messages.length) return "";
 
     for (const message of messages) {
-      // Verifica se é um anúncio de curso (tem o role do curso e um botão de call)
       const serialized = JSON.stringify(message);
       if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
         continue;
@@ -892,12 +921,9 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
         continue;
       }
 
-      // Busca por botões de call (link de canal Discord)
-      // O Discord transforma links de canal em botões com o formato: https://discord.com/channels/GUILD_ID/CHANNEL_ID
       const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
       if (buttonUrlMatch?.[1]) {
         const callId = buttonUrlMatch[1];
-        // Valida se o callId é um ID de canal válido (18 dígitos)
         if (/^\d{17,18}$/.test(callId)) {
           return callId;
         }
@@ -950,8 +976,6 @@ async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId
       if (!before) break;
     }
   }
-
-  return "";
 
   return "";
 }
@@ -1073,6 +1097,13 @@ export default async function handler(req, res) {
           pf: env.ROLE_ID_PF || "",
         },
       });
+    }
+
+    if (action === "course-mappings") {
+      const courseId = String(req.query.courseId || "").trim();
+      if (!courseId) return res.status(200).json({ mappings: [] });
+      const mappings = await getAnnouncementMapping({ courseId, returnAll: true });
+      return res.status(200).json({ mappings: Array.isArray(mappings) ? mappings : mappings ? [mappings] : [] });
     }
 
     if (action === "discord-data") {
@@ -1218,6 +1249,7 @@ export default async function handler(req, res) {
             data.horario,
             env.CHANNEL_CURSOS_ANUNCIADOS,
             DISCORD_BOT_TOKEN,
+            data.announcementMessageId,
           );
           if (callId) {
             console.log("[CALL MAP]", "resolved from recent announcements", {
@@ -1290,6 +1322,7 @@ export default async function handler(req, res) {
             data.horario,
             env.CHANNEL_CURSOS_ANUNCIADOS,
             DISCORD_BOT_TOKEN,
+            data.announcementMessageId,
           );
         }
 
@@ -1412,13 +1445,23 @@ export default async function handler(req, res) {
         const callId = String(data.callId || extractCallIdFromLink(data.call_link) || "").trim();
 
         if (sentMessage?.id && callId && courseIds.length) {
+          let allMappingsSaved = true;
           for (const courseId of courseIds) {
-            await saveAnnouncementMapping({
-              announcementMessageId: sentMessage.id,
-              courseId,
-              callId,
-              horario: data.horario,
-            });
+            try {
+              await saveAnnouncementMapping({
+                announcementMessageId: sentMessage.id,
+                courseId,
+                callId,
+                horario: data.horario,
+              });
+            } catch (error) {
+              console.error("[CALL MAP] Failed to save announcement mapping for course", courseId, ":", error);
+              allMappingsSaved = false;
+            }
+          }
+
+          if (!allMappingsSaved) {
+            throw new Error("Falha ao salvar mapeamento do anúncio do curso. O anúncio não pode ser rastreado - tente novamente.");
           }
         }
 
