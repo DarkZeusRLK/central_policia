@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>PMERJ | Central de Polícia</title>
   <link rel="shortcut icon" href="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" type="image/x-icon">
 
@@ -19,6 +20,14 @@
       --glass-border: rgba(59, 130, 246, 0.25);
     }
 
+    :root[data-theme="light"] {
+      --accent-gold: #1d4ed8;
+      --primary-blue: #1d4ed8;
+      --bg-color: #f2f4f9;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(29, 78, 216, 0.2);
+    }
+
     body {
       background: radial-gradient(circle at 20% 0%,
           rgba(59, 130, 246, 0.22),
@@ -26,7 +35,18 @@
         radial-gradient(circle at 85% 10%,
           rgba(30, 58, 138, 0.4),
           transparent 60%),
-        #0a0f1d;
+        var(--bg-color);
+      transition: background-color 0.25s ease;
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at 20% 0%,
+          rgba(29, 78, 216, 0.12),
+          transparent 55%),
+        radial-gradient(circle at 85% 10%,
+          rgba(29, 78, 216, 0.08),
+          transparent 60%),
+        var(--bg-color);
     }
 
     .dept-title {
@@ -79,61 +99,28 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #cbd5e1;
+      color: var(--text-muted-strong, #cbd5e1);
     }
 
     /* Nota de AtenÃ§Ã£o (Cabelo/Tatuagem) */
     .attention-note {
       background: rgba(59, 130, 246, 0.1);
-      border-left: 3px solid #3b82f6;
+      border-left: 3px solid var(--accent-gold);
       padding: 15px;
       margin-bottom: 15px;
       border-radius: 0 5px 5px 0;
       font-size: 0.9rem;
-      color: #93c5fd;
+      color: var(--accent-gold);
       font-style: italic;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    /* --- GALERIA --- */
     .gallery-title {
-      margin-top: 30px;
-      margin-bottom: 15px;
-      color: white;
-      border-left: 4px solid #3b82f6;
-      /* Azul PM */
-      padding-left: 10px;
+      border-left-color: var(--accent-gold);
     }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      /* Borda Azulada */
-      aspect-ratio: 16/9;
-      cursor: pointer;
-    }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .gallery-item:hover img {
-      transform: scale(1.1);
-    }
+    /* Galeria: classes .gallery-title/.gallery-grid/.gallery-item compartilhadas em style/main.css */
   </style>
 </head>
 
@@ -177,7 +164,10 @@
     </ul>
 
     <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+        <i class="fa-solid fa-sun"></i>
+      </button>
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
       <div id="user-area" class="user-area">
@@ -201,67 +191,67 @@
       <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
 
         <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="color: white; text-transform: uppercase;">
+          <h2 style="color: var(--text-main); text-transform: uppercase;">
             <span class="dept-title">
               <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Logo PMERJ" class="dept-title-logo">
               POLÍCIA MILITAR
               <img src="../public/images/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Logo PMERJ" class="dept-title-logo">
             </span>
           </h2>
-          <p style="font-size: 0.9rem; color: #94a3b8; letter-spacing: 1px;">ESTADO DO RIO DE JANEIRO</p>
+          <p style="font-size: 0.9rem; color: var(--text-muted); letter-spacing: 1px;">ESTADO DO RIO DE JANEIRO</p>
         </div>
 
-        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
+        <p style="margin-bottom: 20px; color: var(--text-muted-strong, #e2e8f0); line-height: 1.6;">
           A Polícia Militar do Estado do Rio de Janeiro (PMERJ) é a principal força de segurança ostensiva e preservação da ordem pública. Nossa missão é proteger os cidadãos, combater o crime e garantir a paz social com honra e bravura.
         </p>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
-        <h3 style="color: #3b82f6; margin-bottom: 10px;">Forças Especiais:</h3>
+        <h3 style="color: var(--accent-gold); margin-bottom: 10px;">Forças Especiais:</h3>
         <div class="list-item">
-          <i class="fa-solid fa-caret-right" style="color: #3b82f6;"></i>
+          <i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i>
           <strong>BOPE</strong> (Batalhão de Operações Policiais Especiais) <i class="fa-solid fa-skull-crossbones"></i>
         </div>
         <div class="list-item">
-          <i class="fa-solid fa-caret-right" style="color: #3b82f6;"></i>
+          <i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i>
           <strong>COE</strong> (Comando de Operações Especiais) <i class="fa-solid fa-skull-crossbones"></i>
         </div>
         <div class="list-item">
-          <i class="fa-solid fa-caret-right" style="color: #3b82f6;"></i>
+          <i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i>
           <strong>CHOQUE</strong> (Controle de Distúrbios) <i class="fa-solid fa-shield-halved"></i>
         </div>
 
-        <h3 style="color: #3b82f6; margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #3b82f6;"></i> <strong>BTM</strong> (Tático Móvel) <i class="fa-solid fa-motorcycle"></i></div>
-        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: #3b82f6;"></i> <strong>GAM</strong> (Aéreo) <i class="fa-solid fa-helicopter"></i></div>
+        <h3 style="color: var(--accent-gold); margin-top: 20px; margin-bottom: 10px;">Grupamentos:</h3>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>BTM</strong> (Tático Móvel) <i class="fa-solid fa-motorcycle"></i></div>
+        <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>GAM</strong> (Aéreo) <i class="fa-solid fa-helicopter"></i></div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <h3 class="gallery-title">Galeria Ostensiva</h3>
         <div class="gallery-grid">
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/CHOQUE.webp" data-lightbox-group="galeria-pmerj" data-lightbox-caption="Choque">
             <img src="images/CHOQUE.webp" alt="choque">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/GAM.webp" data-lightbox-group="galeria-pmerj" data-lightbox-caption="GAM">
             <img src="images/GAM.webp" alt="GAM">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/GAM_2.webp" data-lightbox-group="galeria-pmerj" data-lightbox-caption="GAM Helicóptero">
             <img src="images/GAM_2.webp" alt="GAM Helicóptero">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/btm_imagem.webp" data-lightbox-group="galeria-pmerj" data-lightbox-caption="BTM">
             <img src="images/btm_imagem.webp" alt="BTM">
           </div>
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
-        <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
+        <ul style="margin-left: 20px; margin-top: 10px; color: var(--text-muted-strong, #cbd5e1);">
+          <li>Status: <span style="color: var(--success); font-weight: bold;">ABERTO</span></li>
           <li>Horário: Todos os dias.</li>
         </ul>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p style="margin-bottom: 5px;"><strong>Fardamento masculino:</strong></p>
         <div class="discord-code">
@@ -282,12 +272,12 @@
         </div>
 
         <div style="margin-top: 20px; text-align: center;">
-          <a href="https://docs.google.com/document/d/1KMG9T5lIwNzLdEQ2C_-pfU5ZQrYJ1Vjhl4i9Hi-GPYw/edit?usp=sharing" target="_blank" class="btn-submit" style="display: inline-block; text-decoration: none; background-color: #3b82f6; border-color: #2563eb;">
+          <a href="https://docs.google.com/document/d/1KMG9T5lIwNzLdEQ2C_-pfU5ZQrYJ1Vjhl4i9Hi-GPYw/edit?usp=sharing" target="_blank" class="btn-submit" style="display: inline-block; text-decoration: none; background-color: var(--accent-gold); border-color: #2563eb;">
             <i class="fa-solid fa-book"></i> Ler Manual do Recrutamento
           </a>
         </div>
 
-        <blockquote style="border-left: 4px solid #3b82f6; padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
+        <blockquote style="border-left: 4px solid var(--accent-gold); padding-left: 15px; color: var(--text-muted); font-style: italic; margin-top: 20px;">
           🔎 Se você tem honra, disciplina e deseja servir a sociedade com bravura, a PMERJ espera por você!
         </blockquote>
 
@@ -298,8 +288,8 @@
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Comandantes da Polícia Militar</h2>
 
       <div id="pmerj-leadership" class="commanders-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
-          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: #3b82f6; margin-bottom: 15px;"></i>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--accent-gold); margin-bottom: 15px;"></i>
           <p>Carregando comando...</p>
         </div>
       </div>
@@ -314,6 +304,8 @@
   </footer>
 
   <script src="../scripts/app.js"></script>
+  <script src="../scripts/theme.js"></script>
+  <script src="../scripts/lightbox.js"></script>
 </body>
 
 </html>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>Central de Polícia | REVOADA RJ</title>
 
   <link rel="shortcut icon" href="public/images/Logo_policia.png" type="image/x-icon">
@@ -122,10 +123,10 @@
     .input-group select {
       width: 100%;
       padding: 12px;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--input-bg);
       /* Mesmo fundo dos inputs */
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
       border-radius: 8px;
       margin-top: 5px;
       font-family: inherit;
@@ -136,10 +137,10 @@
       border-color: var(--accent-gold, #fbbf24);
     }
 
-    /* Cor das opÃ§Ãµes internas do select (para nÃ£o ficar branco no fundo branco do navegador) */
+    /* Cor das opÃ§Ãµes internas do select (para nÃ£o ficar ilegÃ­vel no fundo do navegador) */
     .input-group select option {
-      background: #1e293b;
-      color: white;
+      background: var(--surface-modal);
+      color: var(--text-main);
     }
 
     /* Estilos da Galeria de Fotos em Grid */
@@ -147,11 +148,12 @@
       max-width: 100%;
       margin: 0 auto;
       border-radius: 12px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
       padding: 20px;
       content-visibility: auto;
       contain-intrinsic-size: 1px 1200px;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
     }
 
     .photo-gallery-grid {
@@ -167,8 +169,8 @@
       overflow: hidden;
       cursor: pointer;
       transition: all 0.3s ease;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.5);
+      border: 2px solid var(--glass-border);
+      background: var(--surface-1);
     }
 
     .photo-gallery-item:hover {
@@ -193,120 +195,7 @@
       contain-intrinsic-size: 1px 400px;
     }
 
-    /* Modal para visualizaÃ§Ã£o ampliada */
-    .photo-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.3s ease;
-    }
-
-    .photo-modal.active {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .photo-modal-content {
-      position: relative;
-      max-width: 90%;
-      max-height: 90%;
-      margin: auto;
-      animation: zoomIn 0.3s ease;
-    }
-
-    .photo-modal-content img {
-      width: 100%;
-      height: auto;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    .photo-modal-close {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      color: white;
-      font-size: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: rgba(251, 191, 36, 0.9);
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-    }
-
-    .photo-modal-close:hover {
-      background: var(--accent-gold);
-      transform: rotate(90deg);
-    }
-
-    .photo-modal-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(251, 191, 36, 0.9);
-      color: white;
-      border: none;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 24px;
-      transition: all 0.3s ease;
-      z-index: 1001;
-    }
-
-    .photo-modal-nav:hover {
-      background: var(--accent-gold);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .photo-modal-nav.prev {
-      left: 20px;
-    }
-
-    .photo-modal-nav.next {
-      right: 20px;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes zoomIn {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
+    /* A visualização ampliada da galeria usa o lightbox compartilhado (style/main.css .lightbox). */
 
     /* Banner dos Comandos Gerais */
     .commanders-banner {
@@ -442,27 +331,6 @@
         gap: 15px;
       }
 
-      .photo-modal-close {
-        top: -35px;
-        width: 40px;
-        height: 40px;
-        font-size: 30px;
-      }
-
-      .photo-modal-nav {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-      }
-
-      .photo-modal-nav.prev {
-        left: 10px;
-      }
-
-      .photo-modal-nav.next {
-        right: 10px;
-      }
-
       .commanders-banner {
         height: 300px;
         border-radius: 15px;
@@ -544,7 +412,10 @@
         <span class="status-text">SISTEMA ONLINE</span>
       </div>
       <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-        <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-lock"></i> Acesso Policial
         </a>
         <div id="user-area" class="user-area">
@@ -607,75 +478,61 @@
       <h2 class="section-title"><i class="fa-solid fa-images"></i> Galeria de Fotos</h2>
       <div class="photo-gallery-container">
         <div class="photo-gallery-grid">
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_1.png', 'Comando Geral 1')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_1.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 1">
             <img src="public/images/instagram_1.png" alt="Comando Geral 1">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_2.png', 'Comando Geral 2')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_2.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 2">
             <img src="public/images/instagram_2.png" alt="Comando Geral 2">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_3.png', 'Comando Geral 3')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_3.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 3">
             <img src="public/images/instagram_3.png" alt="Comando Geral 3">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_4.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_4.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_4.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_5.png', 'Comando Geral 1')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_5.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 1">
             <img src="public/images/instagram_5.png" alt="Comando Geral 1">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_6.png', 'Comando Geral 2')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_6.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 2">
             <img src="public/images/instagram_6.png" alt="Comando Geral 2">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_7.png', 'Comando Geral 3')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_7.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 3">
             <img src="public/images/instagram_7.png" alt="Comando Geral 3">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_8.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_8.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_8.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_9.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_9.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_9.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_10.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_10.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_10.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_11.png', 'Comando Geral 3')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_11.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Comando Geral 3">
             <img src="public/images/instagram_11.png" alt="Comando Geral 3">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_12.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_12.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_12.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_13.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_13.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_13.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_14.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_14.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_14.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_15.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_15.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_15.png" alt="Logo Polícia">
           </div>
-          <div class="photo-gallery-item" onclick="openPhotoModal('public/images/instagram_16.png', 'Logo Polícia')">
+          <div class="photo-gallery-item" data-lightbox-src="public/images/instagram_16.png" data-lightbox-group="galeria-fotos" data-lightbox-caption="Logo Polícia">
             <img src="public/images/instagram_16.png" alt="Logo Polícia">
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Modal para visualizaÃ§Ã£o ampliada -->
-    <div id="photoModal" class="photo-modal" onclick="closePhotoModal(event)">
-      <div class="photo-modal-content" onclick="event.stopPropagation()">
-        <button class="photo-modal-close" onclick="closePhotoModal(event)">&times;</button>
-        <button id="photoModalPrev" class="photo-modal-nav prev" onclick="showPreviousPhoto(event)">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <button id="photoModalNext" class="photo-modal-nav next" onclick="showNextPhoto(event)">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-        <img id="modalImage" src="" alt="" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'600\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'600\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'24\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem não disponível%3C/text%3E%3C/svg%3E'">
-      </div>
-    </div>
-
     <!-- Banner dos Comandos Gerais -->
     <section class="container" style="margin-top: 40px;">
-      <div class="commanders-banner">
+      <div class="commanders-banner" data-lightbox-src="public/images/commanders/comandantes_gerais.png" data-lightbox-caption="Comandantes Gerais" style="cursor: pointer;">
         <div class="commanders-banner-overlay"></div>
         <div class="commanders-banner-content">
           <h2 class="commanders-banner-title">
@@ -690,7 +547,7 @@
     <section class="container commanders-section">
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Comando Geral</h2>
       <div class="commanders-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--text-muted);">
           <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--accent-gold); margin-bottom: 15px;"></i>
           <p>Sincronizando dados do comando...</p>
         </div>
@@ -698,7 +555,7 @@
     </section>
     <section class="container" style="margin-top: 20px;">
       <div class="glass-panel">
-        <h3 style="color: white; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+        <h3 style="color: var(--text-main); margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
           <i class="fa-solid fa-chart-line"></i> Estatísticas do Dia
         </h3>
 
@@ -774,6 +631,8 @@
   </div>
 
   <script src="scripts/app.js"></script>
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/lightbox.js"></script>
 
   <!-- ProteÃ§Ã£o contra InspeÃ§Ã£o -->
   <script>
@@ -895,94 +754,6 @@
         configurable: false
       });
     }, 2000);
-  </script>
-
-  <script>
-    // Galeria de Fotos - Modal com NavegaÃ§Ã£o
-    let currentPhotoIndex = 0;
-    const photoGallery = [
-      { src: 'public/images/instagram_1.png', alt: 'Comando Geral 1' },
-      { src: 'public/images/instagram_2.png', alt: 'Comando Geral 2' },
-      { src: 'public/images/instagram_3.png', alt: 'Comando Geral 3' },
-      { src: 'public/images/instagram_4.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_5.png', alt: 'Comando Geral 1' },
-      { src: 'public/images/instagram_6.png', alt: 'Comando Geral 2' },
-      { src: 'public/images/instagram_7.png', alt: 'Comando Geral 3' },
-      { src: 'public/images/instagram_8.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_9.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_10.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_11.png', alt: 'Comando Geral 3' },
-      { src: 'public/images/instagram_12.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_13.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_14.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_15.png', alt: 'Logo Polícia' },
-      { src: 'public/images/instagram_16.png', alt: 'Logo Polícia' }
-    ];
-
-    function openPhotoModal(imageSrc, imageAlt) {
-      // Encontra o Ã­ndice da imagem atual
-      currentPhotoIndex = photoGallery.findIndex(photo => photo.src === imageSrc);
-      if (currentPhotoIndex === -1) currentPhotoIndex = 0;
-
-      const modal = document.getElementById('photoModal');
-      const modalImage = document.getElementById('modalImage');
-
-      modalImage.src = imageSrc;
-      modalImage.alt = imageAlt;
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      updateNavigationButtons();
-    }
-
-    function closePhotoModal(event) {
-      if (event) {
-        event.stopPropagation();
-      }
-      const modal = document.getElementById('photoModal');
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function showPreviousPhoto(event) {
-      if (event) event.stopPropagation();
-      currentPhotoIndex = (currentPhotoIndex - 1 + photoGallery.length) % photoGallery.length;
-      const photo = photoGallery[currentPhotoIndex];
-      document.getElementById('modalImage').src = photo.src;
-      document.getElementById('modalImage').alt = photo.alt;
-      updateNavigationButtons();
-    }
-
-    function showNextPhoto(event) {
-      if (event) event.stopPropagation();
-      currentPhotoIndex = (currentPhotoIndex + 1) % photoGallery.length;
-      const photo = photoGallery[currentPhotoIndex];
-      document.getElementById('modalImage').src = photo.src;
-      document.getElementById('modalImage').alt = photo.alt;
-      updateNavigationButtons();
-    }
-
-    function updateNavigationButtons() {
-      const prevBtn = document.getElementById('photoModalPrev');
-      const nextBtn = document.getElementById('photoModalNext');
-      if (prevBtn && nextBtn) {
-        prevBtn.style.display = photoGallery.length > 1 ? 'flex' : 'none';
-        nextBtn.style.display = photoGallery.length > 1 ? 'flex' : 'none';
-      }
-    }
-
-    // Fechar modal com tecla ESC
-    document.addEventListener('keydown', function (event) {
-      const modal = document.getElementById('photoModal');
-      if (modal && modal.classList.contains('active')) {
-        if (event.key === 'Escape') {
-          closePhotoModal();
-        } else if (event.key === 'ArrowLeft') {
-          showPreviousPhoto(event);
-        } else if (event.key === 'ArrowRight') {
-          showNextPhoto(event);
-        }
-      }
-    });
   </script>
 
   <script>

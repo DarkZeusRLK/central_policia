@@ -330,6 +330,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function setupMobileRailToggle() {
+    const toggleBtn = document.getElementById("codp-rail-mobile-toggle");
+    const rail = document.querySelector(".codp-rail");
+    const backdrop = document.getElementById("codp-rail-backdrop");
+    if (!toggleBtn || !rail || !backdrop) return;
+
+    const closeRail = () => {
+      rail.classList.remove("open");
+      backdrop.classList.remove("open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+    };
+
+    toggleBtn.addEventListener("click", () => {
+      const willOpen = !rail.classList.contains("open");
+      rail.classList.toggle("open", willOpen);
+      backdrop.classList.toggle("open", willOpen);
+      toggleBtn.setAttribute("aria-expanded", String(willOpen));
+    });
+
+    backdrop.addEventListener("click", closeRail);
+    slideButtons.forEach((button) => button.addEventListener("click", closeRail));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeRail();
+    });
+  }
+
   function setupCoverControls() {
     const currentStartCourseButton = document.getElementById("codp-start-course");
 
@@ -351,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
   revealElements.forEach((element) => element.classList.remove("is-visible"));
   setupAccordions();
   setupRailNavigation();
+  setupMobileRailToggle();
   setupArrowButtons();
   setupKeyboardNavigation();
   setupWheelNavigation();

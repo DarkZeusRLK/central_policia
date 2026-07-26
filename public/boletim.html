@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>Boletim de Ocorrência | Central de Polícia</title>
   <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
 
@@ -16,20 +17,44 @@
       --boletim-dark: #0b0f17;
     }
 
+    :root[data-theme="light"] {
+      --boletim-accent: #b45309;
+      --boletim-dark: #f3f2ea;
+    }
+
     body {
       background: radial-gradient(circle at 12% 10%, rgba(251, 191, 36, 0.2), transparent 55%),
         radial-gradient(circle at 80% 0%, rgba(30, 58, 138, 0.25), transparent 60%),
         var(--boletim-dark);
+      transition: background-color 0.25s ease;
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at 12% 10%, rgba(180, 83, 9, 0.12), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(30, 58, 138, 0.1), transparent 60%),
+        var(--boletim-dark);
     }
 
     .boletim-hero {
-      background: linear-gradient(120deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.7)),
-        radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.25), transparent 55%);
+      background: linear-gradient(120deg, var(--surface-2), var(--surface-1)),
+        radial-gradient(circle at 20% 20%, rgba(251, 191, 36, 0.2), transparent 55%);
       height: auto !important;
       min-height: 0;
       display: block;
       overflow: visible;
       padding: 118px 0 36px;
+      color: var(--text-main);
+      transition: background-color 0.25s ease;
+    }
+
+    .boletim-hero .hero-content h1 {
+      background: linear-gradient(to right, var(--text-main) 0%, var(--boletim-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .boletim-hero .hero-content p {
+      color: var(--text-muted-strong);
     }
 
     .boletim-hero-grid {
@@ -51,7 +76,7 @@
       border-radius: 999px;
       border: 1px solid rgba(251, 191, 36, 0.26);
       background: rgba(251, 191, 36, 0.08);
-      color: #f6d87a;
+      color: var(--boletim-accent);
       font-size: 0.84rem;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -71,9 +96,9 @@
       gap: 8px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.8);
+      background: var(--surface-2);
       border: 1px solid rgba(251, 191, 36, 0.3);
-      color: #f8fafc;
+      color: var(--text-main);
       font-size: 0.9rem;
     }
 
@@ -87,9 +112,8 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      background: linear-gradient(180deg, rgba(25, 32, 44, 0.98), rgba(19, 25, 35, 0.98));
       order: -1;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
     }
 
     .boletim-panel .section-title {
@@ -114,9 +138,9 @@
       gap: 10px;
       padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.18);
-      color: #86efac;
+      background: var(--success-bg);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--success);
       font-size: 0.85rem;
       font-weight: 700;
       white-space: nowrap;
@@ -124,7 +148,7 @@
 
     .boletim-panel-subtitle {
       margin: 0 0 18px;
-      color: #94a3b8;
+      color: var(--text-muted);
       line-height: 1.6;
     }
 
@@ -217,9 +241,9 @@
     .input-group select {
       width: 100%;
       padding: 15px 44px 15px 15px;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: var(--input-bg);
       border: 1px solid var(--glass-border);
-      color: white;
+      color: var(--text-main);
       border-radius: 8px;
       outline: none;
       font-size: 1rem;
@@ -233,13 +257,13 @@
 
     .input-group select:focus {
       border-color: var(--primary-blue);
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: var(--input-bg-focus);
       box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2);
     }
 
     .input-group select option {
-      background: #0f172a;
-      color: white;
+      background: var(--surface-modal);
+      color: var(--text-main);
     }
 
     @media (max-width: 768px) {
@@ -302,7 +326,10 @@
       </ul>
 
       <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-        <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-lock"></i> Acesso Policial
         </a>
         <div id="user-area" class="user-area">
@@ -463,6 +490,7 @@
   </div>
 
   <script src="../scripts/app.js"></script>
+  <script src="../scripts/theme.js"></script>
   <script>
     const inputTelefone = document.querySelector('input[name="telefone"]');
     const formBo = document.getElementById('form-bo');

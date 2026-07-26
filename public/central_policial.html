@@ -1,8 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
     <title>Intranet Policial | REVOADA RJ</title>
     <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,14 +16,48 @@
         --bg: #0f131a;
         --bg-soft: #161d27;
         --panel: #1e2530;
+        --panel-alt: #111822;
         --sidebar: #121820;
         --line-soft: rgba(255, 255, 255, 0.06);
         --text: #ffffff;
         --muted: #94a3b8;
+        --muted-faint: #64748b;
         --muted-strong: #cbd5e1;
         --accent: #d4af37;
         --green: #22c55e;
+        --danger-text: #fca5a5;
+        --info-text: #bfdbfe;
         --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+        --overlay-02: rgba(255, 255, 255, 0.02);
+        --overlay-03: rgba(255, 255, 255, 0.03);
+        --overlay-04: rgba(255, 255, 255, 0.04);
+        --overlay-08: rgba(255, 255, 255, 0.08);
+        --overlay-12: rgba(255, 255, 255, 0.12);
+        --body-bg-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.09), transparent 20%), linear-gradient(180deg, #0c1118 0%, var(--bg) 100%);
+      }
+
+      :root[data-theme="light"] {
+        --bg: #f2f1ea;
+        --bg-soft: #ffffff;
+        --panel: #ffffff;
+        --panel-alt: #ffffff;
+        --sidebar: #fbfaf5;
+        --line-soft: rgba(15, 23, 42, 0.1);
+        --text: #171717;
+        --muted: #57534e;
+        --muted-faint: #78716c;
+        --muted-strong: #292524;
+        --accent: #92400e;
+        --green: #15803d;
+        --danger-text: #b91c1c;
+        --info-text: #1d4ed8;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+        --overlay-02: rgba(15, 23, 42, 0.03);
+        --overlay-03: rgba(15, 23, 42, 0.04);
+        --overlay-04: rgba(15, 23, 42, 0.05);
+        --overlay-08: rgba(15, 23, 42, 0.08);
+        --overlay-12: rgba(15, 23, 42, 0.12);
+        --body-bg-image: radial-gradient(circle at top right, rgba(146, 64, 14, 0.08), transparent 20%), linear-gradient(180deg, #fdfcf7 0%, var(--bg) 100%);
       }
 
       * { box-sizing: border-box; }
@@ -30,10 +65,11 @@
       body {
         margin: 0;
         min-height: 100vh;
-        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.09), transparent 20%), linear-gradient(180deg, #0c1118 0%, var(--bg) 100%);
+        background: var(--body-bg-image);
         color: var(--text);
         font-family: "Inter", sans-serif;
         overflow-x: hidden;
+        transition: background-color 0.25s ease, color 0.25s ease;
       }
       button, input, select, textarea { font: inherit; }
       a { color: inherit; }
@@ -54,7 +90,7 @@
       .sidebar-title { margin: 0; font-size: 1.15rem; line-height: 1.35; letter-spacing: .12em; text-transform: uppercase; }
       .sidebar-menu { flex: 1; overflow-y: auto; padding: 14px 0 20px; }
       .sidebar-menu ul { list-style: none; margin: 0; padding: 0; }
-      .sidebar-section-title { padding: 14px 24px 8px; color: #64748b; font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+      .sidebar-section-title { padding: 14px 24px 8px; color: var(--muted-faint); font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
       .sidebar-link {
         display: flex;
         align-items: center;
@@ -65,13 +101,86 @@
         border-right: 3px solid transparent;
         transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
       }
-      .sidebar-link:hover { background: rgba(255,255,255,.04); color: var(--muted-strong); }
+      .sidebar-link:hover { background: var(--overlay-04); color: var(--muted-strong); }
       .sidebar-link.active { background: rgba(212,175,55,.08); color: var(--accent); border-right-color: var(--accent); }
       .sidebar-link i { width: 18px; text-align: center; }
       .dept-logo { width: 18px; height: 18px; object-fit: contain; }
-      .user-mini-profile { padding: 18px 20px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--line-soft); background: rgba(255,255,255,.02); }
+      .user-mini-profile { padding: 18px 20px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--line-soft); background: var(--overlay-02); }
       .user-mini-profile img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(212,175,55,.35); background: #0b1118; }
-      .main-content { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; padding: 28px 32px 40px; }
+      .main-content { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; padding: 28px 32px 40px; transition: margin-left .25s ease, width .25s ease; }
+
+      /* ---- Sidebar: retrátil (desktop) + gaveta off-canvas (mobile/tablet) ---- */
+      .sidebar { transition: width .25s ease, transform .25s ease; }
+      .sidebar-header { position: relative; }
+      .sidebar-collapse-btn {
+        position: absolute;
+        top: 18px;
+        right: -14px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line-soft);
+        border-radius: 50%;
+        background: var(--panel);
+        color: var(--muted-strong);
+        cursor: pointer;
+        z-index: 55;
+        transition: background .2s ease, color .2s ease, transform .2s ease;
+      }
+      .sidebar-collapse-btn:hover { color: var(--accent); border-color: rgba(212,175,55,.45); }
+      .sidebar-toggle-btn {
+        display: none;
+        width: 42px;
+        height: 42px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        background: var(--overlay-04);
+        color: var(--text);
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(6, 9, 15, .6);
+        backdrop-filter: blur(2px);
+        z-index: 45;
+      }
+      .sidebar-backdrop.open { display: block; }
+
+      /* Estado retraído (somente ícones) em telas de desktop/tablet largo */
+      .dashboard-shell.sidebar-collapsed .sidebar { width: 76px; }
+      .dashboard-shell.sidebar-collapsed .sidebar-title,
+      .dashboard-shell.sidebar-collapsed .sidebar-section-title,
+      .dashboard-shell.sidebar-collapsed .sidebar-link span,
+      .dashboard-shell.sidebar-collapsed .user-mini-profile .user-mini-info {
+        display: none;
+      }
+      .dashboard-shell.sidebar-collapsed .sidebar-logo { width: 40px; height: 40px; margin-bottom: 0; }
+      .dashboard-shell.sidebar-collapsed .sidebar-link { justify-content: center; padding: 14px 0; }
+      .dashboard-shell.sidebar-collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
+      .dashboard-shell.sidebar-collapsed .main-content { margin-left: 76px; width: calc(100% - 76px); }
+      .dashboard-shell.sidebar-collapsed .user-mini-profile { justify-content: center; }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          position: fixed;
+          inset: 0 auto 0 0;
+          width: min(300px, 84vw);
+          transform: translateX(-100%);
+          z-index: 70;
+        }
+        .sidebar.open { transform: translateX(0); box-shadow: 0 0 60px rgba(0,0,0,.45); }
+        .sidebar-collapse-btn { display: none; }
+        .sidebar-toggle-btn { display: inline-flex; }
+        .dashboard-shell.sidebar-collapsed .sidebar { width: min(300px, 84vw); }
+        .main-content, .dashboard-shell.sidebar-collapsed .main-content { margin-left: 0; width: 100%; }
+      }
       .dashboard-header {
         position: sticky;
         top: 18px;
@@ -90,16 +199,16 @@
       }
       .header-title { color: var(--muted); font-size: .92rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
       .search-shell { position: relative; }
-      .search-shell i { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: #64748b; }
+      .search-shell i { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: var(--muted-faint); }
       .search-dropdown {
         position: absolute;
         top: calc(100% + 10px);
         left: 0;
         right: 0;
         padding: 8px;
-        border: 1px solid rgba(255,255,255,.08);
+        border: 1px solid var(--overlay-08);
         border-radius: 16px;
-        background: #111822;
+        background: var(--panel-alt);
         box-shadow: var(--shadow);
         z-index: 60;
       }
@@ -117,7 +226,7 @@
         text-align: left;
         cursor: pointer;
       }
-      .search-result:hover { background: rgba(212,175,55,.08); color: #fff2ba; }
+      .search-result:hover { background: rgba(212,175,55,.08); color: var(--accent); }
       .search-result strong { display: block; font-size: .92rem; }
       .search-result span { color: var(--muted); font-size: .8rem; }
       .search-empty {
@@ -136,7 +245,7 @@
       .teaching-form select,
       .teaching-form textarea {
         width: 100%;
-        border: 1px solid rgba(255,255,255,.07);
+        border: 1px solid var(--overlay-08);
         border-radius: 10px;
         background: var(--bg-soft);
         color: var(--text);
@@ -155,38 +264,38 @@
         box-shadow: 0 0 0 4px rgba(212,175,55,.12);
       }
       .header-actions { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 14px; }
-      .system-status { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(34,197,94,.24); background: rgba(34,197,94,.1); color: #86efac; font-size: .85rem; font-weight: 700; }
+      .system-status { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(34,197,94,.24); background: rgba(34,197,94,.1); color: var(--green); font-size: .85rem; font-weight: 700; }
       .pulsing-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 rgba(34,197,94,.7); animation: pulse 1.8s infinite; }
       .profile-trigger { width: 46px; height: 46px; padding: 0; border: 2px solid rgba(212,175,55,.45); border-radius: 50%; overflow: hidden; background: #0f172a; cursor: pointer; }
       .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
-      .profile-dropdown { position: absolute; top: calc(100% + 12px); right: 0; width: 260px; padding: 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: #111822; box-shadow: var(--shadow); }
-      .profile-dropdown-header { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .profile-dropdown { position: absolute; top: calc(100% + 12px); right: 0; width: 260px; padding: 16px; border: 1px solid var(--overlay-08); border-radius: 16px; background: var(--panel-alt); box-shadow: var(--shadow); }
+      .profile-dropdown-header { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line-soft); }
       .profile-dropdown-header strong { display: block; margin-bottom: 4px; font-size: 1rem; }
       .profile-dropdown-header span { color: var(--muted); font-size: .84rem; }
       .dropdown-link, .dropdown-button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted-strong); text-decoration: none; cursor: pointer; transition: background .2s ease; }
-      .dropdown-link:hover, .dropdown-button:hover { background: rgba(255,255,255,.05); }
-      .dropdown-button.logout { color: #fca5a5; }
-      .section-card, .glass-panel { border: 1px solid rgba(255,255,255,.06); border-radius: 22px; background: linear-gradient(180deg, rgba(34,42,55,.98), rgba(24,31,42,.98)); box-shadow: var(--shadow); }
+      .dropdown-link:hover, .dropdown-button:hover { background: var(--overlay-04); }
+      .dropdown-button.logout { color: var(--danger-text); }
+      .section-card, .glass-panel { border: 1px solid var(--line-soft); border-radius: 22px; background: linear-gradient(180deg, rgba(34,42,55,.98), rgba(24,31,42,.98)); box-shadow: var(--shadow); }
       .section-card { padding: 24px; }
       .page-title { margin: 0 0 8px; font-size: clamp(1.9rem, 2.8vw, 2.4rem); }
       .page-subtitle { margin: 0; color: var(--muted); line-height: 1.6; }
       .quick-grid, .field-row, .teaching-grid, .upload-grid { display: grid; gap: 14px; }
       .quick-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 24px; gap: 18px; }
-      .quick-card { padding: 20px; border: 1px solid rgba(255,255,255,.06); border-radius: 18px; background: rgba(255,255,255,.02); }
+      .quick-card { padding: 20px; border: 1px solid var(--line-soft); border-radius: 18px; background: var(--overlay-02); }
       .quick-card span { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; margin-bottom: 14px; border-radius: 12px; background: rgba(212,175,55,.12); color: var(--accent); }
       .quick-card h3 { margin: 0 0 8px; font-size: 1.02rem; }
       .quick-card p { margin: 0; color: var(--muted); line-height: 1.55; }
       .ops-toolbar, .ops-meta, .ops-ranking-list, .ops-activity-list, .ops-warning-list { display: flex; gap: 12px; }
       .ops-toolbar, .ops-meta { align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 22px; }
       .ops-meta { margin-top: 14px; }
-      .ops-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.04); color: var(--muted-strong); font-size: .82rem; border: 1px solid rgba(255,255,255,.06); }
+      .ops-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: var(--overlay-04); color: var(--muted-strong); font-size: .82rem; border: 1px solid var(--line-soft); }
       .ops-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-top: 24px; }
-      .ops-card { padding: 20px; border: 1px solid rgba(255,255,255,.06); border-radius: 18px; background: rgba(255,255,255,.02); }
+      .ops-card { padding: 20px; border: 1px solid var(--line-soft); border-radius: 18px; background: var(--overlay-02); }
       .ops-card-label { margin: 0 0 10px; color: var(--muted); font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
       .ops-card-value { margin: 0; font-size: clamp(1.8rem, 2.4vw, 2.4rem); font-weight: 800; }
       .ops-card small { display: block; margin-top: 10px; color: var(--muted); line-height: 1.5; }
       .ops-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 24px; }
-      .ops-panel { padding: 22px; border: 1px solid rgba(255,255,255,.06); border-radius: 20px; background: rgba(255,255,255,.02); }
+      .ops-panel { padding: 22px; border: 1px solid var(--line-soft); border-radius: 20px; background: var(--overlay-02); }
       .ops-panel h3 { margin: 0 0 14px; font-size: 1.05rem; }
       .ops-ranking-list, .ops-activity-list, .ops-warning-list { flex-direction: column; margin: 0; padding: 0; list-style: none; }
       .ops-ranking-item, .ops-activity-item, .ops-warning-item {
@@ -195,10 +304,10 @@
         gap: 12px;
         align-items: start;
         padding: 14px 0;
-        border-bottom: 1px solid rgba(255,255,255,.06);
+        border-bottom: 1px solid var(--line-soft);
       }
       .ops-activity-item { grid-template-columns: 1fr auto; }
-      .ops-warning-item { grid-template-columns: auto 1fr; color: #fde68a; }
+      .ops-warning-item { grid-template-columns: auto 1fr; color: var(--accent); }
       .ops-ranking-item:last-child, .ops-activity-item:last-child, .ops-warning-item:last-child { border-bottom: none; }
       .ops-rank-number {
         width: 30px;
@@ -221,38 +330,40 @@
         height: 38px;
         border-radius: 50%;
         object-fit: cover;
-        border: 1px solid rgba(255,255,255,.1);
-        background: rgba(255,255,255,.04);
+        border: 1px solid var(--overlay-08);
+        background: var(--overlay-04);
       }
       .ops-item-title { font-weight: 700; color: var(--text); }
       .ops-item-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
-      .ops-item-value { color: #f8e7a6; font-weight: 800; white-space: nowrap; }
-      .ops-empty-state { padding: 18px; border-radius: 16px; background: rgba(255,255,255,.03); color: var(--muted); text-align: center; line-height: 1.6; }
+      .ops-item-value { color: var(--accent); font-weight: 800; white-space: nowrap; }
+      .ops-empty-state { padding: 18px; border-radius: 16px; background: var(--overlay-03); color: var(--muted); text-align: center; line-height: 1.6; }
       .ops-period-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-      .ops-period-card { padding: 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 16px; background: rgba(255,255,255,.02); }
-      .ops-period-card strong { display: block; font-size: 1.2rem; margin-bottom: 6px; color: #fff7cf; }
+      .ops-period-card { padding: 14px; border: 1px solid var(--line-soft); border-radius: 16px; background: var(--overlay-02); }
+      .ops-period-card strong { display: block; font-size: 1.2rem; margin-bottom: 6px; color: var(--accent); }
       .ops-period-card span { color: var(--muted); font-size: .84rem; }
       .ops-collection-list { display: grid; gap: 10px; margin-top: 12px; }
-      .ops-collection-item { padding: 12px 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 14px; background: rgba(255,255,255,.02); }
+      .ops-collection-item { padding: 12px 14px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--overlay-02); }
       .ops-collection-item strong { display: block; margin-bottom: 6px; }
-      .ops-collection-item code { color: #fff2ba; }
+      .ops-collection-item code { color: var(--accent); }
       .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 22px; }
-      .course-card { border: 1px solid rgba(255,255,255,.06); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(32,40,54,.95), rgba(20,27,37,.98)); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: 1px 320px; }
+      .course-card { border: 1px solid var(--line-soft); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(32,40,54,.95), rgba(20,27,37,.98)); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: 1px 320px; }
       .course-thumb { min-height: 140px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(33,41,54,.35)); color: var(--accent); }
       .course-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
       .course-body h3 { margin: 0; font-size: 1.05rem; }
       .course-body p { margin: 0; color: var(--muted); line-height: 1.55; flex: 1; }
       .course-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-      .course-link { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); text-decoration: none; color: var(--muted-strong); background: rgba(255,255,255,.04); transition: transform .2s ease, background .2s ease; }
-      .course-link:hover { transform: translateY(-1px); background: rgba(212,175,55,.1); color: #fff2ba; }
+      .course-link { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--overlay-08); text-decoration: none; color: var(--muted-strong); background: var(--overlay-04); transition: transform .2s ease, background .2s ease; }
+      .course-link:hover { transform: translateY(-1px); background: rgba(212,175,55,.1); color: var(--accent); }
       .course-card.restricted { border-color: rgba(52,211,153,.24); }
       .course-card.restricted .course-thumb { background: linear-gradient(135deg, rgba(52,211,153,.16), rgba(15,23,42,.75)); color: #34d399; }
-      .course-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.04); color: var(--muted-strong); font-size: .82rem; font-weight: 700; }
-      .forensic-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-      .forensic-tab, .segment-button, .action-button, .submit-button, .ghost-button { border: 1px solid rgba(255,255,255,.08); cursor: pointer; transition: transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
-      .forensic-tab { padding: 10px 18px; border-radius: 12px; background: rgba(255,255,255,.03); color: var(--muted-strong); font-weight: 700; }
-      .forensic-tab:hover, .segment-button:hover, .action-button:hover, .submit-button:hover, .ghost-button:hover { transform: translateY(-1px); }
-      .forensic-tab.active, .segment-button.active { background: rgba(212,175,55,.12); color: var(--accent); border-color: rgba(212,175,55,.45); }
+      .course-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: var(--overlay-04); color: var(--muted-strong); font-size: .82rem; font-weight: 700; }
+      .forensic-tabs { display: flex; gap: 6px; margin-top: 18px; padding: 6px; border-radius: 16px; background: var(--overlay-02); border: 1px solid var(--line-soft); overflow-x: auto; scrollbar-width: thin; }
+      .forensic-tab, .segment-button, .action-button, .submit-button, .ghost-button { border: 1px solid var(--overlay-08); cursor: pointer; transition: transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease, opacity .2s ease; }
+      .forensic-tab { flex: 1 1 auto; white-space: nowrap; padding: 10px 18px; border-radius: 12px; background: transparent; border-color: transparent; color: var(--muted-strong); font-weight: 700; }
+      .forensic-tab:hover, .action-button:hover, .submit-button:hover, .ghost-button:hover { transform: translateY(-1px); }
+      .segment-button:hover { background: var(--overlay-04); color: var(--text); }
+      .forensic-tab:hover { background: var(--overlay-04); color: var(--text); }
+      .forensic-tab.active, .segment-button.active { background: linear-gradient(135deg, rgba(212,175,55,.24), rgba(212,175,55,.08)); color: var(--accent); border-color: rgba(212,175,55,.4); box-shadow: 0 6px 16px rgba(212,175,55,.15); }
       .forensic-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 24px; margin-top: 20px; }
       .forensic-panel, .info-panel, .teaching-panel { padding: 22px; }
       .field-block { margin-top: 18px; }
@@ -280,9 +391,9 @@
         max-height: 240px;
         overflow-y: auto;
         padding: 8px;
-        border: 1px solid rgba(255,255,255,.08);
+        border: 1px solid var(--overlay-08);
         border-radius: 14px;
-        background: #111822;
+        background: var(--panel-alt);
         box-shadow: var(--shadow);
         z-index: 35;
       }
@@ -298,83 +409,93 @@
         cursor: pointer;
       }
       .qra-suggestion:hover,
-      .qra-suggestion.active { background: rgba(212,175,55,.1); color: #fff2ba; }
+      .qra-suggestion.active { background: rgba(212,175,55,.1); color: var(--accent); }
       .qra-suggestion-empty {
         padding: 11px 12px;
         color: var(--muted);
         font-size: .88rem;
       }
       .action-button, .ghost-button, .submit-button, .segment-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; font-weight: 700; }
-      .action-button { background: rgba(255,255,255,.08); color: var(--text); }
-      .action-button:hover, .ghost-button:hover { background: rgba(255,255,255,.12); }
+      .action-button { background: var(--overlay-08); color: var(--text); }
+      .action-button:hover, .ghost-button:hover { background: var(--overlay-12); }
       .ghost-button { background: #2c3749; color: var(--muted-strong); }
       .submit-button { background: linear-gradient(135deg, #b7902f 0%, #d4af37 100%); color: #0f172a; border-color: transparent; min-width: 220px; }
       .submit-button.secondary { background: #0f274f; color: #fff; }
       .button-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 22px; }
       .member-chip-list, .selected-list-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-      .member-chip, .selected-item { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(212,175,55,.22); border-radius: 999px; background: rgba(212,175,55,.08); color: #f8e7a6; font-size: .88rem; }
+      .member-chip, .selected-item { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(212,175,55,.22); border-radius: 999px; background: rgba(212,175,55,.08); color: var(--accent); font-size: .88rem; }
       .member-chip button, .selected-item button { width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(0,0,0,.2); color: inherit; cursor: pointer; }
       .upload-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
       .upload-caption { margin-top: 8px; color: var(--muted); }
       .upload-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 16px; }
-      .upload-slot { position: relative; min-height: 200px; overflow: hidden; border: 1px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.03); }
-      .upload-slot.empty { display: grid; place-items: center; color: #64748b; font-size: 2.1rem; }
-      .upload-slot img { width: 100%; height: 100%; object-fit: cover; }
-      .upload-slot button { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: rgba(15,23,42,.8); color: #fff; cursor: pointer; }
+      .upload-slot { position: relative; min-height: 200px; overflow: hidden; border: 1px dashed var(--overlay-12); border-radius: 16px; background: var(--overlay-03); transition: border-color .2s ease, background .2s ease; }
+      .upload-slot.empty { display: grid; place-items: center; gap: 8px; text-align: center; color: var(--muted-faint); font-size: 2.1rem; cursor: pointer; padding: 10px; }
+      .upload-slot.empty span { font-size: .8rem; font-weight: 600; }
+      .upload-slot.drag-over { border-color: rgba(212,175,55,.6); background: rgba(212,175,55,.08); }
+      .upload-slot.filled img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; display: block; }
+      .upload-slot-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+      .upload-slot-swap, .upload-slot-remove { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: rgba(15,23,42,.75); color: #fff; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+      .upload-slot-swap:hover { background: rgba(212,175,55,.85); transform: scale(1.06); }
+      .upload-slot-remove:hover { background: rgba(220,38,38,.85); transform: scale(1.06); }
       .info-panel ul { padding-left: 18px; color: var(--muted); line-height: 1.7; }
       .empty-state, .status-banner { padding: 14px 16px; border-radius: 12px; }
-      .empty-state { border: 1px dashed rgba(255,255,255,.12); background: rgba(255,255,255,.02); color: var(--muted); }
+      .empty-state { border: 1px dashed var(--overlay-12); background: var(--overlay-02); color: var(--muted); }
       .teaching-wrap { display: grid; gap: 20px; }
       .teaching-toolbar { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 16px; align-items: end; }
-      .segment-row { display: flex; gap: 12px; margin-top: 20px; }
-      .segment-button { flex: 1; background: #334155; color: #fff; }
+      .segment-row { display: flex; gap: 6px; margin-top: 20px; padding: 6px; border-radius: 16px; background: var(--overlay-02); border: 1px solid var(--line-soft); overflow-x: auto; scrollbar-width: thin; }
+      .segment-button { flex: 1 1 auto; white-space: nowrap; background: transparent; border-color: transparent; color: var(--muted-strong); }
       .teaching-form { margin-top: 20px; }
-      .status-banner { margin-top: 16px; border: 1px solid rgba(96,165,250,.2); background: rgba(96,165,250,.08); color: #bfdbfe; }
+      .status-banner { margin-top: 16px; border: 1px solid rgba(96,165,250,.2); background: rgba(96,165,250,.08); color: var(--info-text); }
       #teaching-status { display: none; }
       .journal-form-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
-      .journal-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(212,175,55,.08); border: 1px solid rgba(212,175,55,.24); color: #f4d97a; font-weight: 700; }
+      .journal-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(212,175,55,.08); border: 1px solid rgba(212,175,55,.24); color: var(--accent); font-weight: 700; }
       .notification-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 120; }
-      .toast { display: inline-flex; align-items: center; gap: 10px; min-width: 260px; max-width: 360px; padding: 14px 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 14px; background: #111822; box-shadow: var(--shadow); animation: slideIn .25s ease; }
-      .toast.success { color: #86efac; }
-      .toast.error { color: #fca5a5; }
+      .toast { display: inline-flex; align-items: center; gap: 10px; min-width: 260px; max-width: 360px; padding: 14px 16px; border: 1px solid var(--overlay-08); border-radius: 14px; background: var(--panel-alt); box-shadow: var(--shadow); animation: slideIn .25s ease; }
+      .toast.success { color: var(--green); }
+      .toast.error { color: var(--danger-text); }
       .toast.info { color: #cbd5e1; }
-      .toast.loading { color: #bfdbfe; }
+      .toast.loading { color: var(--info-text); }
       @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,.7); } 70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
       @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      @media (max-width: 1280px) { .dashboard-header { grid-template-columns: 1fr; height: auto; padding: 18px; } .forensic-layout, .ops-panels { grid-template-columns: 1fr; } .ops-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-      @media (max-width: 980px) { .sidebar { position: static; width: 100%; min-height: auto; } .dashboard-shell { flex-direction: column; } .main-content { width: 100%; margin-left: 0; padding: 18px; } .quick-grid, .field-row, .field-row.two, .teaching-grid, .teaching-toolbar, .upload-grid, .journal-form-grid, .ops-grid { grid-template-columns: 1fr; } }
-      @media (max-width: 720px) { .header-actions { justify-content: flex-start; } .qra-picker { grid-template-columns: 1fr; } .segment-row, .button-row, .upload-header { flex-direction: column; align-items: stretch; } }
+      @media (max-width: 1280px) { .dashboard-header { display: flex; flex-wrap: wrap; grid-template-columns: none; height: auto; padding: 16px 18px; } .sidebar-toggle-btn { order: -1; } .header-title { order: 0; flex: 1 1 auto; } .search-shell { order: 2; flex: 1 1 100%; } .header-actions { order: 1; margin-left: auto; } .forensic-layout, .ops-panels { grid-template-columns: 1fr; } .ops-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+      @media (max-width: 980px) { .quick-grid, .field-row, .field-row.two, .teaching-grid, .teaching-toolbar, .upload-grid, .journal-form-grid, .ops-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 768px) { .header-title { display: none; } }
+      @media (max-width: 720px) { .header-actions { justify-content: flex-start; } .qra-picker { grid-template-columns: 1fr; } .button-row, .upload-header { flex-direction: column; align-items: stretch; } }
+      @media (max-width: 480px) { .main-content { padding: 14px; } .section-card { padding: 16px; border-radius: 16px; } .ops-grid, .course-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
-    <div class="dashboard-shell">
-      <aside class="sidebar">
+    <div class="dashboard-shell" id="dashboard-shell">
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+      <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
           <img class="sidebar-logo" src="images/Logo_policia.png" alt="Logo Polícia" decoding="async" fetchpriority="high" />
           <h1 class="sidebar-title">Intranet<br />Policial</h1>
+          <button type="button" id="sidebar-collapse-btn" class="sidebar-collapse-btn" aria-label="Recolher menu" title="Recolher menu"><i class="fa-solid fa-chevron-left"></i></button>
         </div>
         <nav class="sidebar-menu">
           <ul>
             <li><div class="sidebar-section-title">Painel</div></li>
-            <li><a href="#" class="sidebar-link" data-section-link="home"><i class="fa-solid fa-gauge-high"></i><span>Painel Operacional</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="home" title="Painel Operacional"><i class="fa-solid fa-gauge-high"></i><span>Painel Operacional</span></a></li>
             <li><div class="sidebar-section-title">Departamentos</div></li>
-            <li><a href="#" class="sidebar-link active" data-section-link="pcerj"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro%20(1).png" alt="PCERJ" decoding="async" /><span>PCERJ</span></a></li>
-            <li><a href="#" class="sidebar-link" data-section-link="pmerj"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" decoding="async" /><span>PMERJ</span></a></li>
-            <li><a href="#" class="sidebar-link" data-section-link="prf"><img class="dept-logo" src="images/PRF_new.png" alt="PRF" decoding="async" /><span>PRF</span></a></li>
+            <li><a href="#" class="sidebar-link active" data-section-link="pcerj" title="PCERJ"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Civil_do_Estado_do_Rio_de_Janeiro%20(1).png" alt="PCERJ" decoding="async" /><span>PCERJ</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="pmerj" title="PMERJ"><img class="dept-logo" src="images/Bras%C3%A3o_da_Pol%C3%ADcia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="PMERJ" decoding="async" /><span>PMERJ</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="prf" title="PRF"><img class="dept-logo" src="images/PRF_new.png" alt="PRF" decoding="async" /><span>PRF</span></a></li>
             <li><div class="sidebar-section-title">Serviços</div></li>
-            <li><a href="#" class="sidebar-link" data-section-link="pcerj"><i class="fa-solid fa-clipboard-list"></i><span>Formulário de Perícia</span></a></li>
-            <li><a href="boletim.html" class="sidebar-link"><i class="fa-solid fa-clipboard"></i><span>Registrar B.O.</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="pcerj" title="Formulário de Perícia"><i class="fa-solid fa-clipboard-list"></i><span>Formulário de Perícia</span></a></li>
+            <li><a href="boletim.html" class="sidebar-link" title="Registrar B.O."><i class="fa-solid fa-clipboard"></i><span>Registrar B.O.</span></a></li>
             <li><div class="sidebar-section-title">Interno</div></li>
-            <li><a href="#" class="sidebar-link" data-section-link="cursos"><i class="fa-solid fa-graduation-cap"></i><span>Cursos e Treinamentos</span></a></li>
-            <li id="tab-ensino" class="hidden"><a href="#" class="sidebar-link" data-section-link="ensino"><i class="fa-solid fa-graduation-cap"></i><span>Ensino e Cursos</span></a></li>
-            <li id="tab-jornal" class="hidden"><a href="#" class="sidebar-link" data-section-link="jornal"><i class="fa-solid fa-newspaper"></i><span>Jornal</span></a></li>
-            <li><a href="#" class="sidebar-link" data-section-link="admin"><i class="fa-solid fa-building-shield"></i><span>Central Administrativa</span></a></li>
-            <li><a href="../index.html" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Voltar ao Início</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="cursos" title="Cursos e Treinamentos"><i class="fa-solid fa-graduation-cap"></i><span>Cursos e Treinamentos</span></a></li>
+            <li id="tab-ensino" class="hidden"><a href="#" class="sidebar-link" data-section-link="ensino" title="Ensino e Cursos"><i class="fa-solid fa-graduation-cap"></i><span>Ensino e Cursos</span></a></li>
+            <li id="tab-jornal" class="hidden"><a href="#" class="sidebar-link" data-section-link="jornal" title="Jornal"><i class="fa-solid fa-newspaper"></i><span>Jornal</span></a></li>
+            <li><a href="#" class="sidebar-link" data-section-link="admin" title="Central Administrativa"><i class="fa-solid fa-building-shield"></i><span>Central Administrativa</span></a></li>
+            <li><a href="../index.html" class="sidebar-link" title="Voltar ao Início"><i class="fa-solid fa-arrow-left"></i><span>Voltar ao Início</span></a></li>
           </ul>
         </nav>
       </aside>
       <main class="main-content">
         <header class="dashboard-header">
+          <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
           <div id="header-title" class="header-title">PCERJ • Central Policial Intranet</div>
           <div class="search-shell">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -383,6 +504,7 @@
           </div>
           <div class="header-actions">
             <div class="system-status"><span class="pulsing-dot"></span><span>Sincronizado</span></div>
+            <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema"><i class="fa-solid fa-sun"></i></button>
             <button id="profile-trigger" class="profile-trigger" type="button" aria-label="Abrir menu do usuário"><img id="profile-avatar" src="images/Logo_policia.png" alt="Avatar do usuário" decoding="async" /></button>
             <div id="profile-dropdown" class="profile-dropdown hidden">
               <div class="profile-dropdown-header"><strong id="profile-name">Servidor REVOADA</strong><span id="profile-role">Agente em serviço</span></div>
@@ -710,7 +832,7 @@
         info(message) { this.show(message, "info"); },
         loading(message) { return this.show(message, "loading"); },
       };
-      document.addEventListener("DOMContentLoaded", async () => { Notify.init(); loadCourseAnnouncementMap(); const user = getCurrentUser(); state.currentUser = user; renderUser(user); setupSidebarNavigation(); setupProfileDropdown(); setupForensicTabs(); setupUpload(); setupQraPicker(); setupSearch(); setupForensicForm(); setupBlitzForm(); setupTeachingTabs(); setupMemberPickers(); setupCoursePicker(); setupTeachingForms(); setupJournalForm(); await initializeAccess(user); renderCourseLibrary(); renderJournalAccess(); await switchSection(getDefaultSection()); activateForensicTab("caminhao"); ensureCurrentUserInQra(); });
+      document.addEventListener("DOMContentLoaded", async () => { Notify.init(); loadCourseAnnouncementMap(); const user = getCurrentUser(); state.currentUser = user; renderUser(user); setupSidebarNavigation(); setupSidebarCollapse(); setupSidebarDrawer(); setupProfileDropdown(); setupForensicTabs(); setupUpload(); setupQraPicker(); setupSearch(); setupForensicForm(); setupBlitzForm(); setupTeachingTabs(); setupMemberPickers(); setupCoursePicker(); setupTeachingForms(); setupJournalForm(); await initializeAccess(user); renderCourseLibrary(); renderJournalAccess(); await switchSection(getDefaultSection()); activateForensicTab("caminhao"); ensureCurrentUserInQra(); });
       function getCurrentUser() { const stored = localStorage.getItem("revoada_user"); if (!stored) return { username: "Servidor REVOADA", displayName: "Servidor REVOADA", avatar: "", avatarUrl: "", id: "local-user", roles: [], policeRoleLabel: "Agente em serviço" }; try { const parsed = JSON.parse(stored); return { ...parsed, displayName: parsed.displayName || parsed.username || "Servidor REVOADA", avatarUrl: parsed.avatarUrl || "", roles: Array.isArray(parsed.roles) ? parsed.roles : [], policeRoleLabel: parsed.policeRoleLabel || "Agente em serviço" }; } catch (error) { console.error("Falha ao ler usuário salvo:", error); return { username: "Servidor REVOADA", displayName: "Servidor REVOADA", avatar: "", avatarUrl: "", id: "local-user", roles: [], policeRoleLabel: "Agente em serviço" }; } }
       function getAvatarUrl(user) { if (user && user.avatarUrl) return user.avatarUrl; if (user && user.avatar && user.id) return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`; return "images/Logo_policia.png"; }
       function loadCourseAnnouncementMap() { try { const stored = localStorage.getItem("revoada_course_call_map"); const raw = stored ? JSON.parse(stored) : {}; state.courseAnnouncementMap = {}; Object.entries(raw).forEach(([courseId, value]) => { state.courseAnnouncementMap[courseId] = Array.isArray(value) ? value : value ? [value] : []; }); } catch (error) { console.error("Falha ao ler mapa de cursos anunciados:", error); state.courseAnnouncementMap = {}; } }
@@ -736,7 +858,43 @@ function getMappedCallsForSelectedCourse() { const select = document.getElementB
       function getDefaultSection() { if (canAccessSection("pcerj")) return "pcerj"; if (canAccessSection("pmerj")) return "pmerj"; if (canAccessSection("prf")) return "prf"; return "home"; }
       function applySectionAccess() { ["pcerj", "pmerj", "prf"].forEach((sectionName) => { const allowed = canAccessSection(sectionName); document.querySelectorAll(`[data-section-link="${sectionName}"]`).forEach((link) => { const item = link.closest("li"); if (item) item.classList.toggle("hidden", !allowed); else link.classList.toggle("hidden", !allowed); }); const section = document.getElementById(`sec-${sectionName}`); if (section) section.classList.toggle("hidden", !allowed && state.currentSection === sectionName); }); }
       async function initializeAccess(user) { const teachingTab = document.getElementById("tab-ensino"); const journalTab = document.getElementById("tab-jornal"); try { const response = await fetch("/api/course-manager?action=config"); if (!response.ok) throw new Error("Falha ao carregar configuração de acesso."); const config = await response.json(); state.courseAccessConfig = config || { factionRoles: {}, comandoGeralRoleIds: "", ensinoPmerjRoleIds: "", instrutorRoleId: "", ownerIds: "" }; applySectionAccess(); renderUser(state.currentUser); if (canAccessTeachingReports()) teachingTab.classList.remove("hidden"); else teachingTab.classList.add("hidden"); if (isJournalist() || isOwner()) journalTab.classList.remove("hidden"); else journalTab.classList.add("hidden"); renderJournalAccess(); renderTeachingAccess(); } catch (error) { console.error("Erro ao inicializar permissões:", error); applySectionAccess(); renderUser(state.currentUser); teachingTab.classList.add("hidden"); if (isJournalist() || isOwner()) journalTab.classList.remove("hidden"); else journalTab.classList.add("hidden"); renderJournalAccess(); renderTeachingAccess(); } }
-      function setupSidebarNavigation() { document.querySelectorAll("[data-section-link]").forEach((link) => { link.addEventListener("click", (event) => { event.preventDefault(); switchSection(link.dataset.sectionLink, link); }); }); }
+      function setupSidebarNavigation() { document.querySelectorAll("[data-section-link]").forEach((link) => { link.addEventListener("click", (event) => { event.preventDefault(); switchSection(link.dataset.sectionLink, link); closeSidebarDrawer(); }); }); }
+      const SIDEBAR_COLLAPSE_KEY = "revoada_sidebar_collapsed";
+      function setupSidebarCollapse() {
+        const shell = document.getElementById("dashboard-shell");
+        const btn = document.getElementById("sidebar-collapse-btn");
+        if (!shell || !btn) return;
+        let collapsed = false;
+        try { collapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "true"; } catch { collapsed = false; }
+        shell.classList.toggle("sidebar-collapsed", collapsed);
+        btn.addEventListener("click", () => {
+          collapsed = !shell.classList.contains("sidebar-collapsed");
+          shell.classList.toggle("sidebar-collapsed", collapsed);
+          try { localStorage.setItem(SIDEBAR_COLLAPSE_KEY, String(collapsed)); } catch {}
+        });
+      }
+      function closeSidebarDrawer() {
+        const sidebar = document.getElementById("sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
+        const toggleBtn = document.getElementById("sidebar-toggle-btn");
+        if (sidebar) sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("open");
+        if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "false");
+      }
+      function setupSidebarDrawer() {
+        const sidebar = document.getElementById("sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
+        const toggleBtn = document.getElementById("sidebar-toggle-btn");
+        if (!sidebar || !backdrop || !toggleBtn) return;
+        toggleBtn.addEventListener("click", () => {
+          const willOpen = !sidebar.classList.contains("open");
+          sidebar.classList.toggle("open", willOpen);
+          backdrop.classList.toggle("open", willOpen);
+          toggleBtn.setAttribute("aria-expanded", String(willOpen));
+        });
+        backdrop.addEventListener("click", closeSidebarDrawer);
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeSidebarDrawer(); });
+      }
       async function switchSection(sectionName, linkElement = null) { if (!canAccessSection(sectionName)) { Notify.error("Você não possui permissão para acessar esta matriz."); sectionName = getDefaultSection(); } state.currentSection = sectionName; document.querySelectorAll(".dash-section").forEach((section) => { section.classList.toggle("hidden", section.id !== `sec-${sectionName}`); }); document.querySelectorAll(".sidebar-link[data-section-link]").forEach((link) => { link.classList.toggle("active", link.dataset.sectionLink === sectionName); }); if (linkElement && linkElement.dataset.sectionLink === sectionName) linkElement.classList.add("active"); updateHeaderTitle(sectionName); updateSearchPlaceholder(sectionName); clearSearchHighlights(); if (sectionName === "ensino" && canAccessTeachingReports() && !state.teachingDataLoaded) await loadTeachingDiscordData(); if ((sectionName === "pcerj" || sectionName === "prf") && canAccessSection(sectionName) && !state.policeMembersLoaded) await loadPoliceMembersByRole(); }
       function updateHeaderTitle(sectionName) { const title = document.getElementById("header-title"); if (!title) return; const sectionTitles = { pcerj: "PCERJ • Central Policial Intranet", pmerj: "PMERJ • Central Policial Intranet", prf: "PRF • Central Policial Intranet", home: "Central Policial Intranet", cursos: "Central Policial Intranet", ensino: "Central Policial Intranet", jornal: "Central Policial Intranet", admin: "Central Policial Intranet" }; title.textContent = sectionTitles[sectionName] || "Central Policial Intranet"; }
       function updateSearchPlaceholder(sectionName) { const input = document.getElementById("global-search"); if (!input) return; const placeholders = { pcerj: "Buscar por QRA, placa, proprietário ou protocolo", pmerj: "Buscar módulos, ações e conteúdos da PMERJ", prf: "Buscar dirigente, participante, horário ou blitz da PRF", cursos: "Buscar cursos, treinamentos e materiais", ensino: "Buscar curso, instrutor, auxiliar ou aprovado", jornal: "Buscar por título, imagem ou conteúdo da notícia", home: "Buscar módulos internos da intranet", admin: "Buscar rotinas e áreas administrativas" }; input.placeholder = placeholders[sectionName] || "Buscar na intranet"; input.value = ""; }
@@ -745,7 +903,44 @@ function getMappedCallsForSelectedCourse() { const select = document.getElementB
       function activateForensicTab(tabName) { const config = FORENSIC_CONFIG[tabName]; if (!config) return; state.currentForensicTab = tabName; document.querySelectorAll("[data-forensic-tab]").forEach((tabButton) => { tabButton.classList.toggle("active", tabButton.dataset.forensicTab === tabName); }); document.getElementById("tipo-pericia").value = tabName; document.getElementById("form-title").textContent = config.title; document.getElementById("form-description").textContent = config.description; document.getElementById("field-id-label").textContent = config.idLabel; document.getElementById("field-descricao-label").textContent = config.descriptionLabel; document.querySelectorAll("[data-field]").forEach((field) => { field.classList.toggle("hidden", !config.visibleFields.includes(field.dataset.field)); }); }
       function addUploadedFile(file, targetIndex = null) { if (!(file instanceof File) || !String(file.type || "").startsWith("image/")) return false; const previewUrl = URL.createObjectURL(file); const imageData = { file, previewUrl }; if (Number.isInteger(targetIndex) && targetIndex >= 0 && targetIndex < 3) { const existing = state.uploadedImages[targetIndex]; if (existing?.previewUrl) URL.revokeObjectURL(existing.previewUrl); state.uploadedImages[targetIndex] = imageData; } else if (state.uploadedImages.length < 3) { state.uploadedImages.push(imageData); } else { return false; } renderUploadGrid(); return true; }
       function setupUpload() { const input = document.getElementById("image-upload"); const addButton = document.getElementById("add-image-button"); const grid = document.getElementById("upload-grid"); if (!input || !addButton || !grid) return; addButton.addEventListener("click", () => { state.activeUploadSlotIndex = Math.min(state.uploadedImages.length, 2); input.click(); }); input.addEventListener("change", (event) => { Array.from(event.target.files || []).forEach((file, fileIndex) => { if (state.uploadedImages.length >= 3 && !Number.isInteger(state.activeUploadSlotIndex)) return; const targetIndex = fileIndex === 0 && Number.isInteger(state.activeUploadSlotIndex) ? state.activeUploadSlotIndex : null; addUploadedFile(file, targetIndex); }); renderUploadGrid(); input.value = ""; }); grid.addEventListener("paste", handleForensicPasteUpload); document.addEventListener("paste", handleForensicPasteUpload); renderUploadGrid(); }
-      function renderUploadGrid() { const grid = document.getElementById("upload-grid"); const addButton = document.getElementById("add-image-button"); if (!grid || !addButton) return; grid.innerHTML = ""; state.uploadedImages.slice(0, 3).forEach((image, index) => { const slot = document.createElement("div"); slot.className = `upload-slot${state.activeUploadSlotIndex === index ? " active" : ""}`; slot.dataset.uploadSlot = String(index); slot.tabIndex = 0; slot.setAttribute("role", "button"); slot.setAttribute("aria-label", `Imagem ${index + 1}. Clique para selecionar e colar outra imagem com Ctrl+V.`); slot.innerHTML = `<img src="${image.previewUrl}" alt="Preview ${index + 1}" /><button type="button" data-remove-upload="${index}" aria-label="Remover imagem"><i class="fa-solid fa-xmark"></i></button>`; slot.addEventListener("click", () => { state.activeUploadSlotIndex = index; renderUploadGrid(); }); slot.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); state.activeUploadSlotIndex = index; renderUploadGrid(); } }); grid.appendChild(slot); }); for (let index = state.uploadedImages.length; index < 3; index += 1) { const emptySlot = document.createElement("div"); emptySlot.className = `upload-slot empty${state.activeUploadSlotIndex === index ? " active" : ""}`; emptySlot.dataset.uploadSlot = String(index); emptySlot.tabIndex = 0; emptySlot.setAttribute("role", "button"); emptySlot.setAttribute("aria-label", `Campo de imagem ${index + 1}. Clique e use Ctrl+V para colar uma imagem.`); emptySlot.innerHTML = '<i class="fa-regular fa-image"></i><span>Clique e cole uma imagem</span>'; emptySlot.addEventListener("click", () => { state.activeUploadSlotIndex = index; renderUploadGrid(); }); emptySlot.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); state.activeUploadSlotIndex = index; renderUploadGrid(); } }); grid.appendChild(emptySlot); } grid.querySelectorAll("[data-remove-upload]").forEach((button) => { button.addEventListener("click", (event) => { event.stopPropagation(); removeUpload(Number(button.dataset.removeUpload)); }); }); addButton.disabled = state.uploadedImages.length >= 3; addButton.classList.toggle("hidden", state.uploadedImages.length >= 3); }
+      function renderUploadGrid() {
+        const grid = document.getElementById("upload-grid");
+        const addButton = document.getElementById("add-image-button");
+        const fileInput = document.getElementById("image-upload");
+        if (!grid || !addButton) return;
+        grid.innerHTML = "";
+        const armSlotForReplace = (index) => { state.activeUploadSlotIndex = index; fileInput?.click(); };
+        state.uploadedImages.slice(0, 3).forEach((image, index) => {
+          const slot = document.createElement("div");
+          slot.className = "upload-slot filled";
+          slot.dataset.uploadSlot = String(index);
+          slot.innerHTML = `<img src="${image.previewUrl}" alt="Preview ${index + 1}" data-lightbox-src="${image.previewUrl}" data-lightbox-group="pericia-upload" data-lightbox-caption="Anexo ${index + 1} da ocorrência" /><div class="upload-slot-actions"><button type="button" class="upload-slot-swap" data-swap-upload="${index}" aria-label="Trocar imagem" title="Trocar imagem (ou cole com Ctrl+V)"><i class="fa-solid fa-arrows-rotate"></i></button><button type="button" class="upload-slot-remove" data-remove-upload="${index}" aria-label="Remover imagem" title="Remover imagem"><i class="fa-solid fa-xmark"></i></button></div>`;
+          slot.addEventListener("dragover", (event) => { event.preventDefault(); slot.classList.add("drag-over"); });
+          slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+          slot.addEventListener("drop", (event) => { event.preventDefault(); slot.classList.remove("drag-over"); const file = event.dataTransfer?.files?.[0]; if (file) addUploadedFile(file, index); });
+          grid.appendChild(slot);
+        });
+        for (let index = state.uploadedImages.length; index < 3; index += 1) {
+          const emptySlot = document.createElement("div");
+          emptySlot.className = "upload-slot empty";
+          emptySlot.dataset.uploadSlot = String(index);
+          emptySlot.tabIndex = 0;
+          emptySlot.setAttribute("role", "button");
+          emptySlot.setAttribute("aria-label", `Campo de imagem ${index + 1}. Clique, cole com Ctrl+V ou arraste uma imagem.`);
+          emptySlot.innerHTML = '<i class="fa-regular fa-image"></i><span>Clique, cole (Ctrl+V) ou arraste</span>';
+          emptySlot.addEventListener("click", () => { state.activeUploadSlotIndex = index; armSlotForReplace(index); });
+          emptySlot.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); state.activeUploadSlotIndex = index; armSlotForReplace(index); } });
+          emptySlot.addEventListener("dragover", (event) => { event.preventDefault(); emptySlot.classList.add("drag-over"); });
+          emptySlot.addEventListener("dragleave", () => emptySlot.classList.remove("drag-over"));
+          emptySlot.addEventListener("drop", (event) => { event.preventDefault(); emptySlot.classList.remove("drag-over"); const file = event.dataTransfer?.files?.[0]; if (file) addUploadedFile(file, index); });
+          grid.appendChild(emptySlot);
+        }
+        grid.querySelectorAll("[data-remove-upload]").forEach((button) => { button.addEventListener("click", (event) => { event.stopPropagation(); removeUpload(Number(button.dataset.removeUpload)); }); });
+        grid.querySelectorAll("[data-swap-upload]").forEach((button) => { button.addEventListener("click", (event) => { event.stopPropagation(); armSlotForReplace(Number(button.dataset.swapUpload)); }); });
+        if (window.RevoadaLightbox) window.RevoadaLightbox.bind(grid);
+        addButton.disabled = state.uploadedImages.length >= 3;
+        addButton.classList.toggle("hidden", state.uploadedImages.length >= 3);
+      }
       function removeUpload(index) { const removed = state.uploadedImages[index]; if (removed && removed.previewUrl) URL.revokeObjectURL(removed.previewUrl); state.uploadedImages.splice(index, 1); renderUploadGrid(); }
       function handleForensicPasteUpload(event) { const grid = document.getElementById("upload-grid"); if (!grid || state.currentSection !== "pcerj") return; const isGridTarget = grid.contains(event.target) || event.target === grid || document.activeElement === grid || grid.contains(document.activeElement); if (!isGridTarget && event.type === "paste") return; const items = Array.from(event.clipboardData?.items || []); const imageItem = items.find((item) => String(item.type || "").startsWith("image/")); if (!imageItem) return; const file = imageItem.getAsFile(); if (!file) return; event.preventDefault(); const preferredIndex = Number.isInteger(state.activeUploadSlotIndex) ? Math.min(Math.max(state.activeUploadSlotIndex, 0), 2) : Math.min(state.uploadedImages.length, 2); const added = addUploadedFile(file, preferredIndex); if (added) { Notify.success("Imagem colada com sucesso."); state.activeUploadSlotIndex = Math.min(preferredIndex + 1, 2); renderUploadGrid(); } else { Notify.info("Limite de 3 imagens atingido na perícia."); } }
       function normalizeSearchValue(value) { return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
@@ -781,8 +976,44 @@ function getMappedCallsForSelectedCourse() { const select = document.getElementB
       function addBlitzMember(type) { const input = getBlitzInput(type); const typedValue = String(input?.value || "").trim(); const selectedMember = resolveQraOption(typedValue); if (!selectedMember) return Notify.info("Pesquise e selecione um policial antes de adicionar."); const current = getBlitzSelectedMembers(type); if (current.some((member) => member.label === selectedMember.label)) return Notify.info("Esse policial já foi incluído neste campo."); current.push({ label: selectedMember.label, mention: selectedMember.mention || state.policeMembersMap[selectedMember.label] || selectedMember.label }); if (input) input.value = ""; hideBlitzSuggestions(type); renderBlitzMemberList(type); }
       function renderBlitzMemberList(type) { const container = getBlitzListContainer(type); if (!container) return; const members = getBlitzSelectedMembers(type); container.innerHTML = ""; if (!members.length) { container.innerHTML = '<div class="empty-state">Nenhum policial selecionado neste campo.</div>'; return; } members.forEach((member) => { const chip = document.createElement("div"); chip.className = "member-chip"; chip.innerHTML = `<span>${member.label}</span><button type="button" data-blitz-remove="${member.label}" aria-label="Remover policial"><i class="fa-solid fa-xmark"></i></button>`; chip.querySelector("button").addEventListener("click", () => { setBlitzSelectedMembers(type, getBlitzSelectedMembers(type).filter((entry) => entry.label !== member.label)); renderBlitzMemberList(type); }); container.appendChild(chip); }); }
       function setupBlitzPicker(type, buttonId) { const input = getBlitzInput(type); const suggestions = getBlitzSuggestionsContainer(type); const button = document.getElementById(buttonId); if (!input || !suggestions || !button) return; button.addEventListener("click", () => addBlitzMember(type)); input.addEventListener("input", () => renderBlitzSuggestions(type, input.value)); input.addEventListener("focus", () => renderBlitzSuggestions(type, input.value)); input.addEventListener("keydown", (event) => handleBlitzInputKeydown(type, event)); document.addEventListener("click", (event) => { if (!suggestions.contains(event.target) && event.target !== input) hideBlitzSuggestions(type); }); renderBlitzMemberList(type); }
-      function renderBlitzUploadGrid() { const grid = document.getElementById("blitz-upload-grid"); const button = document.getElementById("blitz-image-button"); if (!grid || !button) return; grid.innerHTML = ""; if (!state.blitzImage) { const empty = document.createElement("div"); empty.className = "upload-slot empty"; empty.innerHTML = '<i class="fa-regular fa-image"></i>'; grid.appendChild(empty); button.disabled = false; return; } const slot = document.createElement("div"); slot.className = "upload-slot"; slot.innerHTML = `<img src="${state.blitzImage.previewUrl}" alt="Preview da blitz" /><button type="button" aria-label="Remover imagem"><i class="fa-solid fa-trash"></i></button>`; slot.querySelector("button").addEventListener("click", () => { if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = null; renderBlitzUploadGrid(); }); grid.appendChild(slot); button.disabled = true; }
-      function setupBlitzForm() { setupBlitzPicker("dirigentes", "blitz-add-dirigente"); setupBlitzPicker("participantes", "blitz-add-participante"); setupBlitzPicker("outras", "blitz-add-outras"); const imageButton = document.getElementById("blitz-image-button"); const imageInput = document.getElementById("blitz-image-upload"); const form = document.getElementById("blitz-form"); if (!imageButton || !imageInput || !form) return; imageButton.addEventListener("click", () => { if (!state.blitzImage) imageInput.click(); }); imageInput.addEventListener("change", (event) => { const file = event.target.files?.[0]; if (!file) return; if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = { file, previewUrl: URL.createObjectURL(file) }; renderBlitzUploadGrid(); imageInput.value = ""; }); renderBlitzUploadGrid(); form.addEventListener("submit", async (event) => { event.preventDefault(); const submitButton = form.querySelector('button[type="submit"]'); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Enviando relatório de blitz..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Enviando...</span>'; try { const formData = Object.fromEntries(new FormData(form).entries()); formData.dirigentes = getBlitzSelectedMembers("dirigentes").map((member) => member.mention).join(", "); formData.participantes = getBlitzSelectedMembers("participantes").map((member) => member.mention).join(", "); formData.outras_matrizes = getBlitzSelectedMembers("outras").map((member) => member.mention).join(", "); formData.authorId = state.currentUser.id; formData.authorName = state.currentUser.displayName || state.currentUser.username; formData.userRoles = getCurrentUserRoles(); formData.config_env = { blitz_channel_id: APP_ENV_KEYS.blitzChannelId }; formData.imageAttachments = state.blitzImage ? [await imageToPayloadAttachment(state.blitzImage.file, { maxWidth: 1440, maxHeight: 1440, quality: .78, maxBytes: 850000 })] : []; const response = await fetch("/api/content?action=submit-blitz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao enviar relatório de blitz."); Notify.success("Relatório de blitz enviado com sucesso."); form.reset(); state.selectedBlitzDirigentes = []; state.selectedBlitzParticipantes = []; state.selectedBlitzOutrasMatrizes = []; ["dirigentes", "participantes", "outras"].forEach(renderBlitzMemberList); if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = null; renderBlitzUploadGrid(); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao enviar relatório de blitz."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }); }
+      function setBlitzImageFile(file) { if (!(file instanceof File) || !String(file.type || "").startsWith("image/")) return; if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = { file, previewUrl: URL.createObjectURL(file) }; renderBlitzUploadGrid(); }
+      function handleBlitzPasteUpload(event) { const grid = document.getElementById("blitz-upload-grid"); if (!grid || state.currentSection !== "prf") return; const isGridTarget = grid.contains(event.target) || event.target === grid || document.activeElement === grid || grid.contains(document.activeElement); if (!isGridTarget && event.type === "paste") return; const items = Array.from(event.clipboardData?.items || []); const imageItem = items.find((item) => String(item.type || "").startsWith("image/")); if (!imageItem) return; const file = imageItem.getAsFile(); if (!file) return; event.preventDefault(); setBlitzImageFile(file); Notify.success("Imagem colada com sucesso."); }
+      function renderBlitzUploadGrid() {
+        const grid = document.getElementById("blitz-upload-grid");
+        const button = document.getElementById("blitz-image-button");
+        const imageInput = document.getElementById("blitz-image-upload");
+        if (!grid || !button) return;
+        grid.innerHTML = "";
+        if (!state.blitzImage) {
+          const empty = document.createElement("div");
+          empty.className = "upload-slot empty";
+          empty.tabIndex = 0;
+          empty.setAttribute("role", "button");
+          empty.setAttribute("aria-label", "Campo de imagem da blitz. Clique, cole com Ctrl+V ou arraste uma imagem.");
+          empty.innerHTML = '<i class="fa-regular fa-image"></i><span>Clique, cole (Ctrl+V) ou arraste</span>';
+          const activate = () => imageInput?.click();
+          empty.addEventListener("click", activate);
+          empty.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); activate(); } });
+          empty.addEventListener("dragover", (event) => { event.preventDefault(); empty.classList.add("drag-over"); });
+          empty.addEventListener("dragleave", () => empty.classList.remove("drag-over"));
+          empty.addEventListener("drop", (event) => { event.preventDefault(); empty.classList.remove("drag-over"); const file = event.dataTransfer?.files?.[0]; if (file) setBlitzImageFile(file); });
+          grid.appendChild(empty);
+          button.disabled = false;
+          return;
+        }
+        const slot = document.createElement("div");
+        slot.className = "upload-slot filled";
+        slot.innerHTML = `<img src="${state.blitzImage.previewUrl}" alt="Preview da blitz" data-lightbox-src="${state.blitzImage.previewUrl}" data-lightbox-caption="Imagem da blitz" /><div class="upload-slot-actions"><button type="button" class="upload-slot-swap" aria-label="Trocar imagem" title="Trocar imagem (ou cole com Ctrl+V)"><i class="fa-solid fa-arrows-rotate"></i></button><button type="button" class="upload-slot-remove" aria-label="Remover imagem" title="Remover imagem"><i class="fa-solid fa-xmark"></i></button></div>`;
+        slot.querySelector(".upload-slot-swap").addEventListener("click", () => imageInput?.click());
+        slot.querySelector(".upload-slot-remove").addEventListener("click", () => { if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = null; renderBlitzUploadGrid(); });
+        slot.addEventListener("dragover", (event) => { event.preventDefault(); slot.classList.add("drag-over"); });
+        slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+        slot.addEventListener("drop", (event) => { event.preventDefault(); slot.classList.remove("drag-over"); const file = event.dataTransfer?.files?.[0]; if (file) setBlitzImageFile(file); });
+        grid.appendChild(slot);
+        if (window.RevoadaLightbox) window.RevoadaLightbox.bind(grid);
+        button.disabled = true;
+      }
+      function setupBlitzForm() { setupBlitzPicker("dirigentes", "blitz-add-dirigente"); setupBlitzPicker("participantes", "blitz-add-participante"); setupBlitzPicker("outras", "blitz-add-outras"); const imageButton = document.getElementById("blitz-image-button"); const imageInput = document.getElementById("blitz-image-upload"); const grid = document.getElementById("blitz-upload-grid"); const form = document.getElementById("blitz-form"); if (!imageButton || !imageInput || !form) return; imageButton.addEventListener("click", () => { if (!state.blitzImage) imageInput.click(); }); imageInput.addEventListener("change", (event) => { const file = event.target.files?.[0]; if (file) setBlitzImageFile(file); imageInput.value = ""; }); if (grid) grid.addEventListener("paste", handleBlitzPasteUpload); document.addEventListener("paste", handleBlitzPasteUpload); renderBlitzUploadGrid(); form.addEventListener("submit", async (event) => { event.preventDefault(); const submitButton = form.querySelector('button[type="submit"]'); const originalButtonHtml = submitButton.innerHTML; const loadingToast = Notify.loading("Enviando relatório de blitz..."); submitButton.disabled = true; submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Enviando...</span>'; try { const formData = Object.fromEntries(new FormData(form).entries()); formData.dirigentes = getBlitzSelectedMembers("dirigentes").map((member) => member.mention).join(", "); formData.participantes = getBlitzSelectedMembers("participantes").map((member) => member.mention).join(", "); formData.outras_matrizes = getBlitzSelectedMembers("outras").map((member) => member.mention).join(", "); formData.authorId = state.currentUser.id; formData.authorName = state.currentUser.displayName || state.currentUser.username; formData.userRoles = getCurrentUserRoles(); formData.config_env = { blitz_channel_id: APP_ENV_KEYS.blitzChannelId }; formData.imageAttachments = state.blitzImage ? [await imageToPayloadAttachment(state.blitzImage.file, { maxWidth: 1440, maxHeight: 1440, quality: .78, maxBytes: 850000 })] : []; const response = await fetch("/api/content?action=submit-blitz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) }); const payload = await response.json().catch(() => ({})); if (!response.ok) throw new Error(payload.error || "Falha ao enviar relatório de blitz."); Notify.success("Relatório de blitz enviado com sucesso."); form.reset(); state.selectedBlitzDirigentes = []; state.selectedBlitzParticipantes = []; state.selectedBlitzOutrasMatrizes = []; ["dirigentes", "participantes", "outras"].forEach(renderBlitzMemberList); if (state.blitzImage?.previewUrl) URL.revokeObjectURL(state.blitzImage.previewUrl); state.blitzImage = null; renderBlitzUploadGrid(); } catch (error) { console.error(error); Notify.error(error.message || "Falha ao enviar relatório de blitz."); } finally { if (loadingToast) loadingToast.remove(); submitButton.disabled = false; submitButton.innerHTML = originalButtonHtml; } }); }
       function setupSearch() { const input = document.getElementById("global-search"); const dropdown = document.getElementById("search-dropdown"); if (!input || !dropdown) return; input.addEventListener("input", () => runGlobalSearch(input.value.trim())); input.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); selectSearchResult(0); } if (event.key === "Escape") { dropdown.classList.add("hidden"); } }); document.addEventListener("click", (event) => { if (!dropdown.contains(event.target) && event.target !== input) dropdown.classList.add("hidden"); }); }
       function clearSearchHighlights() { document.querySelectorAll("[data-search-hit='true']").forEach((element) => { element.style.outline = ""; element.style.outlineOffset = ""; element.removeAttribute("data-search-hit"); }); }
       function getSearchTargets() { const section = state.currentSection; if (section === "pcerj") return Array.from(document.querySelectorAll("#forensic-form [data-field]:not(.hidden), #qra-list, .forensic-tab")).map((element) => ({ element, title: element.querySelector("label")?.textContent || element.textContent.trim().split("\n")[0] || "Campo", subtitle: "Formulario de Pericia PCERJ" })); if (section === "cursos") return Array.from(document.querySelectorAll("#course-grid .course-card")).map((element) => ({ element, title: element.querySelector("h3")?.textContent || "Curso", subtitle: "Cursos e Treinamentos" })); if (section === "ensino") return Array.from(document.querySelectorAll("#sec-ensino .teaching-panel, #sec-ensino .segment-button, #sec-ensino .selected-item")).map((element) => ({ element, title: element.querySelector("h2")?.textContent || element.textContent.trim().split("\n")[0] || "Ensino", subtitle: "Ensino e Cursos" })); if (section === "jornal") return Array.from(document.querySelectorAll("#sec-jornal .teaching-form, #sec-jornal .field-help, #sec-jornal .journal-badge")).map((element) => ({ element, title: element.querySelector("label")?.textContent || element.querySelector("h1")?.textContent || element.textContent.trim().split("\n")[0] || "Jornal", subtitle: "Emissão do Jornal" })); if (section === "home") return Array.from(document.querySelectorAll("#sec-home .quick-card")).map((element) => ({ element, title: element.querySelector("h3")?.textContent || "Modulo", subtitle: "Painel Operacional" })); if (section === "pmerj" || section === "prf" || section === "admin") return Array.from(document.querySelectorAll(`#sec-${section} .section-card, #sec-${section} .status-banner`)).map((element) => ({ element, title: element.querySelector("h1")?.textContent || element.textContent.trim().split("\n")[0] || "Modulo", subtitle: "Central Policial Intranet" })); return []; }
@@ -1016,5 +1247,7 @@ function setupTeachingForms() { const finalForm = document.getElementById("form-
         }
       });
     </script>
+    <script src="../scripts/theme.js"></script>
+    <script src="../scripts/lightbox.js"></script>
   </body>
 </html>

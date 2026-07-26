@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>PRF | Central de Polícia</title>
   <link rel="shortcut icon" href="../public/images/PRF_new.png" type="image/x-icon">
 
@@ -22,6 +23,16 @@
       --glass-border: rgba(250, 204, 21, 0.22);
     }
 
+    :root[data-theme="light"] {
+      --prf-yellow: #a16207;
+      --prf-blue: #1e3a8a;
+      --accent-gold: #a16207;
+      --primary-blue: #1e3a8a;
+      --bg-color: #f6f4ec;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(161, 98, 7, 0.22);
+    }
+
     body {
       background: radial-gradient(circle at 20% 0%,
           rgba(250, 204, 21, 0.18),
@@ -29,7 +40,18 @@
         radial-gradient(circle at 80% 10%,
           rgba(30, 58, 138, 0.35),
           transparent 60%),
-        #0a0f1a;
+        var(--bg-color);
+      transition: background-color 0.25s ease;
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at 20% 0%,
+          rgba(161, 98, 7, 0.12),
+          transparent 55%),
+        radial-gradient(circle at 80% 10%,
+          rgba(30, 58, 138, 0.1),
+          transparent 60%),
+        var(--bg-color);
     }
 
     .dept-title {
@@ -79,7 +101,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #cbd5e1;
+      color: var(--text-muted-strong, #cbd5e1);
     }
 
     /* Nota de AtenÃ§Ã£o */
@@ -90,48 +112,17 @@
       margin-bottom: 15px;
       border-radius: 0 5px 5px 0;
       font-size: 0.9rem;
-      color: #fde047;
+      color: var(--prf-yellow);
       font-style: italic;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    /* --- GALERIA --- */
     .gallery-title {
-      margin-top: 30px;
-      margin-bottom: 15px;
-      color: white;
-      border-left: 4px solid var(--prf-yellow);
-      padding-left: 10px;
+      border-left-color: var(--prf-yellow);
     }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
-      border: 2px solid rgba(250, 204, 21, 0.3);
-      aspect-ratio: 16/9;
-      cursor: pointer;
-    }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .gallery-item:hover img {
-      transform: scale(1.1);
-    }
+    /* Galeria: classes .gallery-grid/.gallery-item compartilhadas em style/main.css */
   </style>
 </head>
 
@@ -175,7 +166,10 @@
     </ul>
 
     <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+        <i class="fa-solid fa-sun"></i>
+      </button>
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
       <div id="user-area" class="user-area">
@@ -199,7 +193,7 @@
       <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
 
         <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="color: white; text-transform: uppercase;">
+          <h2 style="color: var(--text-main); text-transform: uppercase;">
             <span class="dept-title">
               <img src="../public/images/PRF_new.png" alt="Logo PRF" class="dept-title-logo">
               PRF - Departamento Rodoviário
@@ -208,11 +202,11 @@
           </h2>
         </div>
 
-        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
+        <p style="margin-bottom: 20px; color: var(--text-muted-strong, #e2e8f0); line-height: 1.6;">
           A Polícia Rodoviária Federal (PRF) é a autoridade máxima nas rodovias e fronteiras da cidade. Nossa missão é combater o tráfico, recuperar veículos roubados e garantir a livre circulação com segurança.
         </p>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <h3 style="color: var(--prf-yellow); margin-bottom: 10px;">Força Especial:</h3>
         <div class="list-item">
@@ -225,33 +219,33 @@
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>DOA</strong> (Operações Aéreas) <i class="fa-solid fa-helicopter"></i></div>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--prf-yellow);"></i> <strong>SPEED</strong> (Perseguição) <i class="fa-solid fa-gauge-high"></i></div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <h3 class="gallery-title">Galeria Rodoviária</h3>
         <div class="gallery-grid">
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/speed_cmd.webp" data-lightbox-group="galeria-prf" data-lightbox-caption="Viatura PRF">
             <img src="images/speed_cmd.webp" alt="Viatura PRF">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/Comandos_prf.webp" data-lightbox-group="galeria-prf" data-lightbox-caption="Motos Batedor">
             <img src="images/Comandos_prf.webp" alt="Motos Batedor">
           </div>
-          <div class="gallery-item">
-            <img src="images/batedor_prf.webp">
+          <div class="gallery-item" data-lightbox-src="images/batedor_prf.webp" data-lightbox-group="galeria-prf" data-lightbox-caption="Batedor PRF">
+            <img src="images/batedor_prf.webp" alt="Batedor PRF">
           </div>
-          <div class="gallery-item">
-            <img src="images/doa_cmd.webp">
+          <div class="gallery-item" data-lightbox-src="images/doa_cmd.webp" data-lightbox-group="galeria-prf" data-lightbox-caption="DOA - Operações Aéreas">
+            <img src="images/doa_cmd.webp" alt="DOA - Operações Aéreas">
           </div>
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
-        <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
+        <ul style="margin-left: 20px; margin-top: 10px; color: var(--text-muted-strong, #cbd5e1);">
+          <li>Status: <span style="color: var(--success); font-weight: bold;">ABERTO</span></li>
           <li>Horário: Todos os dias.</li>
         </ul>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p style="margin-bottom: 5px;"><strong>Fardamento masculino:</strong></p>
         <div class="discord-code">
@@ -277,7 +271,7 @@
           </a>
         </div>
 
-        <blockquote style="border-left: 4px solid var(--prf-yellow); padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
+        <blockquote style="border-left: 4px solid var(--prf-yellow); padding-left: 15px; color: var(--text-muted); font-style: italic; margin-top: 20px;">
           🔎 Se você tem disciplina, coragem e deseja fazer parte da elite rodoviária, essa é sua chance!
         </blockquote>
 
@@ -288,7 +282,7 @@
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Diretoria da Polícia Rodoviária Federal</h2>
 
       <div id="prf-leadership" class="commanders-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--text-muted);">
           <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--prf-yellow); margin-bottom: 15px;"></i>
           <p>Carregando inspetores...</p>
         </div>
@@ -304,6 +298,8 @@
   </footer>
 
   <script src="../scripts/app.js"></script>
+  <script src="../scripts/theme.js"></script>
+  <script src="../scripts/lightbox.js"></script>
 </body>
 
 </html>

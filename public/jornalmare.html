@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>Jornal Mare | Central de Polícia</title>
   <link rel="shortcut icon" href="images/Logo_policia.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +17,7 @@
     }
 
     .news-header {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+      background: linear-gradient(135deg, var(--surface-2), var(--surface-1));
       padding: 60px 20px;
       text-align: center;
       border-bottom: 3px solid var(--accent-gold);
@@ -24,6 +25,7 @@
       margin-top: 0;
       position: relative;
       z-index: 1;
+      transition: background-color 0.25s ease;
     }
 
     .news-container {
@@ -33,7 +35,7 @@
 
     .news-header h1 {
       font-size: 3rem;
-      color: white;
+      color: var(--text-main);
       margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 3px;
@@ -55,8 +57,8 @@
     }
 
     .news-article {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-2);
+      border: 1px solid var(--glass-border);
       border-radius: 12px;
       margin: 0 auto 30px auto;
       max-width: 900px;
@@ -77,15 +79,15 @@
       align-items: center;
       justify-content: space-between;
       padding: 20px 30px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.5);
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--surface-1);
     }
 
     .news-stats-section {
       max-width: 900px;
       margin: 40px auto;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-2);
+      border: 1px solid var(--glass-border);
       border-radius: 12px;
       padding: 30px;
       text-align: center;
@@ -99,10 +101,10 @@
     }
 
     .news-stat-item {
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--surface-1);
       padding: 20px;
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
     }
 
     .news-stat-item i {
@@ -112,21 +114,21 @@
     }
 
     .news-stat-item h3 {
-      color: white;
+      color: var(--text-main);
       font-size: 1.5rem;
       margin: 10px 0;
     }
 
     .news-stat-item p {
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
 
     .news-about-section {
       max-width: 900px;
       margin: 40px auto;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-2);
+      border: 1px solid var(--glass-border);
       border-radius: 12px;
       padding: 40px;
       text-align: center;
@@ -143,7 +145,7 @@
     }
 
     .news-about-section p {
-      color: #cbd5e1;
+      color: var(--text-muted-strong, #cbd5e1);
       font-size: 1.1rem;
       line-height: 1.8;
       margin-bottom: 20px;
@@ -158,10 +160,10 @@
     }
 
     .news-feature {
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--surface-1);
       padding: 25px;
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
       text-align: center;
     }
 
@@ -172,13 +174,13 @@
     }
 
     .news-feature h3 {
-      color: white;
+      color: var(--text-main);
       font-size: 1.2rem;
       margin-bottom: 10px;
     }
 
     .news-feature p {
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.95rem;
       line-height: 1.6;
     }
@@ -209,7 +211,7 @@
 
     .news-article-title {
       font-size: 1.8rem;
-      color: white;
+      color: var(--text-main);
       margin-bottom: 15px;
       line-height: 1.4;
       font-weight: 700;
@@ -223,10 +225,17 @@
       border-radius: 8px;
       margin: 20px auto;
       display: block;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .news-article-image:hover {
+      opacity: 0.9;
+      transform: scale(1.01);
     }
 
     .news-article-text {
-      color: #cbd5e1;
+      color: var(--text-muted-strong, #cbd5e1);
       font-size: 1.05rem;
       line-height: 1.8;
       text-align: center;
@@ -239,15 +248,15 @@
       align-items: center;
       justify-content: space-between;
       padding: 15px 30px;
-      background: rgba(15, 23, 42, 0.3);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--surface-1);
+      border-top: 1px solid var(--glass-border);
     }
 
     .news-author {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
 
@@ -267,7 +276,7 @@
     .empty-state {
       text-align: center;
       padding: 80px 20px;
-      color: #64748b;
+      color: var(--text-muted);
     }
 
     .empty-state i {
@@ -360,7 +369,10 @@
     </ul>
 
     <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+        <i class="fa-solid fa-sun"></i>
+      </button>
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
       <div id="user-area" class="user-area">
@@ -452,6 +464,8 @@
   </footer>
 
   <script src="../scripts/app.js"></script>
+  <script src="../scripts/theme.js"></script>
+  <script src="../scripts/lightbox.js"></script>
   <script>
     async function loadMareNews() {
       const container = document.getElementById('news-content');
@@ -469,7 +483,7 @@
           container.innerHTML = `
             <div class="empty-state">
               <i class="fa-solid fa-newspaper"></i>
-              <h3 style="color: white; margin-top: 20px;">Nenhuma notícia disponível</h3>
+              <h3 style="color: var(--text-main); margin-top: 20px;">Nenhuma notícia disponível</h3>
               <p>As últimas notícias da polícia aparecerão aqui em breve.</p>
             </div>
           `;
@@ -557,7 +571,7 @@
                 <h2 class="news-article-title">${article.title}</h2>
                 
                 ${article.image ? `
-                  <img src="${article.image}" alt="${article.title}" class="news-article-image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+                  <img src="${article.image}" alt="${article.title}" class="news-article-image" loading="lazy" decoding="async" data-lightbox-src="${article.image}" data-lightbox-caption="${article.title}" onerror="this.onerror=null; this.removeAttribute('data-lightbox-src'); this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'400\'%3E%3Crect fill=\'%231e293b\' width=\'800\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'20\' fill=\'%23fbbf24\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EImagem Indisponível%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
                 ` : ''}
                 
                 <div class="news-article-text">
@@ -570,7 +584,7 @@
                   <i class="fa-solid fa-user-shield"></i>
                   <span>Por: ${article.author || 'Redação Jornal Mare'}</span>
                 </div>
-                <div style="color: #64748b; font-size: 0.85rem;">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">
                   <i class="fa-solid fa-eye"></i> Notícia Oficial
                 </div>
               </div>
@@ -585,13 +599,14 @@
         });
 
         container.innerHTML = articleFragments.join('');
+        if (window.RevoadaLightbox) window.RevoadaLightbox.bind(container);
 
       } catch (error) {
         console.error('Erro ao carregar notícias:', error);
         container.innerHTML = `
           <div class="empty-state">
             <i class="fa-solid fa-exclamation-triangle"></i>
-            <h3 style="color: white; margin-top: 20px;">Erro ao carregar notícias</h3>
+            <h3 style="color: var(--text-main); margin-top: 20px;">Erro ao carregar notícias</h3>
             <p>Não foi possível conectar ao servidor. Tente novamente mais tarde.</p>
           </div>
         `;

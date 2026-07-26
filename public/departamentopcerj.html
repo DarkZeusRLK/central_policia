@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>PCERJ | Central de Polícia</title>
   <link rel="shortcut icon" href="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" type="image/x-icon">
 
@@ -19,6 +20,14 @@
       --glass-border: rgba(251, 191, 36, 0.22);
     }
 
+    :root[data-theme="light"] {
+      --accent-gold: #b45309;
+      --primary-blue: #1e3a8a;
+      --bg-color: #f4f2ea;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(180, 83, 9, 0.22);
+    }
+
     body {
       background: radial-gradient(circle at 15% 0%,
           rgba(251, 191, 36, 0.18),
@@ -26,7 +35,18 @@
         radial-gradient(circle at 85% 10%,
           rgba(30, 41, 59, 0.5),
           transparent 60%),
-        #0b0f17;
+        var(--bg-color);
+      transition: background-color 0.25s ease;
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at 15% 0%,
+          rgba(180, 83, 9, 0.12),
+          transparent 55%),
+        radial-gradient(circle at 85% 10%,
+          rgba(30, 58, 138, 0.1),
+          transparent 60%),
+        var(--bg-color);
     }
 
     .dept-title {
@@ -78,44 +98,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #cbd5e1;
+      color: var(--text-muted-strong, #cbd5e1);
     }
-
-    /* --- GALERIA --- */
-    .gallery-title {
-      margin-top: 30px;
-      margin-bottom: 15px;
-      color: white;
-      border-left: 4px solid var(--accent-gold);
-      padding-left: 10px;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .gallery-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      aspect-ratio: 16/9;
-      cursor: pointer;
-    }
-
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .gallery-item:hover img {
-      transform: scale(1.1);
-    }
+    /* Galeria: classes .gallery-title/.gallery-grid/.gallery-item compartilhadas em style/main.css */
   </style>
 </head>
 
@@ -159,7 +144,10 @@
     </ul>
 
     <div class="nav-user-group" style="display: flex; align-items: center; gap: 20px;">
-      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+      <button type="button" class="theme-toggle-btn" data-theme-toggle title="Alternar tema" aria-label="Alternar tema">
+        <i class="fa-solid fa-sun"></i>
+      </button>
+      <a href="#" id="nav-police" class="access-link" style="text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-lock"></i> Acesso Policial
       </a>
       <div id="user-area" class="user-area">
@@ -182,7 +170,7 @@
       <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
 
         <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="color: white; text-transform: uppercase;">
+          <h2 style="color: var(--text-main); text-transform: uppercase;">
             <span class="dept-title">
               <img src="../public/images/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Logo PCERJ" class="dept-title-logo">
               Departamento de Polícia Civil
@@ -191,11 +179,11 @@
           </h2>
         </div>
 
-        <p style="margin-bottom: 20px; color: #e2e8f0; line-height: 1.6;">
+        <p style="margin-bottom: 20px; color: var(--text-muted-strong, #e2e8f0); line-height: 1.6;">
           A Polícia Civil é responsável pela investigação de crimes, inteligência policial, cumprimento de mandados e manutenção da ordem pública através de inquéritos rigorosos.
         </p>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <h3 style="color: var(--accent-gold); margin-bottom: 10px;">Força Especial:</h3>
         <div class="list-item">
@@ -208,33 +196,33 @@
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>GEM</strong> (Grupamento Especial de Motocicletas) <i class="fa-solid fa-motorcycle"></i></div>
         <div class="list-item"><i class="fa-solid fa-caret-right" style="color: var(--accent-gold);"></i> <strong>CGPC</strong> (Controladoria Geral da Polícia Civil) <i class="fa-solid fa-clipboard-list"></i></div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <h3 class="gallery-title">Galeria Operacional</h3>
         <div class="gallery-grid">
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/COMANDOS_CORE.webp" data-lightbox-group="galeria-pcerj" data-lightbox-caption="Viatura">
             <img src="images/COMANDOS_CORE.webp" alt="Viatura">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/CGPC.webp" data-lightbox-group="galeria-pcerj" data-lightbox-caption="Helicóptero">
             <img src="images/CGPC.webp" alt="Helicóptero">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/Gem_mural.webp" data-lightbox-group="galeria-pcerj" data-lightbox-caption="Equipe">
             <img src="images/Gem_mural.webp" alt="Equipe">
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" data-lightbox-src="images/REC_CORE_VIATURA.webp" data-lightbox-group="galeria-pcerj" data-lightbox-caption="Viatura">
             <img src="images/REC_CORE_VIATURA.webp" alt="Viatura">
           </div>
         </div>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p>📢 <span class="discord-highlight">Informações sobre recrutamento</span></p>
-        <ul style="margin-left: 20px; margin-top: 10px; color: #cbd5e1;">
-          <li>Status: <span style="color: #4ade80; font-weight: bold;">ABERTO</span></li>
+        <ul style="margin-left: 20px; margin-top: 10px; color: var(--text-muted-strong, #cbd5e1);">
+          <li>Status: <span style="color: var(--success); font-weight: bold;">ABERTO</span></li>
           <li>Horário: Todos os dias.</li>
         </ul>
 
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+        <hr style="border-color: var(--glass-border); margin: 20px 0;">
 
         <p style="margin-bottom: 5px;"><strong>Fardamento masculino:</strong></p>
         <div class="discord-code">
@@ -252,7 +240,7 @@
           </a>
         </div>
 
-        <blockquote style="border-left: 4px solid var(--accent-gold); padding-left: 15px; color: #94a3b8; font-style: italic; margin-top: 20px;">
+        <blockquote style="border-left: 4px solid var(--accent-gold); padding-left: 15px; color: var(--text-muted); font-style: italic; margin-top: 20px;">
           🔎 Se você tem inteligência, disciplina e deseja fazer parte da elite investigativa da cidade, essa é sua chance!
         </blockquote>
       </div>
@@ -262,7 +250,7 @@
       <h2 class="section-title"><i class="fa-solid fa-star"></i> Delegados da Polícia Civil</h2>
 
       <div id="pcerj-leadership" class="commanders-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #64748b;">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--text-muted);">
           <i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color: var(--accent-gold); margin-bottom: 15px;"></i>
           <p>Carregando delegados...</p>
         </div>
@@ -278,6 +266,8 @@
   </footer>
 
   <script src="../scripts/app.js"></script>
+  <script src="../scripts/theme.js"></script>
+  <script src="../scripts/lightbox.js"></script>
 </body>
 
 </html>

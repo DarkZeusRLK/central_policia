@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>(function(){try{var t=localStorage.getItem("revoada_theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
   <title>PF | Central de Polícia</title>
   <link rel="shortcut icon" href="../public/images/Logo_policia.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,6 +16,17 @@
       --text: #e5e7eb;
       --muted: #94a3b8;
       --accent: #fbbf24;
+      --button-text: #f8fafc;
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f3f2ea;
+      --panel: rgba(255, 255, 255, 0.92);
+      --border: rgba(15, 23, 42, 0.12);
+      --text: #171717;
+      --muted: #57534e;
+      --accent: #92400e;
+      --button-text: #171717;
     }
 
     * {
@@ -33,7 +45,31 @@
       background:
         radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 35%),
         radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
-        linear-gradient(180deg, #020617 0%, #0b1220 100%);
+        linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+      transition: background-color .25s ease, color .25s ease;
+    }
+
+    .theme-toggle-btn {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: rotate(18deg);
     }
 
     .notice-card {
@@ -104,7 +140,7 @@
       border-radius: 12px;
       border: 1px solid rgba(251, 191, 36, 0.28);
       background: rgba(251, 191, 36, 0.12);
-      color: #f8fafc;
+      color: var(--button-text);
       text-decoration: none;
       font-weight: 700;
       transition: transform 0.2s ease, background 0.2s ease;
@@ -118,6 +154,9 @@
 </head>
 
 <body>
+  <button type="button" class="theme-toggle-btn" id="theme-toggle" title="Alternar tema" aria-label="Alternar tema">
+    <i class="fa-solid fa-sun"></i>
+  </button>
   <main class="notice-card">
     <img src="../public/images/Logo_policia.png" alt="Logo Polícia" class="logo">
     <div class="icon">
@@ -140,6 +179,22 @@
   </main>
 
   <script>
+    (function () {
+      const btn = document.getElementById("theme-toggle");
+      const icon = btn.querySelector("i");
+      function applyIcon(theme) {
+        icon.classList.toggle("fa-sun", theme === "dark");
+        icon.classList.toggle("fa-moon", theme !== "dark");
+      }
+      applyIcon(document.documentElement.getAttribute("data-theme") || "dark");
+      btn.addEventListener("click", () => {
+        const next = (document.documentElement.getAttribute("data-theme") || "dark") === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("revoada_theme", next); } catch (e) {}
+        applyIcon(next);
+      });
+    })();
+
     let remainingSeconds = 10;
     const countdown = document.getElementById("countdown");
 
