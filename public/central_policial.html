@@ -33,6 +33,10 @@
         --overlay-04: rgba(255, 255, 255, 0.04);
         --overlay-08: rgba(255, 255, 255, 0.08);
         --overlay-12: rgba(255, 255, 255, 0.12);
+        --panel-grad-a: rgba(34, 42, 55, .98);
+        --panel-grad-b: rgba(24, 31, 42, .98);
+        --course-grad-a: rgba(32, 40, 54, .95);
+        --course-grad-b: rgba(20, 27, 37, .98);
         --body-bg-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.09), transparent 20%), linear-gradient(180deg, #0c1118 0%, var(--bg) 100%);
       }
 
@@ -57,6 +61,10 @@
         --overlay-04: rgba(15, 23, 42, 0.05);
         --overlay-08: rgba(15, 23, 42, 0.08);
         --overlay-12: rgba(15, 23, 42, 0.12);
+        --panel-grad-a: #ffffff;
+        --panel-grad-b: #fdfcf7;
+        --course-grad-a: #ffffff;
+        --course-grad-b: #fbfaf4;
         --body-bg-image: radial-gradient(circle at top right, rgba(146, 64, 14, 0.08), transparent 20%), linear-gradient(180deg, #fdfcf7 0%, var(--bg) 100%);
       }
 
@@ -275,7 +283,7 @@
       .dropdown-link, .dropdown-button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted-strong); text-decoration: none; cursor: pointer; transition: background .2s ease; }
       .dropdown-link:hover, .dropdown-button:hover { background: var(--overlay-04); }
       .dropdown-button.logout { color: var(--danger-text); }
-      .section-card, .glass-panel { border: 1px solid var(--line-soft); border-radius: 22px; background: linear-gradient(180deg, rgba(34,42,55,.98), rgba(24,31,42,.98)); box-shadow: var(--shadow); }
+      .section-card, .glass-panel { border: 1px solid var(--line-soft); border-radius: 22px; background: linear-gradient(180deg, var(--panel-grad-a), var(--panel-grad-b)); box-shadow: var(--shadow); transition: background-color .25s ease, border-color .25s ease; }
       .section-card { padding: 24px; }
       .page-title { margin: 0 0 8px; font-size: clamp(1.9rem, 2.8vw, 2.4rem); }
       .page-subtitle { margin: 0; color: var(--muted); line-height: 1.6; }
@@ -346,8 +354,8 @@
       .ops-collection-item strong { display: block; margin-bottom: 6px; }
       .ops-collection-item code { color: var(--accent); }
       .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 22px; }
-      .course-card { border: 1px solid var(--line-soft); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgba(32,40,54,.95), rgba(20,27,37,.98)); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: 1px 320px; }
-      .course-thumb { min-height: 140px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(33,41,54,.35)); color: var(--accent); }
+      .course-card { border: 1px solid var(--line-soft); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, var(--course-grad-a), var(--course-grad-b)); box-shadow: var(--shadow); content-visibility: auto; contain-intrinsic-size: 1px 320px; }
+      .course-thumb { min-height: 140px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(212,175,55,.22), var(--overlay-04)); color: var(--accent); }
       .course-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
       .course-body h3 { margin: 0; font-size: 1.05rem; }
       .course-body p { margin: 0; color: var(--muted); line-height: 1.55; flex: 1; }
