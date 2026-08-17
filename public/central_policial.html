@@ -490,6 +490,10 @@
       .voice-room-status-line.is-connected i { animation: voiceLivePulse 1.6s infinite; }
       .voice-room-occupants { display: block; margin-top: 4px; color: var(--muted); font-size: .78rem; }
       .voice-room-occupants.full { color: var(--danger-text); }
+      .voice-room-members-preview { display: flex; align-items: center; margin-top: 8px; }
+      .voice-room-member-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 2px solid var(--panel); margin-left: -8px; background: var(--overlay-08); }
+      .voice-room-member-avatar:first-child { margin-left: 0; }
+      .voice-room-members-names { display: block; margin-top: 4px; color: var(--muted-faint); font-size: .74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .voice-room-card-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
       .voice-room-card-actions .voice-join-button { flex: 1; min-width: 0; padding: 0 10px; font-size: .84rem; }
       .voice-room-admin-actions { display: flex; gap: 4px; }
@@ -529,10 +533,28 @@
       .voice-presenter-watchers-list span { padding: 5px 8px; border-radius: 8px; }
       .voice-presenter-watchers-list span:hover { background: var(--overlay-08); }
       .voice-presenter-watchers:hover .voice-presenter-watchers-list, .voice-presenter-watchers:focus-within .voice-presenter-watchers-list { display: flex; }
-      .voice-presenter-fullscreen-btn { position: absolute; bottom: 12px; right: 12px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; z-index: 2; }
-      .voice-presenter-fullscreen-btn:hover { background: rgba(212,175,55,.85); color: #101827; }
+      .voice-presenter-stage-controls { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 8px; z-index: 2; }
+      .voice-presenter-fullscreen-btn { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; }
+      .voice-presenter-fullscreen-btn:hover, .voice-presenter-fullscreen-btn:focus-visible { background: rgba(59,130,246,.85); color: #fff; }
       .voice-presenter-stage:fullscreen { max-height: none; background: #000; }
       .voice-presenter-stage:fullscreen video { object-fit: contain; }
+
+      /* Prévia em miniatura da própria transmissão (só pra quem está apresentando) */
+      .voice-presenter-stage.self-thumbnail {
+        position: fixed; right: 24px; bottom: 24px; left: auto; top: auto;
+        width: min(240px, calc(100vw - 48px)); aspect-ratio: 16/9; max-height: none;
+        margin-top: 0; z-index: 90; box-shadow: var(--shadow); cursor: zoom-in;
+        border-color: rgba(59,130,246,.5);
+      }
+      .voice-presenter-stage.self-thumbnail .voice-presenter-top-bar,
+      .voice-presenter-stage.self-thumbnail .voice-presenter-label,
+      .voice-presenter-stage.self-thumbnail .voice-presenter-stage-controls { display: none; }
+      .voice-presenter-expand-hint {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
+        background: rgba(0,0,0,.35); color: #fff; font-size: .82rem; font-weight: 700;
+        opacity: 0; transition: opacity .15s ease; pointer-events: none;
+      }
+      .voice-presenter-stage.self-thumbnail:hover .voice-presenter-expand-hint { opacity: 1; }
 
       .voice-participants-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 24px; margin-bottom: 12px; }
       .voice-participants-head h3 { margin: 0; font-size: 1rem; }
@@ -549,10 +571,11 @@
         cursor: context-menu; user-select: none; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
       }
       .voice-participant-row.hidden { display: none; }
-      .voice-participant-row.draggable { cursor: grab; }
-      .voice-participant-row.dragging { opacity: .5; }
+      .voice-participant-row.dragging .voice-participant-draghandle { opacity: .5; }
       .voice-participant-row.speaking { border-color: rgba(59,130,246,.65); box-shadow: 0 0 0 2px rgba(59,130,246,.18); background: rgba(59,130,246,.06); }
       .voice-participant-row.is-presenting { border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
+      .voice-participant-draghandle { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+      .voice-participant-row.draggable .voice-participant-draghandle { cursor: grab; }
       .voice-participant-status-dot { width: 9px; height: 9px; flex-shrink: 0; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
       .voice-participant-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--overlay-08); flex-shrink: 0; transition: box-shadow .15s ease; }
       .voice-participant-row.speaking .voice-participant-avatar { box-shadow: 0 0 0 2px rgba(59,130,246,.75); }
@@ -1001,7 +1024,11 @@
                     </div>
                   </div>
                   <div id="voice-presenter-label" class="voice-presenter-label"></div>
-                  <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia" aria-label="Ver compartilhamento de tela em tela cheia"><i class="fa-solid fa-expand"></i></button>
+                  <div class="voice-presenter-stage-controls">
+                    <button type="button" id="voice-presenter-minimize" class="voice-presenter-fullscreen-btn hidden" title="Minimizar prévia" aria-label="Minimizar prévia da minha tela compartilhada"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></button>
+                    <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia" aria-label="Ver compartilhamento de tela em tela cheia"><i class="fa-solid fa-expand"></i></button>
+                  </div>
+                  <div id="voice-presenter-expand-hint" class="voice-presenter-expand-hint hidden"><i class="fa-solid fa-up-right-and-down-left-from-center"></i><span>Clique para ampliar</span></div>
                 </div>
 
                 <div class="voice-participants-head">

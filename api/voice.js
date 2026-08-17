@@ -143,13 +143,15 @@ async function ensureDefaultRooms(collection) {
   }
 }
 
-function serializeRoom(room, occupancy) {
+function serializeRoom(room, membersBySlug) {
+  const members = membersBySlug?.[room.slug] || [];
   return {
     slug: room.slug,
     name: room.name,
     memberLimit: room.memberLimit ?? null,
     createdAt: room.createdAt,
-    occupants: occupancy?.[room.slug] ?? 0,
+    occupants: members.length,
+    members,
   };
 }
 
@@ -167,6 +169,29 @@ async function getRoomOccupancy(ably, slug) {
     return Array.isArray(members) ? members.length : 0;
   } catch {
     return 0;
+  }
+}
+
+// Consultado pelo servidor com a chave completa do Ably (não a do navegador do usuário), então
+// funciona mesmo pra salas em que o usuário não está — é assim que a lista de salas mostra quem
+// está em cada uma sem precisar dar ao navegador acesso de leitura a todas as salas.
+async function getRoomPresenceMembers(ably, slug) {
+  try {
+    const channel = ably.channels.get(signalingChannelName(slug));
+    const members = await channel.presence.get();
+    if (!Array.isArray(members)) return [];
+    return members.map((member) => ({
+      id: String(member.clientId),
+      displayName: member.data?.displayName || "Policial",
+      avatarUrl: member.data?.avatarUrl || "",
+      factionLabel: member.data?.factionLabel || "",
+      micMuted: Boolean(member.data?.micMuted),
+      deafened: Boolean(member.data?.deafened),
+      presenting: Boolean(member.data?.presenting),
+      isModerator: Boolean(member.data?.isModerator),
+    }));
+  } catch {
+    return [];
   }
 }
 
@@ -223,16 +248,16 @@ export default async function handler(req, res) {
       await ensureDefaultRooms(collection);
       const rooms = await collection.find({}).sort({ createdAt: 1 }).toArray();
 
-      const occupancy = {};
+      const membersBySlug = {};
       if (env.ABLY_API_KEY && rooms.length) {
         const ably = getAblyRest(env);
-        const counts = await Promise.all(rooms.map((room) => getRoomOccupancy(ably, room.slug)));
+        const memberLists = await Promise.all(rooms.map((room) => getRoomPresenceMembers(ably, room.slug)));
         rooms.forEach((room, index) => {
-          occupancy[room.slug] = counts[index];
+          membersBySlug[room.slug] = memberLists[index];
         });
       }
 
-      return res.status(200).json({ rooms: rooms.map((room) => serializeRoom(room, occupancy)) });
+      return res.status(200).json({ rooms: rooms.map((room) => serializeRoom(room, membersBySlug)) });
     }
 
     if (action === "token") {

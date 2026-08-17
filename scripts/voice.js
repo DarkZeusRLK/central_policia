@@ -25,6 +25,7 @@
     wasMicMutedBeforeDeafen: false,
     presenting: false,
     presenterClientId: null,
+    selfPreviewExpanded: false,
     mutedPeers: new Set(),
     deafenedPeers: new Set(),
     locallyMutedPeers: new Set(),
@@ -47,6 +48,36 @@
 
   function normalizeSearchText(value) {
     return String(value || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  }
+
+  // ---------------------------------------------------------------------
+  // Efeitos sonoros (arquivos em public/audio/, no estilo Discord).
+  // Alguns ainda não foram enviados (ex.: início de transmissão) — falha em silêncio, sem quebrar nada.
+  // ---------------------------------------------------------------------
+  const SOUND_FILES = {
+    join: "audio/discord-sounds.mp3",
+    leave: "audio/discord-leave-noise.mp3",
+    disconnect: "audio/Disconect Discord.mp3",
+    mute: "audio/discordmute.mp3",
+    unmute: "audio/discord unmute sound - QuickSounds.com.mp3",
+    streamStart: "audio/discord-stream-start-sound-effect.mp3",
+    streamStop: "audio/discord-stream-stop-sound-effect-made-with-Voicemod.mp3",
+  };
+  const soundCache = new Map();
+
+  function playVoiceSound(key) {
+    const path = SOUND_FILES[key];
+    if (!path) return;
+    try {
+      let audio = soundCache.get(key);
+      if (!audio) {
+        audio = new Audio(encodeURI(path));
+        audio.volume = 0.5;
+        soundCache.set(key, audio);
+      }
+      audio.currentTime = 0;
+      audio.play()?.catch(() => { /* som ainda não enviado ou autoplay bloqueado — ignora */ });
+    } catch { /* ignora — som é só um reforço, nunca deve travar a chamada */ }
   }
 
   function isPolite(otherClientId) {
@@ -100,6 +131,17 @@
     }
   }
 
+  function getRoomMembersPreviewList(room, isCurrent) {
+    if (isCurrent) {
+      return (VoiceState.presenceMembers || []).map((member) => ({
+        id: String(member.clientId),
+        displayName: member.data?.displayName || "Policial",
+        avatarUrl: member.data?.avatarUrl || "",
+      }));
+    }
+    return Array.isArray(room.members) ? room.members : [];
+  }
+
   function renderRoomGrid() {
     const list = document.getElementById("voice-room-list");
     if (!list) return;
@@ -114,6 +156,11 @@
       const isCurrent = room.slug === VoiceState.currentRoomSlug;
       const occupants = isCurrent ? VoiceState.presenceMembers.length : room.occupants;
       const full = Boolean(room.memberLimit) && occupants >= room.memberLimit;
+      const membersPreview = getRoomMembersPreviewList(room, isCurrent);
+      const previewAvatars = membersPreview.slice(0, 5);
+      const namesText = membersPreview.length
+        ? membersPreview.map((member) => member.displayName).join(", ")
+        : "Sala vazia";
 
       const card = document.createElement("div");
       card.className = `voice-room-card${isCurrent ? " current" : ""}`;
@@ -122,6 +169,12 @@
         <h3>${escapeHtml(room.name)}</h3>
         <span class="voice-room-status-line${isCurrent ? " is-connected" : ""}"><i class="fa-solid fa-circle"></i>${isCurrent ? "Conectada" : "Disponível"}</span>
         <span class="voice-room-occupants${full ? " full" : ""}">${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""} participante${occupants === 1 ? "" : "s"}</span>
+        ${membersPreview.length ? `
+          <div class="voice-room-members-preview">
+            ${previewAvatars.map((member) => `<img class="voice-room-member-avatar" src="${member.avatarUrl || "images/Logo_policia.png"}" alt="" title="${escapeHtml(member.displayName)}" onerror="this.src='images/Logo_policia.png'" />`).join("")}
+          </div>
+          <span class="voice-room-members-names" title="${escapeHtml(namesText)}">${escapeHtml(namesText)}</span>
+        ` : `<span class="voice-room-members-names">Sala vazia</span>`}
         <div class="voice-room-card-actions">
           <button type="button" class="action-button voice-join-button"${full && !isCurrent ? " disabled" : ""} aria-label="${isCurrent ? "Sair da sala " : "Entrar na sala "}${escapeHtml(room.name)}">
             <i class="fa-solid ${isCurrent ? "fa-phone-slash" : "fa-phone"}"></i>
@@ -430,15 +483,16 @@
 
     const row = document.createElement("div");
     row.className = `voice-participant-row${draggable ? " draggable" : ""}${isPresenting ? " is-presenting" : ""}${isSpeaking ? " speaking" : ""}`;
-    row.draggable = draggable;
     row.dataset.clientId = clientId;
     row.dataset.searchText = normalizeSearchText(`${data.displayName || ""} ${data.factionLabel || ""}`);
     row.innerHTML = `
-      <span class="voice-participant-status-dot" title="Conectado" aria-hidden="true"></span>
-      <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
-      <div class="voice-participant-info">
-        <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}${data.isModerator ? ' <span class="voice-badge-moderator">Moderador</span>' : ""}</span>
-        ${data.factionLabel ? `<span class="voice-participant-org">${escapeHtml(data.factionLabel)}</span>` : ""}
+      <div class="voice-participant-draghandle" title="${draggable ? "Arraste até outra sala pra mover" : ""}">
+        <span class="voice-participant-status-dot" title="Conectado" aria-hidden="true"></span>
+        <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
+        <div class="voice-participant-info">
+          <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}${data.isModerator ? ' <span class="voice-badge-moderator">Moderador</span>' : ""}</span>
+          ${data.factionLabel ? `<span class="voice-participant-org">${escapeHtml(data.factionLabel)}</span>` : ""}
+        </div>
       </div>
       <div class="voice-participant-badges">
         ${isMuted
@@ -463,11 +517,14 @@
       });
     }
     if (draggable) {
-      row.addEventListener("dragstart", (event) => {
+      // Só o "puxador" (avatar + nome) inicia o arrastar — igual ao Discord, não a linha inteira.
+      const handle = row.querySelector(".voice-participant-draghandle");
+      handle.draggable = true;
+      handle.addEventListener("dragstart", (event) => {
         event.dataTransfer.setData("text/voice-participant", clientId);
         row.classList.add("dragging");
       });
-      row.addEventListener("dragend", () => row.classList.remove("dragging"));
+      handle.addEventListener("dragend", () => row.classList.remove("dragging"));
 
       row.querySelector(".voice-chip-mute").addEventListener("click", (event) => {
         event.stopPropagation();
@@ -769,6 +826,7 @@
     VoiceState.localStream?.getAudioTracks().forEach((track) => { track.enabled = false; });
     updateMicButtonUI();
     VoiceState.signalingChannel?.presence.update(currentPresenceData());
+    playVoiceSound("mute");
     Notify.info("Um moderador mutou seu microfone.");
   }
 
@@ -778,6 +836,7 @@
     VoiceState.localStream?.getAudioTracks().forEach((track) => { track.enabled = !VoiceState.deafened; });
     updateMicButtonUI();
     VoiceState.signalingChannel?.presence.update(currentPresenceData());
+    playVoiceSound("unmute");
   }
 
   function forceDeafenSelf() {
@@ -814,7 +873,7 @@
     else if (type === "unmute") { VoiceState.mutedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUnmuteSelf(); refreshParticipantRow(target); }
     else if (type === "deafen") { VoiceState.deafenedPeers.add(target); applyModerationStateToPeer(target); if (isMe) forceDeafenSelf(); refreshParticipantRow(target); }
     else if (type === "undeafen") { VoiceState.deafenedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUndeafenSelf(); refreshParticipantRow(target); }
-    else if (type === "disconnect" && isMe) { Notify.error("Você foi desconectado desta sala por um moderador."); leaveRoom(); }
+    else if (type === "disconnect" && isMe) { playVoiceSound("disconnect"); Notify.error("Você foi desconectado desta sala por um moderador."); leaveRoom(); }
     else if (type === "move" && isMe) { Notify.info("Você foi movido para outra sala."); switchRoom(data.toRoomSlug); }
     else if (type === "room-deleted") {
       if (VoiceState.currentRoomSlug) { Notify.error("Esta sala foi removida."); leaveRoom(); }
@@ -878,6 +937,8 @@
       VoiceState.signalingChannel?.presence.update(currentPresenceData());
       updateShareButtonUI();
       refreshParticipantRow(myClientId());
+      showPresenterStream(stream, myClientId());
+      playVoiceSound("streamStart");
     } catch (error) {
       if (error?.name !== "NotAllowedError") {
         Notify.error("Não foi possível iniciar o compartilhamento de tela.");
@@ -903,6 +964,7 @@
     updateShareButtonUI();
     hidePresenterStage();
     refreshParticipantRow(myClientId());
+    playVoiceSound("streamStop");
   }
 
   function showPresenterStream(stream, clientId) {
@@ -913,19 +975,69 @@
     if (!stage || !video) return;
 
     video.srcObject = stream;
+    const isSelf = String(clientId) === myClientId();
     const member = (VoiceState.presenceMembers || []).find((entry) => String(entry.clientId) === String(clientId));
-    if (label) label.textContent = `${member?.data?.displayName || "Alguém"} está compartilhando a tela`;
+    if (label) {
+      label.textContent = isSelf
+        ? "Você está compartilhando a tela"
+        : `${member?.data?.displayName || "Alguém"} está compartilhando a tela`;
+    }
     stage.classList.remove("hidden");
+
+    if (isSelf) {
+      VoiceState.selfPreviewExpanded = false;
+      applyPresenterViewMode();
+    } else {
+      stage.classList.remove("self-thumbnail");
+      document.getElementById("voice-presenter-minimize")?.classList.add("hidden");
+      document.getElementById("voice-presenter-fullscreen")?.classList.remove("hidden");
+      document.getElementById("voice-presenter-expand-hint")?.classList.add("hidden");
+    }
     renderWatchers();
+  }
+
+  function applyPresenterViewMode() {
+    const stage = document.getElementById("voice-presenter-stage");
+    const minimizeBtn = document.getElementById("voice-presenter-minimize");
+    const fullscreenBtn = document.getElementById("voice-presenter-fullscreen");
+    const hint = document.getElementById("voice-presenter-expand-hint");
+    if (!stage) return;
+    const isSelfPresenting = VoiceState.presenting && VoiceState.presenterClientId === myClientId();
+    if (!isSelfPresenting) return;
+
+    const expanded = Boolean(VoiceState.selfPreviewExpanded);
+    stage.classList.toggle("self-thumbnail", !expanded);
+    minimizeBtn?.classList.toggle("hidden", !expanded);
+    fullscreenBtn?.classList.toggle("hidden", expanded);
+    hint?.classList.toggle("hidden", expanded);
+  }
+
+  function expandPresenterView() {
+    if (!(VoiceState.presenting && VoiceState.presenterClientId === myClientId())) return;
+    VoiceState.selfPreviewExpanded = true;
+    applyPresenterViewMode();
+  }
+
+  function minimizePresenterView() {
+    if (!(VoiceState.presenting && VoiceState.presenterClientId === myClientId())) return;
+    VoiceState.selfPreviewExpanded = false;
+    applyPresenterViewMode();
   }
 
   function hidePresenterStage() {
     VoiceState.presenterClientId = null;
+    VoiceState.selfPreviewExpanded = false;
     const stage = document.getElementById("voice-presenter-stage");
     const video = document.getElementById("voice-presenter-video");
     if (document.fullscreenElement === stage) document.exitFullscreen?.().catch(() => {});
     if (video) video.srcObject = null;
-    if (stage) stage.classList.add("hidden");
+    if (stage) {
+      stage.classList.add("hidden");
+      stage.classList.remove("self-thumbnail");
+    }
+    document.getElementById("voice-presenter-minimize")?.classList.add("hidden");
+    document.getElementById("voice-presenter-fullscreen")?.classList.remove("hidden");
+    document.getElementById("voice-presenter-expand-hint")?.classList.add("hidden");
   }
 
   function renderWatchers() {
@@ -985,6 +1097,7 @@
     VoiceState.localStream.getAudioTracks().forEach((track) => { track.enabled = !VoiceState.micMuted; });
     updateMicButtonUI();
     VoiceState.signalingChannel?.presence.update(currentPresenceData());
+    playVoiceSound(VoiceState.micMuted ? "mute" : "unmute");
   }
 
   function toggleDeafen() {
@@ -1016,6 +1129,7 @@
       upsertParticipantRow(member);
       renderRoomGrid();
       renderWatchers();
+      playVoiceSound("join");
     });
 
     VoiceState.signalingChannel.presence.subscribe("leave", (member) => {
@@ -1025,6 +1139,7 @@
       removeParticipantRowEl(clientId);
       renderRoomGrid();
       renderWatchers();
+      playVoiceSound("leave");
     });
 
     VoiceState.signalingChannel.presence.subscribe("update", (member) => {
@@ -1139,9 +1254,11 @@
     renderParticipantList();
     renderRoomGrid();
     updateHeaderBreadcrumb(roomMeta?.name || slug);
+    playVoiceSound("join");
   }
 
   async function leaveRoomInternal(hidePanel) {
+    if (VoiceState.currentRoomSlug) playVoiceSound("leave");
     if (VoiceState.signalingChannel) {
       try { await VoiceState.signalingChannel.presence.leave(); } catch { /* já desconectado */ }
       VoiceState.signalingChannel.unsubscribe();
@@ -1202,6 +1319,14 @@
     document.getElementById("voice-toggle-share")?.addEventListener("click", toggleScreenShare);
     document.getElementById("voice-leave-call")?.addEventListener("click", leaveRoom);
     document.getElementById("voice-presenter-fullscreen")?.addEventListener("click", toggleFullscreenPresenter);
+    document.getElementById("voice-presenter-minimize")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      minimizePresenterView();
+    });
+    document.getElementById("voice-presenter-stage")?.addEventListener("click", () => {
+      const stage = document.getElementById("voice-presenter-stage");
+      if (stage?.classList.contains("self-thumbnail")) expandPresenterView();
+    });
     document.getElementById("voice-participant-search-input")?.addEventListener("input", applyParticipantSearchFilter);
   }
 
