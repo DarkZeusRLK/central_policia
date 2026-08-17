@@ -15,6 +15,9 @@
     modChannel: null,
     peers: new Map(), // clientId -> { pc, makingOffer, ignoreOffer, audioEl, videoStream }
     presenceMembers: [],
+    participantRows: new Map(), // clientId -> <div> da linha (atualização incremental, sem re-render da lista inteira)
+    speakingDetectors: new Map(), // clientId -> { ctx, analyser, source, rafId, speaking }
+    participantSearchQuery: "",
     localStream: null,
     screenStream: null,
     micMuted: false,
@@ -30,6 +33,8 @@
     activeContextMenu: null,
   };
 
+  const SPEAKING_THRESHOLD = 14;
+
   function myClientId() {
     return String(state?.currentUser?.id || "");
   }
@@ -38,6 +43,10 @@
     return String(value || "").replace(/[&<>"']/g, (ch) => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     }[ch]));
+  }
+
+  function normalizeSearchText(value) {
+    return String(value || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   }
 
   function isPolite(otherClientId) {
@@ -92,12 +101,12 @@
   }
 
   function renderRoomGrid() {
-    const grid = document.getElementById("voice-room-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
+    const list = document.getElementById("voice-room-list");
+    if (!list) return;
+    list.innerHTML = "";
 
     if (!VoiceState.rooms.length) {
-      grid.innerHTML = '<div class="empty-state">Nenhuma sala disponível no momento.</div>';
+      list.innerHTML = '<div class="empty-state">Nenhuma sala disponível no momento.</div>';
       return;
     }
 
@@ -110,19 +119,19 @@
       card.className = `voice-room-card${isCurrent ? " current" : ""}`;
       card.dataset.slug = room.slug;
       card.innerHTML = `
-        <div class="voice-room-card-top"><h3>${escapeHtml(room.name)}</h3></div>
-        <span class="voice-room-occupants${full ? " full" : ""}"><i class="fa-solid fa-users"></i> ${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""}</span>
-        ${isCurrent ? '<span class="voice-room-status"><i class="fa-solid fa-circle-check"></i> Conectada</span>' : ""}
+        <h3>${escapeHtml(room.name)}</h3>
+        <span class="voice-room-status-line${isCurrent ? " is-connected" : ""}"><i class="fa-solid fa-circle"></i>${isCurrent ? "Conectada" : "Disponível"}</span>
+        <span class="voice-room-occupants${full ? " full" : ""}">${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""} participante${occupants === 1 ? "" : "s"}</span>
         <div class="voice-room-card-actions">
-          <button type="button" class="action-button voice-join-button"${full && !isCurrent ? " disabled" : ""}>
+          <button type="button" class="action-button voice-join-button"${full && !isCurrent ? " disabled" : ""} aria-label="${isCurrent ? "Sair da sala " : "Entrar na sala "}${escapeHtml(room.name)}">
             <i class="fa-solid ${isCurrent ? "fa-phone-slash" : "fa-phone"}"></i>
             <span>${isCurrent ? "Sair" : "Entrar"}</span>
           </button>
           ${VoiceState.isAdmin ? `
             <div class="voice-room-admin-actions">
-              <button type="button" class="voice-icon-button" data-room-rename title="Renomear sala"><i class="fa-solid fa-pen"></i></button>
-              <button type="button" class="voice-icon-button" data-room-limit title="Definir limite de membros"><i class="fa-solid fa-users-gear"></i></button>
-              <button type="button" class="voice-icon-button danger" data-room-delete title="Apagar sala"><i class="fa-solid fa-trash"></i></button>
+              <button type="button" class="voice-icon-button" data-room-rename title="Renomear sala" aria-label="Renomear sala ${escapeHtml(room.name)}"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" class="voice-icon-button" data-room-limit title="Definir limite de membros" aria-label="Definir limite de membros da sala ${escapeHtml(room.name)}"><i class="fa-solid fa-users-gear"></i></button>
+              <button type="button" class="voice-icon-button danger" data-room-delete title="Apagar sala" aria-label="Apagar sala ${escapeHtml(room.name)}"><i class="fa-solid fa-trash"></i></button>
             </div>` : ""}
         </div>
       `;
@@ -139,7 +148,7 @@
       }
 
       wireRoomCardDropTarget(card, room);
-      grid.appendChild(card);
+      list.appendChild(card);
     });
   }
 
@@ -314,7 +323,7 @@
     if (VoiceState.locallyMutedPeers.has(clientId)) VoiceState.locallyMutedPeers.delete(clientId);
     else VoiceState.locallyMutedPeers.add(clientId);
     applyModerationStateToPeer(clientId);
-    renderParticipantList();
+    refreshParticipantRow(clientId);
   }
 
   // ---------------------------------------------------------------------
@@ -327,8 +336,21 @@
     }
   }
 
+  function confirmDisconnect(targetClientId, displayName) {
+    openModal({
+      title: "Remover participante",
+      description: `Remover ${displayName || "este participante"} da sala? A pessoa poderá tentar entrar novamente depois de alguns instantes.`,
+      confirmLabel: "Remover",
+      danger: true,
+      onConfirm: () => moderate("disconnect", targetClientId),
+    });
+  }
+
   function openParticipantContextMenu(event, targetClientId) {
     closeContextMenu();
+
+    const targetMember = (VoiceState.presenceMembers || []).find((entry) => String(entry.clientId) === String(targetClientId));
+    const targetDisplayName = targetMember?.data?.displayName || "";
 
     const items = [];
     const locallyMuted = VoiceState.locallyMutedPeers.has(targetClientId);
@@ -345,7 +367,7 @@
       items.push({ label: isMuted ? "Desmutar" : "Mutar", icon: "fa-microphone-slash", action: () => moderate(isMuted ? "unmute" : "mute", targetClientId) });
       items.push({ label: isDeafened ? "Tirar silêncio" : "Silenciar", icon: "fa-volume-xmark", action: () => moderate(isDeafened ? "undeafen" : "deafen", targetClientId) });
       items.push({ separator: true });
-      items.push({ label: "Desconectar da call", icon: "fa-phone-slash", danger: true, action: () => moderate("disconnect", targetClientId) });
+      items.push({ label: "Remover da sala", icon: "fa-phone-slash", danger: true, action: () => confirmDisconnect(targetClientId, targetDisplayName) });
 
       const otherRooms = VoiceState.rooms.filter((room) => room.slug !== VoiceState.currentRoomSlug);
       if (otherRooms.length) {
@@ -394,75 +416,147 @@
   }
 
   // ---------------------------------------------------------------------
-  // Lista de participantes da call atual
+  // Lista de participantes da call atual — linhas verticais, atualização incremental
   // ---------------------------------------------------------------------
+  function buildParticipantRow(member) {
+    const clientId = String(member.clientId);
+    const data = member.data || {};
+    const isSelf = clientId === myClientId();
+    const isMuted = VoiceState.mutedPeers.has(clientId) || Boolean(data.micMuted);
+    const isDeafened = VoiceState.deafenedPeers.has(clientId) || Boolean(data.deafened);
+    const isPresenting = Boolean(data.presenting);
+    const isSpeaking = Boolean(VoiceState.speakingDetectors.get(clientId)?.speaking) && !isMuted && !isDeafened;
+    const draggable = VoiceState.canModerate && !isSelf;
+
+    const row = document.createElement("div");
+    row.className = `voice-participant-row${draggable ? " draggable" : ""}${isPresenting ? " is-presenting" : ""}${isSpeaking ? " speaking" : ""}`;
+    row.draggable = draggable;
+    row.dataset.clientId = clientId;
+    row.dataset.searchText = normalizeSearchText(`${data.displayName || ""} ${data.factionLabel || ""}`);
+    row.innerHTML = `
+      <span class="voice-participant-status-dot" title="Conectado" aria-hidden="true"></span>
+      <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
+      <div class="voice-participant-info">
+        <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}${data.isModerator ? ' <span class="voice-badge-moderator">Moderador</span>' : ""}</span>
+        ${data.factionLabel ? `<span class="voice-participant-org">${escapeHtml(data.factionLabel)}</span>` : ""}
+      </div>
+      <div class="voice-participant-badges">
+        ${isMuted
+          ? '<i class="fa-solid fa-microphone-slash badge-muted" title="Microfone mutado" aria-label="Microfone mutado"></i>'
+          : '<i class="fa-solid fa-microphone badge-live" title="Microfone ativo" aria-label="Microfone ativo"></i>'}
+        ${isDeafened ? '<i class="fa-solid fa-volume-xmark badge-deafened" title="Áudio silenciado" aria-label="Áudio silenciado"></i>' : ""}
+        ${isPresenting ? '<span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>' : ""}
+      </div>
+      ${draggable ? `
+        <div class="voice-participant-actions">
+          <button type="button" class="voice-icon-button voice-chip-mute${isMuted ? " active-off" : ""}" title="${isMuted ? "Desmutar" : "Mutar"}" aria-label="${isMuted ? "Desmutar participante" : "Mutar participante"}"><i class="fa-solid fa-microphone${isMuted ? "-slash" : ""}"></i></button>
+          <button type="button" class="voice-icon-button voice-chip-deafen${isDeafened ? " active-off" : ""}" title="${isDeafened ? "Tirar silêncio" : "Silenciar"}" aria-label="${isDeafened ? "Tirar participante do silêncio" : "Silenciar participante"}"><i class="fa-solid ${isDeafened ? "fa-volume-xmark" : "fa-headphones"}"></i></button>
+          <button type="button" class="voice-icon-button voice-chip-more" title="Mais opções" aria-label="Mais opções para este participante"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      ` : ""}
+    `;
+
+    if (!isSelf) {
+      row.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        openParticipantContextMenu(event, clientId);
+      });
+    }
+    if (draggable) {
+      row.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/voice-participant", clientId);
+        row.classList.add("dragging");
+      });
+      row.addEventListener("dragend", () => row.classList.remove("dragging"));
+
+      row.querySelector(".voice-chip-mute").addEventListener("click", (event) => {
+        event.stopPropagation();
+        moderate(isMuted ? "unmute" : "mute", clientId);
+      });
+      row.querySelector(".voice-chip-deafen").addEventListener("click", (event) => {
+        event.stopPropagation();
+        moderate(isDeafened ? "undeafen" : "deafen", clientId);
+      });
+      row.querySelector(".voice-chip-more").addEventListener("click", (event) => {
+        event.stopPropagation();
+        const rect = event.currentTarget.getBoundingClientRect();
+        openParticipantContextMenu({ clientX: rect.left, clientY: rect.bottom + 6 }, clientId);
+      });
+    }
+
+    return row;
+  }
+
   function renderParticipantList() {
     const container = document.getElementById("voice-participant-list");
     if (!container) return;
     container.innerHTML = "";
+    VoiceState.participantRows.clear();
 
     (VoiceState.presenceMembers || []).forEach((member) => {
-      const clientId = String(member.clientId);
-      const data = member.data || {};
-      const isSelf = clientId === myClientId();
-      const isMuted = VoiceState.mutedPeers.has(clientId) || Boolean(data.micMuted);
-      const isDeafened = VoiceState.deafenedPeers.has(clientId) || Boolean(data.deafened);
-      const isPresenting = Boolean(data.presenting);
-      const draggable = VoiceState.canModerate && !isSelf;
-
-      const chip = document.createElement("div");
-      chip.className = `voice-participant-chip${draggable ? " draggable" : ""}${isPresenting ? " is-presenting" : ""}`;
-      chip.draggable = draggable;
-      chip.dataset.clientId = clientId;
-      chip.innerHTML = `
-        <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
-        <div class="voice-participant-info">
-          <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}${data.isModerator ? ' <span class="voice-badge-moderator">Moderador</span>' : ""}</span>
-          <span class="voice-participant-badges">
-            ${isMuted ? '<i class="fa-solid fa-microphone-slash badge-muted" title="Mutado"></i>' : ""}
-            ${isDeafened ? '<i class="fa-solid fa-volume-xmark badge-deafened" title="Silenciado"></i>' : ""}
-            ${isPresenting ? '<span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>' : ""}
-          </span>
-        </div>
-        ${draggable ? `
-          <div class="voice-participant-actions">
-            <button type="button" class="voice-icon-button voice-chip-mute${isMuted ? " active-off" : ""}" title="${isMuted ? "Desmutar" : "Mutar"}"><i class="fa-solid fa-microphone${isMuted ? "-slash" : ""}"></i></button>
-            <button type="button" class="voice-icon-button voice-chip-deafen${isDeafened ? " active-off" : ""}" title="${isDeafened ? "Tirar silêncio" : "Silenciar"}"><i class="fa-solid ${isDeafened ? "fa-volume-xmark" : "fa-headphones"}"></i></button>
-            <button type="button" class="voice-icon-button voice-chip-more" title="Mais opções"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-          </div>
-        ` : ""}
-      `;
-
-      if (!isSelf) {
-        chip.addEventListener("contextmenu", (event) => {
-          event.preventDefault();
-          openParticipantContextMenu(event, clientId);
-        });
-      }
-      if (draggable) {
-        chip.addEventListener("dragstart", (event) => {
-          event.dataTransfer.setData("text/voice-participant", clientId);
-          chip.classList.add("dragging");
-        });
-        chip.addEventListener("dragend", () => chip.classList.remove("dragging"));
-
-        chip.querySelector(".voice-chip-mute").addEventListener("click", (event) => {
-          event.stopPropagation();
-          moderate(isMuted ? "unmute" : "mute", clientId);
-        });
-        chip.querySelector(".voice-chip-deafen").addEventListener("click", (event) => {
-          event.stopPropagation();
-          moderate(isDeafened ? "undeafen" : "deafen", clientId);
-        });
-        chip.querySelector(".voice-chip-more").addEventListener("click", (event) => {
-          event.stopPropagation();
-          const rect = event.currentTarget.getBoundingClientRect();
-          openParticipantContextMenu({ clientX: rect.left, clientY: rect.bottom + 6 }, clientId);
-        });
-      }
-
-      container.appendChild(chip);
+      const row = buildParticipantRow(member);
+      VoiceState.participantRows.set(String(member.clientId), row);
+      container.appendChild(row);
     });
+
+    applyParticipantSearchFilter();
+    updateParticipantCount();
+  }
+
+  // Atualiza (ou insere) só a linha do participante afetado, sem re-renderizar a lista inteira.
+  function upsertParticipantRow(member) {
+    const container = document.getElementById("voice-participant-list");
+    if (!container) return;
+    const clientId = String(member.clientId);
+    const newRow = buildParticipantRow(member);
+    const existing = VoiceState.participantRows.get(clientId);
+    if (existing && existing.parentNode === container) {
+      container.replaceChild(newRow, existing);
+    } else {
+      container.appendChild(newRow);
+    }
+    VoiceState.participantRows.set(clientId, newRow);
+    applyParticipantSearchFilter();
+    updateParticipantCount();
+  }
+
+  function removeParticipantRowEl(clientId) {
+    const existing = VoiceState.participantRows.get(clientId);
+    if (existing) existing.remove();
+    VoiceState.participantRows.delete(clientId);
+    updateParticipantCount();
+  }
+
+  // Reconstrói só a linha de um participante já presente (ex.: mudou de mutado/moderação), a partir do presence atual.
+  function refreshParticipantRow(clientId) {
+    const member = (VoiceState.presenceMembers || []).find((entry) => String(entry.clientId) === String(clientId));
+    if (member) upsertParticipantRow(member);
+  }
+
+  function updateParticipantCount() {
+    const el = document.getElementById("voice-participant-count");
+    if (!el) return;
+    const total = VoiceState.presenceMembers.length;
+    const room = VoiceState.rooms.find((entry) => entry.slug === VoiceState.currentRoomSlug);
+    el.textContent = room?.memberLimit ? `${total} de ${room.memberLimit}` : `${total} conectado${total === 1 ? "" : "s"}`;
+  }
+
+  function applyParticipantSearchFilter() {
+    const input = document.getElementById("voice-participant-search-input");
+    const query = normalizeSearchText(input?.value || "");
+    VoiceState.participantSearchQuery = query;
+
+    let visibleCount = 0;
+    VoiceState.participantRows.forEach((row) => {
+      const matches = !query || (row.dataset.searchText || "").includes(query);
+      row.classList.toggle("hidden", !matches);
+      if (matches) visibleCount += 1;
+    });
+
+    const emptyState = document.getElementById("voice-participant-empty");
+    if (emptyState) {
+      emptyState.classList.toggle("hidden", !(query && VoiceState.participantRows.size > 0 && visibleCount === 0));
+    }
   }
 
   function upsertPresenceMember(member) {
@@ -482,6 +576,7 @@
     return {
       displayName: state?.currentUser?.displayName || state?.currentUser?.username || "Policial",
       avatarUrl: state?.currentUser?.avatarUrl || "",
+      factionLabel: typeof resolveCurrentPoliceLabel === "function" ? resolveCurrentPoliceLabel() : "",
       micMuted: VoiceState.micMuted,
       deafened: VoiceState.deafened,
       presenting: VoiceState.presenting,
@@ -546,6 +641,7 @@
       }
       peer.audioEl.srcObject = stream;
       applyModerationStateToPeer(remoteClientId);
+      attachSpeakingDetector(remoteClientId, stream);
     } else if (event.track.kind === "video") {
       peer.videoStream = stream;
       if (VoiceState.presenterClientId === remoteClientId) {
@@ -592,7 +688,65 @@
     try { peer.pc.close(); } catch { /* já fechado */ }
     if (peer.audioEl) peer.audioEl.remove();
     VoiceState.peers.delete(clientId);
+    detachSpeakingDetector(clientId);
     if (VoiceState.presenterClientId === clientId) hidePresenterStage();
+  }
+
+  // ---------------------------------------------------------------------
+  // Detector de "quem está falando" (Web Audio API — sem biblioteca externa)
+  // ---------------------------------------------------------------------
+  function setRowSpeaking(clientId, speaking) {
+    const row = VoiceState.participantRows.get(String(clientId));
+    if (row) row.classList.toggle("speaking", speaking);
+  }
+
+  function attachSpeakingDetector(clientId, stream) {
+    try {
+      if (VoiceState.speakingDetectors.has(clientId)) detachSpeakingDetector(clientId);
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx || !stream || !stream.getAudioTracks().length) return;
+
+      const ctx = new AudioCtx();
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.65;
+      source.connect(analyser);
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      const detector = { ctx, analyser, source, rafId: null, speaking: false };
+
+      const tick = () => {
+        analyser.getByteFrequencyData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 1) sum += data[i];
+        const nowSpeaking = sum / data.length > SPEAKING_THRESHOLD;
+        if (nowSpeaking !== detector.speaking) {
+          detector.speaking = nowSpeaking;
+          setRowSpeaking(clientId, nowSpeaking);
+        }
+        detector.rafId = requestAnimationFrame(tick);
+      };
+      tick();
+
+      VoiceState.speakingDetectors.set(clientId, detector);
+    } catch (error) {
+      // Web Audio pode ser bloqueado em alguns navegadores/contextos — degrada sem indicador de fala.
+      console.error("Falha ao iniciar detector de fala:", error);
+    }
+  }
+
+  function detachSpeakingDetector(clientId) {
+    const detector = VoiceState.speakingDetectors.get(clientId);
+    if (!detector) return;
+    if (detector.rafId) cancelAnimationFrame(detector.rafId);
+    try {
+      detector.source.disconnect();
+      detector.analyser.disconnect();
+      detector.ctx.close();
+    } catch { /* já encerrado */ }
+    VoiceState.speakingDetectors.delete(clientId);
+    setRowSpeaking(clientId, false);
   }
 
   // ---------------------------------------------------------------------
@@ -656,10 +810,10 @@
     const target = String(data.target || "");
     const isMe = target === myClientId();
 
-    if (type === "mute") { VoiceState.mutedPeers.add(target); applyModerationStateToPeer(target); if (isMe) forceMuteSelf(); }
-    else if (type === "unmute") { VoiceState.mutedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUnmuteSelf(); }
-    else if (type === "deafen") { VoiceState.deafenedPeers.add(target); applyModerationStateToPeer(target); if (isMe) forceDeafenSelf(); }
-    else if (type === "undeafen") { VoiceState.deafenedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUndeafenSelf(); }
+    if (type === "mute") { VoiceState.mutedPeers.add(target); applyModerationStateToPeer(target); if (isMe) forceMuteSelf(); refreshParticipantRow(target); }
+    else if (type === "unmute") { VoiceState.mutedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUnmuteSelf(); refreshParticipantRow(target); }
+    else if (type === "deafen") { VoiceState.deafenedPeers.add(target); applyModerationStateToPeer(target); if (isMe) forceDeafenSelf(); refreshParticipantRow(target); }
+    else if (type === "undeafen") { VoiceState.deafenedPeers.delete(target); applyModerationStateToPeer(target); if (isMe) forceUndeafenSelf(); refreshParticipantRow(target); }
     else if (type === "disconnect" && isMe) { Notify.error("Você foi desconectado desta sala por um moderador."); leaveRoom(); }
     else if (type === "move" && isMe) { Notify.info("Você foi movido para outra sala."); switchRoom(data.toRoomSlug); }
     else if (type === "room-deleted") {
@@ -668,8 +822,6 @@
     } else if (type === "room-renamed" || type === "limit-changed") {
       refreshRoomList();
     }
-
-    renderParticipantList();
   }
 
   // ---------------------------------------------------------------------
@@ -725,7 +877,7 @@
 
       VoiceState.signalingChannel?.presence.update(currentPresenceData());
       updateShareButtonUI();
-      renderParticipantList();
+      refreshParticipantRow(myClientId());
     } catch (error) {
       if (error?.name !== "NotAllowedError") {
         Notify.error("Não foi possível iniciar o compartilhamento de tela.");
@@ -750,7 +902,7 @@
     VoiceState.signalingChannel?.presence.update(currentPresenceData());
     updateShareButtonUI();
     hidePresenterStage();
-    renderParticipantList();
+    refreshParticipantRow(myClientId());
   }
 
   function showPresenterStream(stream, clientId) {
@@ -861,7 +1013,7 @@
       if (String(member.clientId) === myClientId()) return;
       upsertPresenceMember(member);
       createPeerConnection(String(member.clientId));
-      renderParticipantList();
+      upsertParticipantRow(member);
       renderRoomGrid();
       renderWatchers();
     });
@@ -870,7 +1022,7 @@
       const clientId = String(member.clientId);
       removePresenceMember(clientId);
       teardownPeer(clientId);
-      renderParticipantList();
+      removeParticipantRowEl(clientId);
       renderRoomGrid();
       renderWatchers();
     });
@@ -885,7 +1037,7 @@
       } else if (VoiceState.presenterClientId === clientId) {
         hidePresenterStage();
       }
-      renderParticipantList();
+      upsertParticipantRow(member);
       renderRoomGrid();
       renderWatchers();
     });
@@ -928,19 +1080,25 @@
     el.className = `voice-call-status${cls ? ` ${cls}` : ""}`;
   }
 
+  // Alterna entre o painel "nenhuma sala selecionada" e o painel da chamada ativa.
+  function setMainColumnMode(mode) {
+    document.getElementById("voice-empty-panel")?.classList.toggle("hidden", mode !== "empty");
+    document.getElementById("voice-call-panel")?.classList.toggle("hidden", mode !== "call");
+  }
+
   async function joinRoom(slug) {
     if (VoiceState.currentRoomSlug === slug) return;
     if (VoiceState.currentRoomSlug) await leaveRoomInternal(false);
 
-    const panel = document.getElementById("voice-call-panel");
-    panel?.classList.remove("hidden");
-    setCallStatus("Conectando...", "");
+    setMainColumnMode("call");
+    setCallStatus("Conectando...", "connecting");
     const roomMeta = VoiceState.rooms.find((room) => room.slug === slug);
     const roomNameEl = document.getElementById("voice-call-room-name");
     if (roomNameEl) roomNameEl.textContent = roomMeta?.name || slug;
 
     try {
       VoiceState.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      attachSpeakingDetector(myClientId(), VoiceState.localStream);
     } catch (error) {
       Notify.error("Não foi possível acessar o microfone. Você entrará só ouvindo.");
       VoiceState.localStream = null;
@@ -949,11 +1107,13 @@
     try {
       VoiceState.ably = await connectAblyForRoom(slug);
     } catch (error) {
-      Notify.error(error.message || "Falha ao conectar na sala.");
+      console.error("Falha ao conectar no serviço de chamadas:", error);
+      Notify.error("Não foi possível conectar à sala. Tente novamente em instantes.");
       setCallStatus("Falha na conexão", "error");
       VoiceState.localStream?.getTracks().forEach((track) => track.stop());
       VoiceState.localStream = null;
-      panel?.classList.add("hidden");
+      detachSpeakingDetector(myClientId());
+      setMainColumnMode("empty");
       return;
     }
 
@@ -992,6 +1152,7 @@
     stopScreenShare();
     VoiceState.peers.forEach((_, clientId) => teardownPeer(clientId));
     VoiceState.peers.clear();
+    detachSpeakingDetector(myClientId());
 
     if (VoiceState.localStream) {
       VoiceState.localStream.getTracks().forEach((track) => track.stop());
@@ -1015,7 +1176,7 @@
     VoiceState.presenterClientId = null;
 
     if (hidePanel) {
-      document.getElementById("voice-call-panel")?.classList.add("hidden");
+      setMainColumnMode("empty");
       updateHeaderBreadcrumb(null);
     }
   }
@@ -1041,6 +1202,7 @@
     document.getElementById("voice-toggle-share")?.addEventListener("click", toggleScreenShare);
     document.getElementById("voice-leave-call")?.addEventListener("click", leaveRoom);
     document.getElementById("voice-presenter-fullscreen")?.addEventListener("click", toggleFullscreenPresenter);
+    document.getElementById("voice-participant-search-input")?.addEventListener("input", applyParticipantSearchFilter);
   }
 
   function updateHeaderBreadcrumb(roomName) {

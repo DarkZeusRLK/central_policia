@@ -471,36 +471,57 @@
       @media (max-width: 720px) { .header-actions { justify-content: flex-start; } .qra-picker { grid-template-columns: 1fr; } .button-row, .upload-header { flex-direction: column; align-items: stretch; } }
       @media (max-width: 480px) { .main-content { padding: 14px; } .section-card { padding: 16px; border-radius: 16px; } .ops-grid, .course-grid { grid-template-columns: 1fr; } }
 
-      /* ---- Chamadas de Curso (voz + tela) ---- */
-      .calls-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-      .voice-room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
-      .voice-room-card { position: relative; padding: 18px; border: 1px solid var(--line-soft); border-radius: 16px; background: var(--overlay-02); transition: border-color .2s ease, background .2s ease, transform .15s ease; }
-      .voice-room-card.drag-over { border-color: rgba(212,175,55,.6); background: rgba(212,175,55,.1); transform: translateY(-2px); }
-      .voice-room-card.current { border-color: rgba(212,175,55,.45); }
-      .voice-room-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-      .voice-room-card h3 { margin: 0; font-size: 1.05rem; }
-      .voice-room-occupants { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--muted); font-size: .84rem; }
+      /* ==========================================================================
+         Chamadas de Curso (voz + tela) — layout de duas colunas: salas | sala atual
+         ========================================================================== */
+      .voice-calls-shell { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 20px; align-items: start; }
+      .voice-rooms-column { position: sticky; top: 116px; display: flex; flex-direction: column; gap: 14px; padding: 20px; border: 1px solid var(--line-soft); border-radius: 20px; background: linear-gradient(180deg, var(--panel-grad-a), var(--panel-grad-b)); box-shadow: var(--shadow); max-height: calc(100vh - 136px); z-index: 10; }
+      .voice-rooms-column-head h1 { margin: 0 0 4px; font-size: 1.3rem; }
+      .voice-rooms-column-head p { margin: 0; color: var(--muted); font-size: .84rem; line-height: 1.5; }
+      .voice-create-room-btn { width: 100%; justify-content: center; }
+      .voice-room-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 2px; }
+      .voice-room-card { position: relative; padding: 14px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--overlay-02); transition: border-color .2s ease, background .2s ease, transform .15s ease; }
+      .voice-room-card.drag-over { border-color: rgba(59,130,246,.65); background: rgba(59,130,246,.1); transform: translateY(-2px); }
+      .voice-room-card.current { border-color: rgba(59,130,246,.55); background: rgba(59,130,246,.08); }
+      .voice-room-card h3 { margin: 0 0 6px; font-size: .96rem; }
+      .voice-room-status-line { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--muted-faint); }
+      .voice-room-status-line i { font-size: .5rem; }
+      .voice-room-status-line.is-connected { color: var(--green); }
+      .voice-room-status-line.is-connected i { animation: voiceLivePulse 1.6s infinite; }
+      .voice-room-occupants { display: block; margin-top: 4px; color: var(--muted); font-size: .78rem; }
       .voice-room-occupants.full { color: var(--danger-text); }
-      .voice-room-status { display: block; margin-top: 6px; color: var(--green); font-size: .8rem; font-weight: 700; }
-      .voice-room-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-      .voice-room-admin-actions { display: flex; gap: 6px; }
-      .voice-icon-button { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--overlay-03); color: var(--muted-strong); cursor: pointer; transition: background .2s ease, color .2s ease; }
-      .voice-icon-button:hover { background: var(--overlay-08); color: var(--accent); }
-      .voice-icon-button.danger:hover { color: var(--danger-text); }
-      .voice-call-panel { margin-top: 20px; }
+      .voice-room-card-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+      .voice-room-card-actions .voice-join-button { flex: 1; min-width: 0; padding: 0 10px; font-size: .84rem; }
+      .voice-room-admin-actions { display: flex; gap: 4px; }
+      .voice-icon-button { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-soft); border-radius: 9px; background: var(--overlay-03); color: var(--muted-strong); cursor: pointer; transition: background .2s ease, color .2s ease; }
+      .voice-icon-button:hover, .voice-icon-button:focus-visible { background: var(--overlay-08); color: var(--accent); }
+      .voice-icon-button.danger:hover, .voice-icon-button.danger:focus-visible { color: var(--danger-text); }
+
+      .voice-main-column { min-width: 0; }
+      .voice-empty-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 60px 24px; text-align: center; color: var(--muted); }
+      .voice-empty-panel i { font-size: 2.4rem; color: var(--muted-faint); }
+      .voice-empty-panel h2 { margin: 0; font-size: 1.15rem; color: var(--muted-strong); }
+      .voice-empty-panel p { margin: 0; font-size: .9rem; max-width: 360px; }
+
       .voice-call-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-      .voice-call-status { display: block; margin-top: 4px; color: var(--muted); font-size: .86rem; }
+      .voice-call-header h2 { margin: 0; font-size: 1.3rem; }
+      .voice-call-status { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: var(--muted-faint); font-size: .86rem; font-weight: 700; }
+      .voice-call-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .voice-call-status.connecting { color: var(--accent); }
+      .voice-call-status.connecting::before { animation: voiceLivePulse 1s infinite; }
       .voice-call-status.connected { color: var(--green); }
       .voice-call-status.error { color: var(--danger-text); }
-      .voice-call-controls { display: flex; gap: 10px; flex-wrap: wrap; }
-      .voice-call-controls .ghost-button { width: 44px; padding: 0; }
+      .voice-call-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .voice-call-controls .ghost-button { width: 42px; padding: 0; }
       .voice-call-controls .ghost-button.active-off { background: rgba(220,38,38,.18); color: var(--danger-text); }
       .voice-call-controls .ghost-button.presenting { background: rgba(212,175,55,.2); color: var(--accent); }
-      .voice-presenter-stage { position: relative; margin-top: 18px; border-radius: 16px; overflow: hidden; background: #05080f; border: 1px solid var(--line-soft); aspect-ratio: 16/9; max-height: 60vh; }
+      .voice-leave-button { min-width: 0; padding: 0 18px; }
+
+      .voice-presenter-stage { position: relative; margin-top: 18px; border-radius: 16px; overflow: hidden; background: #05080f; border: 1px solid var(--line-soft); aspect-ratio: 16/9; max-height: 55vh; }
       .voice-presenter-stage video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
       .voice-presenter-label { position: absolute; left: 14px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: .82rem; font-weight: 700; }
       .voice-presenter-top-bar { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; z-index: 2; }
-      .voice-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #dc2626; color: #fff; font-size: .74rem; font-weight: 800; letter-spacing: .04em; }
+      .voice-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #dc2626; color: #fff; font-size: .74rem; font-weight: 800; letter-spacing: .04em; flex-shrink: 0; }
       .voice-live-badge i { font-size: .5rem; animation: voiceLivePulse 1.4s infinite; }
       @keyframes voiceLivePulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
       .voice-presenter-watchers { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: .8rem; }
@@ -512,33 +533,52 @@
       .voice-presenter-fullscreen-btn:hover { background: rgba(212,175,55,.85); color: #101827; }
       .voice-presenter-stage:fullscreen { max-height: none; background: #000; }
       .voice-presenter-stage:fullscreen video { object-fit: contain; }
-      .voice-participant-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
-      .voice-participant-chip { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--overlay-02); cursor: context-menu; user-select: none; }
-      .voice-participant-chip.draggable { cursor: grab; }
-      .voice-participant-chip.dragging { opacity: .5; }
-      .voice-participant-chip.speaking { border-color: rgba(34,197,94,.55); box-shadow: 0 0 0 2px rgba(34,197,94,.15); }
-      .voice-participant-chip.is-presenting { border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
-      .voice-participant-avatar { position: relative; width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: var(--overlay-08); flex-shrink: 0; }
-      .voice-participant-info { min-width: 0; flex: 1; }
+
+      .voice-participants-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 24px; margin-bottom: 12px; }
+      .voice-participants-head h3 { margin: 0; font-size: 1rem; }
+      .voice-participant-count { display: block; margin-top: 2px; color: var(--muted); font-size: .82rem; }
+      .voice-participant-search { position: relative; flex: 0 1 240px; }
+      .voice-participant-search i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: var(--muted-faint); font-size: .82rem; }
+      .voice-participant-search input { width: 100%; min-height: 38px; padding: 0 12px 0 34px; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--overlay-03); color: var(--text); font-size: .86rem; }
+      .voice-participant-search input:focus { outline: none; border-color: rgba(59,130,246,.6); }
+
+      .voice-participant-list { display: flex; flex-direction: column; gap: 8px; }
+      .voice-participant-row {
+        display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+        border: 1px solid var(--line-soft); border-radius: 12px; background: var(--overlay-02);
+        cursor: context-menu; user-select: none; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+      }
+      .voice-participant-row.hidden { display: none; }
+      .voice-participant-row.draggable { cursor: grab; }
+      .voice-participant-row.dragging { opacity: .5; }
+      .voice-participant-row.speaking { border-color: rgba(59,130,246,.65); box-shadow: 0 0 0 2px rgba(59,130,246,.18); background: rgba(59,130,246,.06); }
+      .voice-participant-row.is-presenting { border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
+      .voice-participant-status-dot { width: 9px; height: 9px; flex-shrink: 0; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+      .voice-participant-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--overlay-08); flex-shrink: 0; transition: box-shadow .15s ease; }
+      .voice-participant-row.speaking .voice-participant-avatar { box-shadow: 0 0 0 2px rgba(59,130,246,.75); }
+      .voice-participant-info { min-width: 0; flex: 1; display: flex; flex-direction: column; }
       .voice-participant-name { display: flex; align-items: center; gap: 6px; font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .voice-participant-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 3px; color: var(--muted); font-size: .82rem; }
+      .voice-participant-org { margin-top: 1px; color: var(--muted); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .voice-participant-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-shrink: 0; color: var(--muted); font-size: .9rem; }
       .voice-participant-badges .badge-muted { color: var(--danger-text); }
+      .voice-participant-badges .badge-live { color: var(--green); }
       .voice-participant-badges .badge-deafened { color: var(--danger-text); }
-      .voice-participant-badges .badge-presenting { color: #f87171; font-weight: 700; }
-      .voice-badge-moderator { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: rgba(59,130,246,.18); color: #93c5fd; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
-      .voice-participant-actions { display: flex; gap: 4px; margin-left: auto; flex-shrink: 0; }
-      .voice-participant-actions .voice-icon-button { width: 28px; height: 28px; }
+      .voice-badge-moderator { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: rgba(59,130,246,.18); color: #93c5fd; font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; flex-shrink: 0; }
+      .voice-participant-actions { display: flex; gap: 4px; flex-shrink: 0; opacity: .75; transition: opacity .15s ease; }
+      .voice-participant-row:hover .voice-participant-actions, .voice-participant-row:focus-within .voice-participant-actions { opacity: 1; }
+      .voice-participant-actions .voice-icon-button { width: 30px; height: 30px; }
       .voice-participant-actions .voice-icon-button.active-off { background: rgba(220,38,38,.18); color: var(--danger-text); }
+
       .voice-context-menu { position: fixed; z-index: 600; min-width: 220px; padding: 8px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--panel-alt); box-shadow: var(--shadow); }
       .voice-context-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted-strong); text-align: left; cursor: pointer; font-size: .9rem; }
-      .voice-context-menu button:hover { background: var(--overlay-08); color: var(--text); }
-      .voice-context-menu button.danger:hover { color: var(--danger-text); }
+      .voice-context-menu button:hover, .voice-context-menu button:focus-visible { background: var(--overlay-08); color: var(--text); outline: none; }
+      .voice-context-menu button.danger:hover, .voice-context-menu button.danger:focus-visible { color: var(--danger-text); }
       .voice-context-menu .voice-context-separator { height: 1px; margin: 6px 4px; background: var(--line-soft); }
       .voice-context-menu .voice-context-submenu-label { padding: 8px 12px 4px; color: var(--muted-faint); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; }
 
       /* Rodapé de atalhos rápidos */
-      .voice-quick-controls { display: flex; gap: 14px; margin-top: 18px; padding: 16px; border: 1px solid rgba(212,175,55,.2); border-radius: 14px; background: rgba(212,175,55,.05); }
-      .voice-quick-controls-icon { width: 38px; height: 38px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(212,175,55,.15); color: var(--accent); }
+      .voice-quick-controls { display: flex; gap: 14px; margin-top: 20px; padding: 16px; border: 1px solid rgba(59,130,246,.2); border-radius: 14px; background: rgba(59,130,246,.05); }
+      .voice-quick-controls-icon { width: 38px; height: 38px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(59,130,246,.15); color: #60a5fa; }
       .voice-quick-controls strong { display: block; margin-bottom: 4px; }
       .voice-quick-controls p { margin: 0 0 10px; color: var(--muted); font-size: .86rem; }
       .voice-quick-controls-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted-strong); font-size: .82rem; }
@@ -554,11 +594,29 @@
       .voice-modal-field { margin-top: 14px; }
       .voice-modal-field label { display: block; margin-bottom: 6px; color: var(--muted-strong); font-size: .84rem; font-weight: 700; }
       .voice-modal-field input { width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--bg-soft); color: var(--text); }
-      .voice-modal-field input:focus { outline: none; border-color: rgba(212,175,55,.6); }
+      .voice-modal-field input:focus { outline: none; border-color: rgba(59,130,246,.6); }
       .voice-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
       .submit-button.danger { background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%); color: #fff; }
 
-      @media (max-width: 720px) { .voice-call-header { flex-direction: column; align-items: stretch; } .voice-call-controls { justify-content: flex-end; } .voice-presenter-watchers-list { left: 0; right: auto; } }
+      /* Foco visível (acessibilidade — navegação por teclado) */
+      .voice-calls-shell button:focus-visible,
+      .voice-calls-shell input:focus-visible,
+      .voice-calls-shell [tabindex]:focus-visible { outline: 2px solid rgba(59,130,246,.75); outline-offset: 2px; }
+
+      @media (max-width: 980px) {
+        .voice-calls-shell { grid-template-columns: 1fr; }
+        .voice-rooms-column { position: static; max-height: none; }
+        .voice-room-list { flex-direction: row; overflow-x: auto; overflow-y: visible; padding-bottom: 4px; }
+        .voice-room-card { flex: 0 0 220px; }
+      }
+      @media (max-width: 720px) {
+        .voice-call-header { flex-direction: column; align-items: stretch; }
+        .voice-call-controls { justify-content: flex-end; }
+        .voice-presenter-watchers-list { left: 0; right: auto; }
+        .voice-participants-head { flex-direction: column; align-items: stretch; }
+        .voice-participant-search { flex-basis: auto; }
+        .voice-participant-org { display: none; }
+      }
     </style>
   </head>
   <body>
@@ -898,59 +956,81 @@
         </section>
 
         <section id="sec-calls" class="dash-section hidden">
-          <div class="section-card">
-            <div class="calls-header">
-              <div>
-                <h1 class="page-title">Chamadas de Curso</h1>
-                <p class="page-subtitle">Salas de voz e compartilhamento de tela dentro da intranet, para aplicar cursos sem depender do Discord.</p>
+          <div id="voice-status-banner" class="status-banner hidden"></div>
+          <div class="voice-calls-shell">
+            <aside class="voice-rooms-column">
+              <div class="voice-rooms-column-head">
+                <h1 class="page-title">Salas de Curso</h1>
+                <p class="page-subtitle">Voz e tela para cursos, sem depender do Discord.</p>
               </div>
-              <button id="voice-create-room-button" type="button" class="action-button hidden"><i class="fa-solid fa-plus"></i><span>Nova Sala</span></button>
-            </div>
-            <div id="voice-status-banner" class="status-banner hidden"></div>
-            <div id="voice-room-grid" class="voice-room-grid">
-              <div class="empty-state">Carregando salas...</div>
-            </div>
-          </div>
+              <button id="voice-create-room-button" type="button" class="action-button voice-create-room-btn hidden"><i class="fa-solid fa-plus"></i><span>Nova Sala</span></button>
+              <div id="voice-room-list" class="voice-room-list">
+                <div class="empty-state">Carregando salas...</div>
+              </div>
+            </aside>
 
-          <div id="voice-call-panel" class="section-card voice-call-panel hidden">
-            <div class="voice-call-header">
-              <div>
-                <h2 id="voice-call-room-name">Sala</h2>
-                <span id="voice-call-status" class="voice-call-status">Conectando...</span>
+            <main class="voice-main-column">
+              <div id="voice-empty-panel" class="section-card voice-empty-panel">
+                <i class="fa-solid fa-headset"></i>
+                <h2>Nenhuma sala selecionada</h2>
+                <p>Escolha uma sala ao lado para entrar e ver quem está conectado, falar por voz e compartilhar sua tela.</p>
               </div>
-              <div class="voice-call-controls">
-                <button id="voice-toggle-mic" type="button" class="ghost-button" title="Mutar/desmutar meu microfone" aria-pressed="false"><i class="fa-solid fa-microphone"></i></button>
-                <button id="voice-toggle-deafen" type="button" class="ghost-button" title="Silenciar tudo pra mim (surdo)" aria-pressed="false"><i class="fa-solid fa-headphones"></i></button>
-                <button id="voice-toggle-share" type="button" class="ghost-button" title="Compartilhar minha tela" aria-pressed="false"><i class="fa-solid fa-desktop"></i></button>
-                <button id="voice-leave-call" type="button" class="submit-button secondary" title="Sair da chamada"><i class="fa-solid fa-phone-slash"></i><span>Sair</span></button>
-              </div>
-            </div>
-            <div id="voice-presenter-stage" class="voice-presenter-stage hidden">
-              <video id="voice-presenter-video" autoplay playsinline muted></video>
-              <div class="voice-presenter-top-bar">
-                <span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>
-                <div class="voice-presenter-watchers" id="voice-presenter-watchers" tabindex="0">
-                  <i class="fa-solid fa-eye"></i>
-                  <span><span id="voice-presenter-watchers-count">0</span> assistindo</span>
-                  <div class="voice-presenter-watchers-list" id="voice-presenter-watchers-list"></div>
+
+              <div id="voice-call-panel" class="section-card voice-call-panel hidden">
+                <div class="voice-call-header">
+                  <div>
+                    <h2 id="voice-call-room-name">Sala</h2>
+                    <span id="voice-call-status" class="voice-call-status">Conectando...</span>
+                  </div>
+                  <div class="voice-call-controls">
+                    <button id="voice-toggle-mic" type="button" class="ghost-button" title="Mutar/desmutar meu microfone" aria-label="Mutar ou desmutar meu microfone" aria-pressed="false"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="voice-toggle-deafen" type="button" class="ghost-button" title="Silenciar tudo pra mim (surdo)" aria-label="Silenciar todo o áudio recebido, só pra mim" aria-pressed="false"><i class="fa-solid fa-headphones"></i></button>
+                    <button id="voice-toggle-share" type="button" class="ghost-button" title="Compartilhar minha tela" aria-label="Compartilhar minha tela" aria-pressed="false"><i class="fa-solid fa-desktop"></i></button>
+                    <button id="voice-leave-call" type="button" class="submit-button danger voice-leave-button" title="Sair da chamada" aria-label="Sair da chamada"><i class="fa-solid fa-phone-slash"></i><span>Sair</span></button>
+                  </div>
+                </div>
+
+                <div id="voice-presenter-stage" class="voice-presenter-stage hidden">
+                  <video id="voice-presenter-video" autoplay playsinline muted></video>
+                  <div class="voice-presenter-top-bar">
+                    <span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>
+                    <div class="voice-presenter-watchers" id="voice-presenter-watchers" tabindex="0">
+                      <i class="fa-solid fa-eye"></i>
+                      <span><span id="voice-presenter-watchers-count">0</span> assistindo</span>
+                      <div class="voice-presenter-watchers-list" id="voice-presenter-watchers-list"></div>
+                    </div>
+                  </div>
+                  <div id="voice-presenter-label" class="voice-presenter-label"></div>
+                  <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia" aria-label="Ver compartilhamento de tela em tela cheia"><i class="fa-solid fa-expand"></i></button>
+                </div>
+
+                <div class="voice-participants-head">
+                  <div>
+                    <h3>Participantes</h3>
+                    <span id="voice-participant-count" class="voice-participant-count">0 conectados</span>
+                  </div>
+                  <div class="voice-participant-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input id="voice-participant-search-input" type="search" placeholder="Buscar participante..." aria-label="Buscar participante por nome ou organização" />
+                  </div>
+                </div>
+                <div id="voice-participant-list" class="voice-participant-list"></div>
+                <div id="voice-participant-empty" class="empty-state hidden">Nenhum participante encontrado<br /><small>Tente outro nome ou termo de busca.</small></div>
+
+                <div class="voice-quick-controls">
+                  <div class="voice-quick-controls-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                  <div>
+                    <strong>Controles Rápidos</strong>
+                    <p>Clique com o botão direito (ou no menu "⋮") num participante pra moderar, ou arraste o card dele até outra sala pra mover.</p>
+                    <div class="voice-quick-controls-legend">
+                      <span><i class="fa-solid fa-microphone"></i> Mutar/Ativar microfone</span>
+                      <span><i class="fa-solid fa-headphones"></i> Silenciar tudo pra mim</span>
+                      <span><i class="fa-solid fa-desktop"></i> Compartilhar tela</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div id="voice-presenter-label" class="voice-presenter-label"></div>
-              <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia"><i class="fa-solid fa-expand"></i></button>
-            </div>
-            <div id="voice-participant-list" class="voice-participant-list"></div>
-            <div class="voice-quick-controls">
-              <div class="voice-quick-controls-icon"><i class="fa-solid fa-shield-halved"></i></div>
-              <div>
-                <strong>Controles Rápidos</strong>
-                <p>Clique com o botão direito (ou no menu "⋮") num participante pra moderar, ou arraste o card dele até outra sala pra mover.</p>
-                <div class="voice-quick-controls-legend">
-                  <span><i class="fa-solid fa-microphone"></i> Mutar/Ativar microfone</span>
-                  <span><i class="fa-solid fa-headphones"></i> Silenciar tudo pra mim</span>
-                  <span><i class="fa-solid fa-desktop"></i> Compartilhar tela</span>
-                </div>
-              </div>
-            </div>
+            </main>
           </div>
 
           <div id="voice-audio-sink" class="hidden" aria-hidden="true"></div>
