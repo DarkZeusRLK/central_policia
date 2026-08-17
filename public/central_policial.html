@@ -523,7 +523,10 @@
 
       .voice-presenter-stage { position: relative; margin-top: 18px; border-radius: 16px; overflow: hidden; background: #05080f; border: 1px solid var(--line-soft); aspect-ratio: 16/9; max-height: 55vh; }
       .voice-presenter-stage video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
-      .voice-presenter-label { position: absolute; left: 14px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: .82rem; font-weight: 700; }
+      .voice-presenter-bottom-bar { position: absolute; left: 14px; bottom: 12px; right: 110px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; z-index: 2; }
+      .voice-presenter-label { padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: .82rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .voice-presenter-volume { display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border-radius: 999px; background: rgba(0,0,0,.6); }
+      .voice-presenter-volume-slider { width: 90px; max-width: 30vw; accent-color: #3b82f6; cursor: pointer; }
       .voice-presenter-top-bar { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; z-index: 2; }
       .voice-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #dc2626; color: #fff; font-size: .74rem; font-weight: 800; letter-spacing: .04em; flex-shrink: 0; }
       .voice-live-badge i { font-size: .5rem; animation: voiceLivePulse 1.4s infinite; }
@@ -547,7 +550,7 @@
         border-color: rgba(59,130,246,.5);
       }
       .voice-presenter-stage.self-thumbnail .voice-presenter-top-bar,
-      .voice-presenter-stage.self-thumbnail .voice-presenter-label,
+      .voice-presenter-stage.self-thumbnail .voice-presenter-bottom-bar,
       .voice-presenter-stage.self-thumbnail .voice-presenter-stage-controls { display: none; }
       .voice-presenter-expand-hint {
         position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -587,6 +590,8 @@
       .voice-participant-badges .badge-live { color: var(--green); }
       .voice-participant-badges .badge-deafened { color: var(--danger-text); }
       .voice-badge-moderator { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: rgba(59,130,246,.18); color: #93c5fd; font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; flex-shrink: 0; }
+      .voice-watch-button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 0; border-radius: 999px; background: rgba(59,130,246,.16); color: #93c5fd; font-size: .74rem; font-weight: 800; cursor: pointer; flex-shrink: 0; transition: background .15s ease, color .15s ease; }
+      .voice-watch-button:hover, .voice-watch-button:focus-visible { background: #3b82f6; color: #fff; }
       .voice-participant-actions { display: flex; gap: 4px; flex-shrink: 0; opacity: .75; transition: opacity .15s ease; }
       .voice-participant-row:hover .voice-participant-actions, .voice-participant-row:focus-within .voice-participant-actions { opacity: 1; }
       .voice-participant-actions .voice-icon-button { width: 30px; height: 30px; }
@@ -1023,8 +1028,15 @@
                       <div class="voice-presenter-watchers-list" id="voice-presenter-watchers-list"></div>
                     </div>
                   </div>
-                  <div id="voice-presenter-label" class="voice-presenter-label"></div>
+                  <div class="voice-presenter-bottom-bar">
+                    <div id="voice-presenter-label" class="voice-presenter-label"></div>
+                    <div id="voice-presenter-volume" class="voice-presenter-volume hidden">
+                      <button type="button" id="voice-presenter-volume-toggle" class="voice-presenter-fullscreen-btn" title="Ativar/mutar áudio da transmissão" aria-label="Ativar ou mutar o áudio da transmissão"><i class="fa-solid fa-volume-xmark"></i></button>
+                      <input type="range" id="voice-presenter-volume-slider" class="voice-presenter-volume-slider" min="0" max="100" value="0" aria-label="Volume da transmissão" />
+                    </div>
+                  </div>
                   <div class="voice-presenter-stage-controls">
+                    <button type="button" id="voice-presenter-stop-watching" class="voice-presenter-fullscreen-btn hidden" title="Parar de assistir" aria-label="Parar de assistir a transmissão (continua na call)"><i class="fa-solid fa-eye-slash"></i></button>
                     <button type="button" id="voice-presenter-minimize" class="voice-presenter-fullscreen-btn hidden" title="Minimizar prévia" aria-label="Minimizar prévia da minha tela compartilhada"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></button>
                     <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia" aria-label="Ver compartilhamento de tela em tela cheia"><i class="fa-solid fa-expand"></i></button>
                   </div>

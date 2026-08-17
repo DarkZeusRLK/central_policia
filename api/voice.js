@@ -162,11 +162,21 @@ function getAblyRest(env) {
   return new Ably.Rest({ key: env.ABLY_API_KEY });
 }
 
+// O cliente REST (usado só aqui, no servidor) devolve um PaginatedResult (com `.items`),
+// diferente do cliente Realtime do navegador, que devolve o array direto — por isso não dá
+// pra checar `Array.isArray` no resultado bruto aqui.
+async function fetchPresenceMembers(ably, slug, params) {
+  const channel = ably.channels.get(signalingChannelName(slug));
+  const result = await channel.presence.get(params);
+  if (Array.isArray(result)) return result;
+  if (result && Array.isArray(result.items)) return result.items;
+  return [];
+}
+
 async function getRoomOccupancy(ably, slug) {
   try {
-    const channel = ably.channels.get(signalingChannelName(slug));
-    const members = await channel.presence.get();
-    return Array.isArray(members) ? members.length : 0;
+    const members = await fetchPresenceMembers(ably, slug);
+    return members.length;
   } catch {
     return 0;
   }
@@ -177,9 +187,7 @@ async function getRoomOccupancy(ably, slug) {
 // está em cada uma sem precisar dar ao navegador acesso de leitura a todas as salas.
 async function getRoomPresenceMembers(ably, slug) {
   try {
-    const channel = ably.channels.get(signalingChannelName(slug));
-    const members = await channel.presence.get();
-    if (!Array.isArray(members)) return [];
+    const members = await fetchPresenceMembers(ably, slug);
     return members.map((member) => ({
       id: String(member.clientId),
       displayName: member.data?.displayName || "Policial",
@@ -197,9 +205,8 @@ async function getRoomPresenceMembers(ably, slug) {
 
 async function isUserPresent(ably, slug, userId) {
   try {
-    const channel = ably.channels.get(signalingChannelName(slug));
-    const members = await channel.presence.get({ clientId: String(userId) });
-    return Array.isArray(members) && members.length > 0;
+    const members = await fetchPresenceMembers(ably, slug, { clientId: String(userId) });
+    return members.length > 0;
   } catch {
     return false;
   }

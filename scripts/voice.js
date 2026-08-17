@@ -26,6 +26,9 @@
     presenting: false,
     presenterClientId: null,
     selfPreviewExpanded: false,
+    presenterAudioMuted: true,
+    presenterVolume: 1,
+    isWatchingPresenter: false,
     mutedPeers: new Set(),
     deafenedPeers: new Set(),
     locallyMutedPeers: new Set(),
@@ -480,13 +483,15 @@
     const isPresenting = Boolean(data.presenting);
     const isSpeaking = Boolean(VoiceState.speakingDetectors.get(clientId)?.speaking) && !isMuted && !isDeafened;
     const draggable = VoiceState.canModerate && !isSelf;
+    const isWatchable = isPresenting && !isSelf;
+    const isWatchingThis = isWatchable && VoiceState.isWatchingPresenter && String(VoiceState.presenterClientId) === clientId;
 
     const row = document.createElement("div");
     row.className = `voice-participant-row${draggable ? " draggable" : ""}${isPresenting ? " is-presenting" : ""}${isSpeaking ? " speaking" : ""}`;
     row.dataset.clientId = clientId;
     row.dataset.searchText = normalizeSearchText(`${data.displayName || ""} ${data.factionLabel || ""}`);
     row.innerHTML = `
-      <div class="voice-participant-draghandle" title="${draggable ? "Arraste até outra sala pra mover" : ""}">
+      <div class="voice-participant-draghandle" title="${draggable ? "Arraste até outra sala pra mover" : isWatchable ? "Clique 2x para assistir a transmissão" : ""}">
         <span class="voice-participant-status-dot" title="Conectado" aria-hidden="true"></span>
         <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
         <div class="voice-participant-info">
@@ -500,6 +505,7 @@
           : '<i class="fa-solid fa-microphone badge-live" title="Microfone ativo" aria-label="Microfone ativo"></i>'}
         ${isDeafened ? '<i class="fa-solid fa-volume-xmark badge-deafened" title="Áudio silenciado" aria-label="Áudio silenciado"></i>' : ""}
         ${isPresenting ? '<span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>' : ""}
+        ${isWatchable && !isWatchingThis ? '<button type="button" class="voice-watch-button" data-watch-toggle title="Assistir transmissão" aria-label="Assistir à transmissão de tela"><i class="fa-solid fa-eye"></i><span>Assistir</span></button>' : ""}
       </div>
       ${draggable ? `
         <div class="voice-participant-actions">
@@ -514,6 +520,17 @@
       row.addEventListener("contextmenu", (event) => {
         event.preventDefault();
         openParticipantContextMenu(event, clientId);
+      });
+    }
+    if (isWatchable) {
+      // Clicar 2x no perfil (avatar + nome), igual ao Discord, também abre a transmissão.
+      row.querySelector(".voice-participant-draghandle")?.addEventListener("dblclick", (event) => {
+        event.stopPropagation();
+        startWatchingPresenter(clientId);
+      });
+      row.querySelector("[data-watch-toggle]")?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        startWatchingPresenter(clientId);
       });
     }
     if (draggable) {
@@ -550,7 +567,16 @@
     container.innerHTML = "";
     VoiceState.participantRows.clear();
 
-    (VoiceState.presenceMembers || []).forEach((member) => {
+    const presenterId = VoiceState.presenterClientId ? String(VoiceState.presenterClientId) : null;
+    const members = [...(VoiceState.presenceMembers || [])];
+    // Quem está transmitindo tela sempre fica fixo em primeiro na lista.
+    members.sort((a, b) => {
+      const aPresenting = presenterId && String(a.clientId) === presenterId ? 1 : 0;
+      const bPresenting = presenterId && String(b.clientId) === presenterId ? 1 : 0;
+      return bPresenting - aPresenting;
+    });
+
+    members.forEach((member) => {
       const row = buildParticipantRow(member);
       VoiceState.participantRows.set(String(member.clientId), row);
       container.appendChild(row);
@@ -560,6 +586,18 @@
     updateParticipantCount();
   }
 
+  // Garante que a linha de quem está transmitindo tela fique fixa em primeiro na lista.
+  function reorderParticipantRows() {
+    const container = document.getElementById("voice-participant-list");
+    if (!container) return;
+    const presenterId = VoiceState.presenterClientId ? String(VoiceState.presenterClientId) : null;
+    if (!presenterId) return;
+    const presenterRow = VoiceState.participantRows.get(presenterId);
+    if (presenterRow && presenterRow.parentNode === container && container.firstChild !== presenterRow) {
+      container.insertBefore(presenterRow, container.firstChild);
+    }
+  }
+
   // Atualiza (ou insere) só a linha do participante afetado, sem re-renderizar a lista inteira.
   function upsertParticipantRow(member) {
     const container = document.getElementById("voice-participant-list");
@@ -567,12 +605,17 @@
     const clientId = String(member.clientId);
     const newRow = buildParticipantRow(member);
     const existing = VoiceState.participantRows.get(clientId);
+    const wasPresenting = Boolean(existing?.classList.contains("is-presenting"));
     if (existing && existing.parentNode === container) {
       container.replaceChild(newRow, existing);
     } else {
       container.appendChild(newRow);
     }
     VoiceState.participantRows.set(clientId, newRow);
+
+    const isPresenting = newRow.classList.contains("is-presenting");
+    if (isPresenting !== wasPresenting) reorderParticipantRows();
+
     applyParticipantSearchFilter();
     updateParticipantCount();
   }
@@ -653,7 +696,7 @@
     if (VoiceState.peers.has(remoteClientId)) return VoiceState.peers.get(remoteClientId);
 
     const pc = new RTCPeerConnection({ iceServers: VoiceState.iceServers });
-    const peer = { pc, makingOffer: false, ignoreOffer: false, audioEl: null, videoStream: null };
+    const peer = { pc, makingOffer: false, ignoreOffer: false, audioEl: null, videoStream: null, micStreamId: null };
     VoiceState.peers.set(remoteClientId, peer);
 
     if (VoiceState.localStream) {
@@ -690,6 +733,14 @@
     const [stream] = event.streams;
 
     if (event.track.kind === "audio") {
+      // O microfone é sempre a primeira faixa de áudio negociada por peer (adicionada na criação
+      // da conexão, antes de qualquer compartilhamento de tela). Uma faixa de áudio posterior com
+      // um stream diferente é o áudio da transmissão de tela, que já toca junto do vídeo do palco
+      // (mesmo MediaStream) — não deve duplicar no sink de áudio dos participantes.
+      const isScreenAudio = Boolean(peer.micStreamId) && stream && stream.id !== peer.micStreamId;
+      if (isScreenAudio) return;
+      if (!peer.micStreamId && stream) peer.micStreamId = stream.id;
+
       if (!peer.audioEl) {
         peer.audioEl = document.createElement("audio");
         peer.audioEl.autoplay = true;
@@ -701,7 +752,7 @@
       attachSpeakingDetector(remoteClientId, stream);
     } else if (event.track.kind === "video") {
       peer.videoStream = stream;
-      if (VoiceState.presenterClientId === remoteClientId) {
+      if (VoiceState.presenterClientId === remoteClientId && VoiceState.isWatchingPresenter) {
         showPresenterStream(stream, remoteClientId);
       }
     }
@@ -922,7 +973,7 @@
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: computeShareFrameRate() },
-        audio: false,
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
       });
       VoiceState.screenStream = stream;
       VoiceState.presenting = true;
@@ -972,6 +1023,7 @@
     const stage = document.getElementById("voice-presenter-stage");
     const video = document.getElementById("voice-presenter-video");
     const label = document.getElementById("voice-presenter-label");
+    const volumeControl = document.getElementById("voice-presenter-volume");
     if (!stage || !video) return;
 
     video.srcObject = stream;
@@ -986,14 +1038,85 @@
 
     if (isSelf) {
       VoiceState.selfPreviewExpanded = false;
+      video.muted = true;
+      volumeControl?.classList.add("hidden");
+      document.getElementById("voice-presenter-stop-watching")?.classList.add("hidden");
       applyPresenterViewMode();
     } else {
+      VoiceState.isWatchingPresenter = true;
       stage.classList.remove("self-thumbnail");
       document.getElementById("voice-presenter-minimize")?.classList.add("hidden");
       document.getElementById("voice-presenter-fullscreen")?.classList.remove("hidden");
       document.getElementById("voice-presenter-expand-hint")?.classList.add("hidden");
+      document.getElementById("voice-presenter-stop-watching")?.classList.remove("hidden");
+      // Autoplay com som só é permitido pelo navegador após um gesto do usuário — por isso o
+      // vídeo sempre começa mutado e o espectador ativa o áudio pelo próprio controle de volume.
+      video.muted = VoiceState.presenterAudioMuted;
+      video.volume = VoiceState.presenterVolume;
+      volumeControl?.classList.remove("hidden");
+      updatePresenterVolumeUI();
     }
     renderWatchers();
+  }
+
+  // Passa a assistir a transmissão de tela de outra pessoa (ação explícita: botão "Assistir" ou
+  // duplo clique no perfil dela) — o vídeo só é exibido depois desse gesto do usuário.
+  function startWatchingPresenter(clientId) {
+    const targetId = String(clientId || VoiceState.presenterClientId || "");
+    if (!targetId || targetId === myClientId()) return;
+    if (String(VoiceState.presenterClientId) !== targetId) return;
+    VoiceState.isWatchingPresenter = true;
+    const peer = VoiceState.peers.get(targetId);
+    if (peer?.videoStream) {
+      showPresenterStream(peer.videoStream, targetId);
+    } else {
+      Notify.info("Conectando à transmissão...");
+    }
+    refreshParticipantRow(targetId);
+  }
+
+  // Para de assistir à transmissão, mas mantém o usuário conectado na sala/call normalmente.
+  function stopWatchingPresenter() {
+    if (!VoiceState.isWatchingPresenter) return;
+    VoiceState.isWatchingPresenter = false;
+    hidePresenterStageUI();
+    if (VoiceState.presenterClientId) refreshParticipantRow(VoiceState.presenterClientId);
+  }
+
+  function updatePresenterVolumeUI() {
+    const icon = document.querySelector("#voice-presenter-volume-toggle i");
+    const slider = document.getElementById("voice-presenter-volume-slider");
+    const effectiveVolume = VoiceState.presenterAudioMuted ? 0 : VoiceState.presenterVolume;
+    if (slider) slider.value = String(Math.round(effectiveVolume * 100));
+    if (!icon) return;
+    icon.className = effectiveVolume <= 0
+      ? "fa-solid fa-volume-xmark"
+      : effectiveVolume < 0.5
+        ? "fa-solid fa-volume-low"
+        : "fa-solid fa-volume-high";
+  }
+
+  function togglePresenterAudioMute() {
+    VoiceState.presenterAudioMuted = !VoiceState.presenterAudioMuted;
+    if (!VoiceState.presenterAudioMuted && VoiceState.presenterVolume <= 0) VoiceState.presenterVolume = 1;
+    const video = document.getElementById("voice-presenter-video");
+    if (video && VoiceState.presenterClientId && VoiceState.presenterClientId !== myClientId()) {
+      video.muted = VoiceState.presenterAudioMuted;
+      video.volume = VoiceState.presenterVolume;
+    }
+    updatePresenterVolumeUI();
+  }
+
+  function handlePresenterVolumeInput(event) {
+    const value = Number(event.target.value);
+    VoiceState.presenterVolume = Math.min(1, Math.max(0, value / 100));
+    VoiceState.presenterAudioMuted = value <= 0;
+    const video = document.getElementById("voice-presenter-video");
+    if (video && VoiceState.presenterClientId && VoiceState.presenterClientId !== myClientId()) {
+      video.volume = VoiceState.presenterVolume;
+      video.muted = VoiceState.presenterAudioMuted;
+    }
+    updatePresenterVolumeUI();
   }
 
   function applyPresenterViewMode() {
@@ -1024,9 +1147,9 @@
     applyPresenterViewMode();
   }
 
-  function hidePresenterStage() {
-    VoiceState.presenterClientId = null;
-    VoiceState.selfPreviewExpanded = false;
+  // Só esconde o palco visualmente (usado tanto quando a transmissão acaba de vez quanto quando
+  // o espectador escolhe "parar de assistir" — nesse segundo caso o apresentador continua ativo).
+  function hidePresenterStageUI() {
     const stage = document.getElementById("voice-presenter-stage");
     const video = document.getElementById("voice-presenter-video");
     if (document.fullscreenElement === stage) document.exitFullscreen?.().catch(() => {});
@@ -1038,6 +1161,16 @@
     document.getElementById("voice-presenter-minimize")?.classList.add("hidden");
     document.getElementById("voice-presenter-fullscreen")?.classList.remove("hidden");
     document.getElementById("voice-presenter-expand-hint")?.classList.add("hidden");
+    document.getElementById("voice-presenter-volume")?.classList.add("hidden");
+    document.getElementById("voice-presenter-stop-watching")?.classList.add("hidden");
+  }
+
+  // A transmissão acabou de fato (quem apresentava parou ou saiu) — esquece quem era o apresentador.
+  function hidePresenterStage() {
+    VoiceState.presenterClientId = null;
+    VoiceState.selfPreviewExpanded = false;
+    VoiceState.isWatchingPresenter = false;
+    hidePresenterStageUI();
   }
 
   function renderWatchers() {
@@ -1148,7 +1281,9 @@
       if (member.data?.presenting) {
         VoiceState.presenterClientId = clientId;
         const peer = VoiceState.peers.get(clientId);
-        if (peer?.videoStream) showPresenterStream(peer.videoStream, clientId);
+        // O vídeo só aparece se o usuário já escolheu assistir essa transmissão (botão "Assistir"
+        // ou duplo clique no perfil) — novas transmissões nunca abrem sozinhas.
+        if (peer?.videoStream && VoiceState.isWatchingPresenter) showPresenterStream(peer.videoStream, clientId);
       } else if (VoiceState.presenterClientId === clientId) {
         hidePresenterStage();
       }
@@ -1243,6 +1378,8 @@
     await VoiceState.signalingChannel.presence.enter(currentPresenceData());
     const members = await VoiceState.signalingChannel.presence.get();
     VoiceState.presenceMembers = members || [];
+    const activePresenter = VoiceState.presenceMembers.find((member) => Boolean(member.data?.presenting));
+    if (activePresenter) VoiceState.presenterClientId = String(activePresenter.clientId);
     VoiceState.presenceMembers
       .filter((member) => String(member.clientId) !== myClientId())
       .forEach((member) => createPeerConnection(String(member.clientId)));
@@ -1267,6 +1404,7 @@
     if (VoiceState.modChannel) VoiceState.modChannel.unsubscribe();
 
     stopScreenShare();
+    hidePresenterStage(); // garante que a prévia de quem eu estava assistindo também é limpa
     VoiceState.peers.forEach((_, clientId) => teardownPeer(clientId));
     VoiceState.peers.clear();
     detachSpeakingDetector(myClientId());
@@ -1327,6 +1465,18 @@
       const stage = document.getElementById("voice-presenter-stage");
       if (stage?.classList.contains("self-thumbnail")) expandPresenterView();
     });
+    document.getElementById("voice-presenter-volume-toggle")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      togglePresenterAudioMute();
+    });
+    document.getElementById("voice-presenter-volume-slider")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    document.getElementById("voice-presenter-volume-slider")?.addEventListener("input", handlePresenterVolumeInput);
+    document.getElementById("voice-presenter-stop-watching")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      stopWatchingPresenter();
+    });
     document.getElementById("voice-participant-search-input")?.addEventListener("input", applyParticipantSearchFilter);
   }
 
@@ -1361,9 +1511,16 @@
       await originalSwitchSection(sectionName, linkElement);
       if (sectionName === "calls") {
         await initVoiceSection();
+        // Se a call já estava ativa (usuário só tinha ido pra outra aba), restaura o nome da sala
+        // no cabeçalho — a chamada em si nunca foi encerrada, então não precisa reconectar nada.
+        if (VoiceState.currentRoomSlug) {
+          const roomMeta = VoiceState.rooms.find((room) => room.slug === VoiceState.currentRoomSlug);
+          updateHeaderBreadcrumb(roomMeta?.name || VoiceState.currentRoomSlug);
+        }
       } else if (leavingCalls) {
+        // Não encerra a call ao trocar de aba — igual ao Discord, o áudio/tela continuam ativos
+        // em segundo plano. Só para de atualizar a lista de salas, que não está sendo exibida.
         clearInterval(VoiceState.roomsPollTimer);
-        await leaveRoomInternal(true);
       }
     };
   }
