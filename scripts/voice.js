@@ -103,14 +103,16 @@
 
     VoiceState.rooms.forEach((room) => {
       const isCurrent = room.slug === VoiceState.currentRoomSlug;
-      const full = Boolean(room.memberLimit) && room.occupants >= room.memberLimit;
+      const occupants = isCurrent ? VoiceState.presenceMembers.length : room.occupants;
+      const full = Boolean(room.memberLimit) && occupants >= room.memberLimit;
 
       const card = document.createElement("div");
       card.className = `voice-room-card${isCurrent ? " current" : ""}`;
       card.dataset.slug = room.slug;
       card.innerHTML = `
         <div class="voice-room-card-top"><h3>${escapeHtml(room.name)}</h3></div>
-        <span class="voice-room-occupants${full ? " full" : ""}"><i class="fa-solid fa-users"></i> ${room.occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""}</span>
+        <span class="voice-room-occupants${full ? " full" : ""}"><i class="fa-solid fa-users"></i> ${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""}</span>
+        ${isCurrent ? '<span class="voice-room-status"><i class="fa-solid fa-circle-check"></i> Conectada</span>' : ""}
         <div class="voice-room-card-actions">
           <button type="button" class="action-button voice-join-button"${full && !isCurrent ? " disabled" : ""}>
             <i class="fa-solid ${isCurrent ? "fa-phone-slash" : "fa-phone"}"></i>
@@ -159,6 +161,71 @@
   }
 
   // ---------------------------------------------------------------------
+  // Modal estilizado (substitui prompt()/confirm() do navegador)
+  // ---------------------------------------------------------------------
+  function closeModal() {
+    document.querySelectorAll(".voice-modal-overlay").forEach((el) => el.remove());
+  }
+
+  function openModal({ title, description, fields = [], confirmLabel = "Confirmar", cancelLabel = "Cancelar", danger = false, onConfirm }) {
+    closeModal();
+
+    const overlay = document.createElement("div");
+    overlay.className = "voice-modal-overlay";
+    overlay.innerHTML = `
+      <div class="voice-modal-box">
+        <h3>${escapeHtml(title)}</h3>
+        ${description ? `<p class="voice-modal-description">${escapeHtml(description)}</p>` : ""}
+        <div class="voice-modal-fields"></div>
+        <div class="voice-modal-actions">
+          <button type="button" class="ghost-button voice-modal-cancel">${escapeHtml(cancelLabel)}</button>
+          <button type="button" class="submit-button${danger ? " danger" : ""} voice-modal-confirm">${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+
+    const fieldsContainer = overlay.querySelector(".voice-modal-fields");
+    const inputs = {};
+    fields.forEach((field) => {
+      const wrap = document.createElement("div");
+      wrap.className = "voice-modal-field";
+      const label = document.createElement("label");
+      label.textContent = field.label;
+      const input = document.createElement("input");
+      input.type = field.type || "text";
+      if (field.value != null) input.value = field.value;
+      if (field.placeholder) input.placeholder = field.placeholder;
+      if (field.min != null) input.min = field.min;
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      fieldsContainer.appendChild(wrap);
+      inputs[field.name] = input;
+    });
+
+    const close = () => {
+      overlay.classList.remove("open");
+      setTimeout(() => overlay.remove(), 150);
+    };
+    overlay.querySelector(".voice-modal-cancel").addEventListener("click", close);
+    overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
+    overlay.querySelector(".voice-modal-confirm").addEventListener("click", () => {
+      const values = {};
+      Object.keys(inputs).forEach((name) => { values[name] = inputs[name].value; });
+      close();
+      onConfirm?.(values);
+    });
+    document.addEventListener("keydown", function onKeydown(event) {
+      if (!document.body.contains(overlay)) { document.removeEventListener("keydown", onKeydown); return; }
+      if (event.key === "Escape") close();
+    });
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("open"));
+    const firstInput = fieldsContainer.querySelector("input");
+    if (firstInput) setTimeout(() => firstInput.focus(), 60);
+  }
+
+  // ---------------------------------------------------------------------
   // Ações administrativas de sala (só admin)
   // ---------------------------------------------------------------------
   async function roomAdminAction(action, extra) {
@@ -178,27 +245,52 @@
   }
 
   function createRoomPrompt() {
-    const name = window.prompt("Nome da nova sala:");
-    if (!name || !name.trim()) return;
-    const limitRaw = window.prompt("Limite de membros (deixe em branco para sem limite):", "20");
-    roomAdminAction("create-room", { name: name.trim(), memberLimit: limitRaw ? Number(limitRaw) : null });
+    openModal({
+      title: "Nova sala de chamada",
+      fields: [
+        { name: "name", label: "Nome da sala", placeholder: "Ex: Sala de Curso 6" },
+        { name: "memberLimit", label: "Limite de membros (opcional)", type: "number", value: 20, min: 2 },
+      ],
+      confirmLabel: "Criar sala",
+      onConfirm: (values) => {
+        if (!values.name.trim()) { Notify.error("Informe um nome para a sala."); return; }
+        roomAdminAction("create-room", { name: values.name.trim(), memberLimit: values.memberLimit ? Number(values.memberLimit) : null });
+      },
+    });
   }
 
   function renameRoomPrompt(room) {
-    const name = window.prompt("Novo nome da sala:", room.name);
-    if (!name || !name.trim()) return;
-    roomAdminAction("rename-room", { slug: room.slug, name: name.trim() });
+    openModal({
+      title: "Renomear sala",
+      fields: [{ name: "name", label: "Novo nome da sala", value: room.name }],
+      confirmLabel: "Salvar",
+      onConfirm: (values) => {
+        if (!values.name.trim()) { Notify.error("Informe um nome para a sala."); return; }
+        roomAdminAction("rename-room", { slug: room.slug, name: values.name.trim() });
+      },
+    });
   }
 
   function setRoomLimitPrompt(room) {
-    const limitRaw = window.prompt("Novo limite de membros (deixe em branco para sem limite):", room.memberLimit || "");
-    if (limitRaw === null) return;
-    roomAdminAction("set-limit", { slug: room.slug, memberLimit: limitRaw ? Number(limitRaw) : null });
+    openModal({
+      title: "Limite de membros",
+      description: "Deixe em branco para não ter limite.",
+      fields: [{ name: "memberLimit", label: "Novo limite de membros", type: "number", value: room.memberLimit || "", min: 2 }],
+      confirmLabel: "Salvar",
+      onConfirm: (values) => {
+        roomAdminAction("set-limit", { slug: room.slug, memberLimit: values.memberLimit ? Number(values.memberLimit) : null });
+      },
+    });
   }
 
   function deleteRoomPrompt(room) {
-    if (!window.confirm(`Apagar a sala "${room.name}"? Essa ação não pode ser desfeita.`)) return;
-    roomAdminAction("delete-room", { slug: room.slug });
+    openModal({
+      title: "Apagar sala",
+      description: `Tem certeza que deseja apagar "${room.name}"? Essa ação não pode ser desfeita.`,
+      confirmLabel: "Apagar sala",
+      danger: true,
+      onConfirm: () => roomAdminAction("delete-room", { slug: room.slug }),
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -315,22 +407,30 @@
       const isSelf = clientId === myClientId();
       const isMuted = VoiceState.mutedPeers.has(clientId) || Boolean(data.micMuted);
       const isDeafened = VoiceState.deafenedPeers.has(clientId) || Boolean(data.deafened);
+      const isPresenting = Boolean(data.presenting);
       const draggable = VoiceState.canModerate && !isSelf;
 
       const chip = document.createElement("div");
-      chip.className = `voice-participant-chip${draggable ? " draggable" : ""}`;
+      chip.className = `voice-participant-chip${draggable ? " draggable" : ""}${isPresenting ? " is-presenting" : ""}`;
       chip.draggable = draggable;
       chip.dataset.clientId = clientId;
       chip.innerHTML = `
         <img class="voice-participant-avatar" src="${data.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
         <div class="voice-participant-info">
-          <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}</span>
+          <span class="voice-participant-name">${escapeHtml(data.displayName || "Policial")}${isSelf ? " (você)" : ""}${data.isModerator ? ' <span class="voice-badge-moderator">Moderador</span>' : ""}</span>
           <span class="voice-participant-badges">
             ${isMuted ? '<i class="fa-solid fa-microphone-slash badge-muted" title="Mutado"></i>' : ""}
             ${isDeafened ? '<i class="fa-solid fa-volume-xmark badge-deafened" title="Silenciado"></i>' : ""}
-            ${data.presenting ? '<i class="fa-solid fa-desktop badge-presenting" title="Compartilhando tela"></i>' : ""}
+            ${isPresenting ? '<span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>' : ""}
           </span>
         </div>
+        ${draggable ? `
+          <div class="voice-participant-actions">
+            <button type="button" class="voice-icon-button voice-chip-mute${isMuted ? " active-off" : ""}" title="${isMuted ? "Desmutar" : "Mutar"}"><i class="fa-solid fa-microphone${isMuted ? "-slash" : ""}"></i></button>
+            <button type="button" class="voice-icon-button voice-chip-deafen${isDeafened ? " active-off" : ""}" title="${isDeafened ? "Tirar silêncio" : "Silenciar"}"><i class="fa-solid ${isDeafened ? "fa-volume-xmark" : "fa-headphones"}"></i></button>
+            <button type="button" class="voice-icon-button voice-chip-more" title="Mais opções"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+          </div>
+        ` : ""}
       `;
 
       if (!isSelf) {
@@ -345,6 +445,20 @@
           chip.classList.add("dragging");
         });
         chip.addEventListener("dragend", () => chip.classList.remove("dragging"));
+
+        chip.querySelector(".voice-chip-mute").addEventListener("click", (event) => {
+          event.stopPropagation();
+          moderate(isMuted ? "unmute" : "mute", clientId);
+        });
+        chip.querySelector(".voice-chip-deafen").addEventListener("click", (event) => {
+          event.stopPropagation();
+          moderate(isDeafened ? "undeafen" : "deafen", clientId);
+        });
+        chip.querySelector(".voice-chip-more").addEventListener("click", (event) => {
+          event.stopPropagation();
+          const rect = event.currentTarget.getBoundingClientRect();
+          openParticipantContextMenu({ clientX: rect.left, clientY: rect.bottom + 6 }, clientId);
+        });
       }
 
       container.appendChild(chip);
@@ -371,6 +485,7 @@
       micMuted: VoiceState.micMuted,
       deafened: VoiceState.deafened,
       presenting: VoiceState.presenting,
+      isModerator: VoiceState.canModerate,
     };
   }
 
@@ -649,14 +764,41 @@
     const member = (VoiceState.presenceMembers || []).find((entry) => String(entry.clientId) === String(clientId));
     if (label) label.textContent = `${member?.data?.displayName || "Alguém"} está compartilhando a tela`;
     stage.classList.remove("hidden");
+    renderWatchers();
   }
 
   function hidePresenterStage() {
     VoiceState.presenterClientId = null;
     const stage = document.getElementById("voice-presenter-stage");
     const video = document.getElementById("voice-presenter-video");
+    if (document.fullscreenElement === stage) document.exitFullscreen?.().catch(() => {});
     if (video) video.srcObject = null;
     if (stage) stage.classList.add("hidden");
+  }
+
+  function renderWatchers() {
+    if (!VoiceState.presenterClientId) return;
+    const countEl = document.getElementById("voice-presenter-watchers-count");
+    const listEl = document.getElementById("voice-presenter-watchers-list");
+    if (!countEl || !listEl) return;
+
+    const watchers = (VoiceState.presenceMembers || []).filter(
+      (member) => String(member.clientId) !== String(VoiceState.presenterClientId),
+    );
+    countEl.textContent = String(watchers.length);
+    listEl.innerHTML = watchers.length
+      ? watchers.map((member) => `<span>${escapeHtml(member.data?.displayName || "Policial")}</span>`).join("")
+      : '<span>Ninguém assistindo ainda</span>';
+  }
+
+  function toggleFullscreenPresenter() {
+    const stage = document.getElementById("voice-presenter-stage");
+    if (!stage) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
+    } else {
+      stage.requestFullscreen?.().catch(() => Notify.error("Não foi possível abrir em tela cheia."));
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -721,6 +863,7 @@
       createPeerConnection(String(member.clientId));
       renderParticipantList();
       renderRoomGrid();
+      renderWatchers();
     });
 
     VoiceState.signalingChannel.presence.subscribe("leave", (member) => {
@@ -729,6 +872,7 @@
       teardownPeer(clientId);
       renderParticipantList();
       renderRoomGrid();
+      renderWatchers();
     });
 
     VoiceState.signalingChannel.presence.subscribe("update", (member) => {
@@ -742,6 +886,8 @@
         hidePresenterStage();
       }
       renderParticipantList();
+      renderRoomGrid();
+      renderWatchers();
     });
   }
 
@@ -832,6 +978,7 @@
     updateShareButtonUI();
     renderParticipantList();
     renderRoomGrid();
+    updateHeaderBreadcrumb(roomMeta?.name || slug);
   }
 
   async function leaveRoomInternal(hidePanel) {
@@ -867,7 +1014,10 @@
     VoiceState.presenting = false;
     VoiceState.presenterClientId = null;
 
-    if (hidePanel) document.getElementById("voice-call-panel")?.classList.add("hidden");
+    if (hidePanel) {
+      document.getElementById("voice-call-panel")?.classList.add("hidden");
+      updateHeaderBreadcrumb(null);
+    }
   }
 
   async function leaveRoom() {
@@ -890,6 +1040,15 @@
     document.getElementById("voice-toggle-deafen")?.addEventListener("click", toggleDeafen);
     document.getElementById("voice-toggle-share")?.addEventListener("click", toggleScreenShare);
     document.getElementById("voice-leave-call")?.addEventListener("click", leaveRoom);
+    document.getElementById("voice-presenter-fullscreen")?.addEventListener("click", toggleFullscreenPresenter);
+  }
+
+  function updateHeaderBreadcrumb(roomName) {
+    const title = document.getElementById("header-title");
+    if (!title) return;
+    title.innerHTML = roomName
+      ? `CHAMADAS DE CURSO <span class="voice-breadcrumb-sep">›</span> ${escapeHtml(roomName.toUpperCase())}`
+      : "Chamadas de Curso • Central Policial Intranet";
   }
 
   let voiceSectionInitialized = false;

@@ -481,6 +481,7 @@
       .voice-room-card h3 { margin: 0; font-size: 1.05rem; }
       .voice-room-occupants { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--muted); font-size: .84rem; }
       .voice-room-occupants.full { color: var(--danger-text); }
+      .voice-room-status { display: block; margin-top: 6px; color: var(--green); font-size: .8rem; font-weight: 700; }
       .voice-room-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
       .voice-room-admin-actions { display: flex; gap: 6px; }
       .voice-icon-button { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--overlay-03); color: var(--muted-strong); cursor: pointer; transition: background .2s ease, color .2s ease; }
@@ -498,25 +499,66 @@
       .voice-presenter-stage { position: relative; margin-top: 18px; border-radius: 16px; overflow: hidden; background: #05080f; border: 1px solid var(--line-soft); aspect-ratio: 16/9; max-height: 60vh; }
       .voice-presenter-stage video { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
       .voice-presenter-label { position: absolute; left: 14px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: .82rem; font-weight: 700; }
-      .voice-participant-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 18px; }
+      .voice-presenter-top-bar { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; z-index: 2; }
+      .voice-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #dc2626; color: #fff; font-size: .74rem; font-weight: 800; letter-spacing: .04em; }
+      .voice-live-badge i { font-size: .5rem; animation: voiceLivePulse 1.4s infinite; }
+      @keyframes voiceLivePulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+      .voice-presenter-watchers { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font-size: .8rem; }
+      .voice-presenter-watchers-list { position: absolute; top: calc(100% + 8px); right: 0; min-width: 170px; max-height: 220px; overflow-y: auto; padding: 8px; border-radius: 12px; background: var(--panel-alt); border: 1px solid var(--line-soft); box-shadow: var(--shadow); display: none; flex-direction: column; gap: 2px; color: var(--muted-strong); font-size: .82rem; }
+      .voice-presenter-watchers-list span { padding: 5px 8px; border-radius: 8px; }
+      .voice-presenter-watchers-list span:hover { background: var(--overlay-08); }
+      .voice-presenter-watchers:hover .voice-presenter-watchers-list, .voice-presenter-watchers:focus-within .voice-presenter-watchers-list { display: flex; }
+      .voice-presenter-fullscreen-btn { position: absolute; bottom: 12px; right: 12px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; z-index: 2; }
+      .voice-presenter-fullscreen-btn:hover { background: rgba(212,175,55,.85); color: #101827; }
+      .voice-presenter-stage:fullscreen { max-height: none; background: #000; }
+      .voice-presenter-stage:fullscreen video { object-fit: contain; }
+      .voice-participant-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
       .voice-participant-chip { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--overlay-02); cursor: context-menu; user-select: none; }
       .voice-participant-chip.draggable { cursor: grab; }
       .voice-participant-chip.dragging { opacity: .5; }
       .voice-participant-chip.speaking { border-color: rgba(34,197,94,.55); box-shadow: 0 0 0 2px rgba(34,197,94,.15); }
+      .voice-participant-chip.is-presenting { border-color: rgba(220,38,38,.55); box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
       .voice-participant-avatar { position: relative; width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: var(--overlay-08); flex-shrink: 0; }
       .voice-participant-info { min-width: 0; flex: 1; }
-      .voice-participant-name { display: block; font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .voice-participant-badges { display: flex; gap: 6px; margin-top: 3px; color: var(--muted); font-size: .82rem; }
+      .voice-participant-name { display: flex; align-items: center; gap: 6px; font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .voice-participant-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 3px; color: var(--muted); font-size: .82rem; }
       .voice-participant-badges .badge-muted { color: var(--danger-text); }
       .voice-participant-badges .badge-deafened { color: var(--danger-text); }
-      .voice-participant-badges .badge-presenting { color: var(--accent); }
-      .voice-context-menu { position: fixed; z-index: 500; min-width: 220px; padding: 8px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--panel-alt); box-shadow: var(--shadow); }
+      .voice-participant-badges .badge-presenting { color: #f87171; font-weight: 700; }
+      .voice-badge-moderator { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: rgba(59,130,246,.18); color: #93c5fd; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+      .voice-participant-actions { display: flex; gap: 4px; margin-left: auto; flex-shrink: 0; }
+      .voice-participant-actions .voice-icon-button { width: 28px; height: 28px; }
+      .voice-participant-actions .voice-icon-button.active-off { background: rgba(220,38,38,.18); color: var(--danger-text); }
+      .voice-context-menu { position: fixed; z-index: 600; min-width: 220px; padding: 8px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--panel-alt); box-shadow: var(--shadow); }
       .voice-context-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--muted-strong); text-align: left; cursor: pointer; font-size: .9rem; }
       .voice-context-menu button:hover { background: var(--overlay-08); color: var(--text); }
       .voice-context-menu button.danger:hover { color: var(--danger-text); }
       .voice-context-menu .voice-context-separator { height: 1px; margin: 6px 4px; background: var(--line-soft); }
       .voice-context-menu .voice-context-submenu-label { padding: 8px 12px 4px; color: var(--muted-faint); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; }
-      @media (max-width: 720px) { .voice-call-header { flex-direction: column; align-items: stretch; } .voice-call-controls { justify-content: flex-end; } }
+
+      /* Rodapé de atalhos rápidos */
+      .voice-quick-controls { display: flex; gap: 14px; margin-top: 18px; padding: 16px; border: 1px solid rgba(212,175,55,.2); border-radius: 14px; background: rgba(212,175,55,.05); }
+      .voice-quick-controls-icon { width: 38px; height: 38px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(212,175,55,.15); color: var(--accent); }
+      .voice-quick-controls strong { display: block; margin-bottom: 4px; }
+      .voice-quick-controls p { margin: 0 0 10px; color: var(--muted); font-size: .86rem; }
+      .voice-quick-controls-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted-strong); font-size: .82rem; }
+      .voice-quick-controls-legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+      /* Modais estilizados (substituem prompt()/confirm() do navegador) */
+      .voice-modal-overlay { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; background: rgba(6,9,15,.6); backdrop-filter: blur(4px); opacity: 0; transition: opacity .15s ease; padding: 20px; }
+      .voice-modal-overlay.open { opacity: 1; }
+      .voice-modal-box { width: min(420px, 100%); padding: 24px; border: 1px solid var(--line-soft); border-radius: 18px; background: var(--panel); box-shadow: var(--shadow); transform: scale(.96); transition: transform .15s ease; }
+      .voice-modal-overlay.open .voice-modal-box { transform: scale(1); }
+      .voice-modal-box h3 { margin: 0 0 8px; font-size: 1.2rem; }
+      .voice-modal-description { margin: 0 0 4px; color: var(--muted); line-height: 1.5; }
+      .voice-modal-field { margin-top: 14px; }
+      .voice-modal-field label { display: block; margin-bottom: 6px; color: var(--muted-strong); font-size: .84rem; font-weight: 700; }
+      .voice-modal-field input { width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--bg-soft); color: var(--text); }
+      .voice-modal-field input:focus { outline: none; border-color: rgba(212,175,55,.6); }
+      .voice-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+      .submit-button.danger { background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%); color: #fff; }
+
+      @media (max-width: 720px) { .voice-call-header { flex-direction: column; align-items: stretch; } .voice-call-controls { justify-content: flex-end; } .voice-presenter-watchers-list { left: 0; right: auto; } }
     </style>
   </head>
   <body>
@@ -885,10 +927,30 @@
             </div>
             <div id="voice-presenter-stage" class="voice-presenter-stage hidden">
               <video id="voice-presenter-video" autoplay playsinline muted></video>
+              <div class="voice-presenter-top-bar">
+                <span class="voice-live-badge"><i class="fa-solid fa-circle"></i><span>AO VIVO</span></span>
+                <div class="voice-presenter-watchers" id="voice-presenter-watchers" tabindex="0">
+                  <i class="fa-solid fa-eye"></i>
+                  <span><span id="voice-presenter-watchers-count">0</span> assistindo</span>
+                  <div class="voice-presenter-watchers-list" id="voice-presenter-watchers-list"></div>
+                </div>
+              </div>
               <div id="voice-presenter-label" class="voice-presenter-label"></div>
+              <button type="button" id="voice-presenter-fullscreen" class="voice-presenter-fullscreen-btn" title="Ver em tela cheia"><i class="fa-solid fa-expand"></i></button>
             </div>
             <div id="voice-participant-list" class="voice-participant-list"></div>
-            <p class="field-help">Clique com o botão direito num participante pra moderar, ou arraste o card dele até outra sala pra mover.</p>
+            <div class="voice-quick-controls">
+              <div class="voice-quick-controls-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div>
+                <strong>Controles Rápidos</strong>
+                <p>Clique com o botão direito (ou no menu "⋮") num participante pra moderar, ou arraste o card dele até outra sala pra mover.</p>
+                <div class="voice-quick-controls-legend">
+                  <span><i class="fa-solid fa-microphone"></i> Mutar/Ativar microfone</span>
+                  <span><i class="fa-solid fa-headphones"></i> Silenciar tudo pra mim</span>
+                  <span><i class="fa-solid fa-desktop"></i> Compartilhar tela</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div id="voice-audio-sink" class="hidden" aria-hidden="true"></div>
