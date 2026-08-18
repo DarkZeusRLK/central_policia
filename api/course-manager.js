@@ -1,10 +1,10 @@
-import WebSocket from "ws";
 import { readFile, writeFile } from "node:fs/promises";
+import { getRoomsCollection, ensureDefaultRooms, getAblyRest, getRoomPresenceMembers } from "../lib/voiceRooms.js";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const ANNOUNCEMENT_MAPPINGS_PATH = "/tmp/announcementMappings.json"; // Vercel Serverless: /tmp é o único diretório gravável
 const ANNOUNCEMENT_MAPPING_TTL_MS = 48 * 60 * 60 * 1000;
-const ANNOUNCEMENT_SCAN_PAGE_LIMIT = 50; // 5000 mensagens máximas (50 páginas de 100)
+const ROOM_LOCK_DURATION_MS = 60 * 60 * 1000; // tranca por até 1h, some sozinha se esquecerem de destrancar
 const COURSE_TYPE_OVERRIDES = {
   "1164557461357867038": "complementar",
 };
@@ -359,20 +359,6 @@ function container(accentColor, components) {
   };
 }
 
-function linkButton(label, url) {
-  return {
-    type: 1,
-    components: [
-      {
-        type: 2,
-        style: 5,
-        label,
-        url,
-      },
-    ],
-  };
-}
-
 function buildAnnouncementMessage(data, env) {
   const courseMentions = resolveCourseMentions(data);
   const mentionMatrizes = parseIdList(env.MATRIZES_ROLE_ID).map((id) => `<@&${id}>`).join(" ");
@@ -401,11 +387,10 @@ function buildAnnouncementMessage(data, env) {
     cardComponents.push(separator(), textDisplay(`### 🏛️ Convocação\n${mentionMatrizes}`));
   }
 
-  if (data.call_link) {
+  if (data.roomName) {
     cardComponents.push(
       separator(),
-      textDisplay("### 🔊 Acesso à Call\nUse o botão abaixo para entrar na sala de voz do curso."),
-      linkButton("Entrar na call", data.call_link),
+      textDisplay(`### 🔊 Acesso à Call\nSala: **${data.roomName}** — entre pela Central Policial, na aba "Chamadas de Curso".`),
     );
   }
 
@@ -553,11 +538,6 @@ async function sendDiscordMessage(channelId, botToken, payload) {
   return await response.json();
 }
 
-function extractCallIdFromLink(callLink) {
-  const match = String(callLink || "").match(/discord\.com\/channels\/\d+\/(\d+)/i);
-  return match?.[1] || "";
-}
-
 function isAnnouncementMappingFresh(mapping) {
   const createdAt = new Date(mapping?.createdAt || "");
   if (Number.isNaN(createdAt.getTime())) return false;
@@ -593,11 +573,8 @@ async function removeOldMappings() {
 
   // Remove mapeamentos inválidos
   const validMappings = mappings.filter((mapping) => {
-    // Remove se não tem callId
-    if (!mapping.callId) return false;
-
-    // Remove se callId não é um ID válido (17-18 dígitos)
-    if (!/^\d{17,18}$/.test(mapping.callId)) return false;
+    // Remove se não tem roomSlug
+    if (!mapping.roomSlug) return false;
 
     // Remove se muito antigo (mais de 7 dias)
     const createdAt = new Date(mapping.createdAt);
@@ -618,7 +595,8 @@ async function saveAnnouncementMapping(mapping) {
   const normalizedMapping = {
     announcementMessageId: String(mapping?.announcementMessageId || "").trim(),
     courseId: String(mapping?.courseId || "").trim(),
-    callId: String(mapping?.callId || "").trim(),
+    roomSlug: String(mapping?.roomSlug || "").trim(),
+    roomName: String(mapping?.roomName || "").trim(),
     horario: String(mapping?.horario || "").trim(),
     createdAt: String(mapping?.createdAt || new Date().toISOString()),
   };
@@ -626,7 +604,7 @@ async function saveAnnouncementMapping(mapping) {
   if (
     !normalizedMapping.announcementMessageId ||
     !normalizedMapping.courseId ||
-    !normalizedMapping.callId ||
+    !normalizedMapping.roomSlug ||
     !normalizedMapping.horario
   ) {
     return null;
@@ -652,7 +630,7 @@ async function getAnnouncementMapping({ announcementMessageId, courseId, horario
 
   if (normalizedAnnouncementMessageId) {
     const matching = mappings.filter((mapping) =>
-      mapping.announcementMessageId === normalizedAnnouncementMessageId && mapping.callId
+      mapping.announcementMessageId === normalizedAnnouncementMessageId && mapping.roomSlug
     );
     if (!matching.length) return null;
     const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -663,7 +641,7 @@ async function getAnnouncementMapping({ announcementMessageId, courseId, horario
   if (normalizedCourseId && normalizedHorario) {
     const matching = mappings.filter(
       (mapping) =>
-        mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario && mapping.callId
+        mapping.courseId === normalizedCourseId && mapping.horario === normalizedHorario && mapping.roomSlug
     );
     if (!matching.length) return null;
     const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -673,7 +651,7 @@ async function getAnnouncementMapping({ announcementMessageId, courseId, horario
 
   if (normalizedCourseId) {
     const matching = mappings.filter(
-      (mapping) => mapping.courseId === normalizedCourseId && mapping.callId
+      (mapping) => mapping.courseId === normalizedCourseId && mapping.roomSlug
     );
     if (!matching.length) return null;
     const sorted = matching.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -763,221 +741,31 @@ async function applyCourseRoleToApprovedMembers(courseId, approvedList, botToken
   };
 }
 
-async function getVoiceChannelMembersFromGateway(guildId, channelId, botToken) {
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
-    let heartbeatTimer = null;
-    let timeoutTimer = null;
-    let settled = false;
+// Lê quem está presente numa sala de chamada do próprio site (Ably), enriquecendo com os cargos
+// atuais no Discord de cada um — usado pelo preenchimento automático de aprovados do relatório.
+async function getSiteCallAttendees(roomSlug, env) {
+  const normalizedSlug = String(roomSlug || "").trim();
+  if (!normalizedSlug) return [];
 
-    const finish = (handler, value) => {
-      if (settled) return;
-      settled = true;
-      if (heartbeatTimer) clearInterval(heartbeatTimer);
-      if (timeoutTimer) clearTimeout(timeoutTimer);
-      try {
-        socket.close();
-      } catch {}
-      handler(value);
+  const ably = getAblyRest(env);
+  const presenceMembers = await getRoomPresenceMembers(ably, normalizedSlug);
+  if (!presenceMembers.length) return [];
+
+  const guildId = env.DISCORD_GUILD_ID || env.GUILD_ID;
+  const members = await Promise.all(
+    presenceMembers.map((presenceMember) =>
+      fetchGuildMemberById(guildId, presenceMember.id, env.DISCORD_BOT_TOKEN).catch(() => null),
+    ),
+  );
+
+  return presenceMembers.map((presenceMember, index) => {
+    const member = members[index];
+    return {
+      id: presenceMember.id,
+      name: (member && resolveMemberDisplayName(member)) || presenceMember.displayName || `ID ${presenceMember.id}`,
+      roles: Array.isArray(member?.roles) ? member.roles.map(String) : [],
     };
-
-    timeoutTimer = setTimeout(() => {
-      finish(reject, new Error("Tempo esgotado ao consultar os membros da call."));
-    }, 12000);
-
-    socket.on("message", (raw) => {
-      try {
-        const packet = JSON.parse(raw.toString());
-
-        if (packet.op === 10) {
-          const interval = Number(packet.d?.heartbeat_interval || 45000);
-          socket.send(JSON.stringify({ op: 1, d: null }));
-          heartbeatTimer = setInterval(() => {
-            if (socket.readyState === WebSocket.OPEN) {
-              socket.send(JSON.stringify({ op: 1, d: null }));
-            }
-          }, interval);
-
-          socket.send(
-            JSON.stringify({
-              op: 2,
-              d: {
-                token: botToken,
-                intents: 129,
-                properties: {
-                  os: "linux",
-                  browser: "revoada-central",
-                  device: "revoada-central",
-                },
-              },
-            }),
-          );
-          return;
-        }
-
-        if (packet.op !== 0) return;
-        if (packet.t !== "GUILD_CREATE") return;
-        if (String(packet.d?.id || "") !== String(guildId)) return;
-
-        const voiceStates = Array.isArray(packet.d?.voice_states)
-          ? packet.d.voice_states
-          : [];
-        const members = Array.isArray(packet.d?.members) ? packet.d.members : [];
-        const membersById = new Map(
-          members
-            .filter((member) => member?.user?.id)
-            .map((member) => [String(member.user.id), member]),
-        );
-
-        const attendees = voiceStates
-          .filter((voiceState) => String(voiceState.channel_id || "") === String(channelId))
-          .map((voiceState) => {
-            const userId = String(voiceState.user_id || "");
-            const member = membersById.get(userId);
-            return {
-              id: userId,
-              name:
-                member?.nick ||
-                member?.user?.global_name ||
-                member?.user?.username ||
-                `ID ${userId}`,
-              roles: Array.isArray(member?.roles) ? member.roles.map(String) : [],
-            };
-          })
-          .filter((member) => member.id);
-
-        finish(resolve, attendees);
-      } catch (error) {
-        finish(reject, error);
-      }
-    });
-
-    socket.on("error", (error) => {
-      finish(reject, error);
-    });
-
-    socket.on("close", () => {
-      if (!settled) {
-        finish(reject, new Error("A conexão com o Gateway foi encerrada antes da leitura da call."));
-      }
-    });
   });
-}
-
-async function resolveCallIdFromRecentAnnouncements(courseId, horario, channelId, botToken, announcementMessageId) {
-  const normalizedCourseId = String(courseId || "").trim();
-  if (!normalizedCourseId || !channelId || !botToken) return "";
-  const normalizedHorario = String(horario || "").trim();
-  const normalizedAnnouncementId = String(announcementMessageId || "").trim();
-
-  // Se temos announcementMessageId, busca direto a mensagem específica
-  if (normalizedAnnouncementId) {
-    try {
-      const response = await fetch(`${DISCORD_API_BASE}/channels/${channelId}/messages/${normalizedAnnouncementId}`, {
-        headers: { Authorization: `Bot ${botToken}` },
-      });
-      if (response.ok) {
-        const message = await response.json();
-        const serialized = JSON.stringify(message);
-        if (serialized.includes(`<@&${normalizedCourseId}>`)) {
-          const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
-          if (buttonUrlMatch?.[1] && /^\d{17,18}$/.test(buttonUrlMatch[1])) {
-            return buttonUrlMatch[1];
-          }
-        }
-      }
-    } catch { /* fallback para scan */ }
-  }
-
-  let before = "";
-
-  for (let page = 0; page < ANNOUNCEMENT_SCAN_PAGE_LIMIT; page += 1) {
-    const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
-    url.searchParams.set("limit", "100");
-    if (before) {
-      url.searchParams.set("before", before);
-    }
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      return "";
-    }
-
-    const messages = await response.json().catch(() => []);
-    if (!Array.isArray(messages) || !messages.length) return "";
-
-    for (const message of messages) {
-      const serialized = JSON.stringify(message);
-      if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
-        continue;
-      }
-
-      if (normalizedHorario && !serialized.includes(normalizedHorario)) {
-        continue;
-      }
-
-      const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
-      if (buttonUrlMatch?.[1]) {
-        const callId = buttonUrlMatch[1];
-        if (/^\d{17,18}$/.test(callId)) {
-          return callId;
-        }
-      }
-    }
-
-    before = String(messages[messages.length - 1]?.id || "");
-    if (!before) break;
-  }
-
-  // Se não encontrou com o horário, tenta só com o courseId (último recurso)
-  if (normalizedHorario) {
-    before = "";
-    for (let page = 0; page < ANNOUNCEMENT_SCAN_PAGE_LIMIT; page += 1) {
-      const url = new URL(`${DISCORD_API_BASE}/channels/${channelId}/messages`);
-      url.searchParams.set("limit", "100");
-      if (before) {
-        url.searchParams.set("before", before);
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bot ${botToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        return "";
-      }
-
-      const messages = await response.json().catch(() => []);
-      if (!Array.isArray(messages) || !messages.length) return "";
-
-      for (const message of messages) {
-        const serialized = JSON.stringify(message);
-        if (!serialized.includes(`<@&${normalizedCourseId}>`)) {
-          continue;
-        }
-
-        const buttonUrlMatch = serialized.match(/https:\/\/discord\.com\/channels\/\d+\/(\d+)/i);
-        if (buttonUrlMatch?.[1]) {
-          const callId = buttonUrlMatch[1];
-          if (/^\d{17,18}$/.test(callId)) {
-            return callId;
-          }
-        }
-      }
-
-      before = String(messages[messages.length - 1]?.id || "");
-      if (!before) break;
-    }
-  }
-
-  return "";
 }
 
 function resolveFaction(data, env) {
@@ -1077,7 +865,7 @@ export default async function handler(req, res) {
     CURSO_BASICO_ID: process.env.CURSO_BASICO_ID,
     CURSO_COMP_ID: process.env.CURSO_COMP_ID,
     CURSO_ACOES_ID: process.env.CURSO_ACOES_ID,
-    CALLS_PERMITIDAS: process.env.CALLS_PERMITIDAS,
+    ABLY_API_KEY: process.env.ABLY_API_KEY,
   };
 
   if (req.method === "GET") {
@@ -1113,19 +901,21 @@ export default async function handler(req, res) {
 
       try {
         const headers = { Authorization: `Bot ${DISCORD_BOT_TOKEN}` };
-        const [rolesRes, membersRes, channelsRes] = await Promise.all([
+        const [rolesRes, membersRes, roomsCollection] = await Promise.all([
           fetch(`${DISCORD_API_BASE}/guilds/${GUILD_ID}/roles`, { headers }),
           fetch(`${DISCORD_API_BASE}/guilds/${GUILD_ID}/members?limit=1000`, { headers }),
-          fetch(`${DISCORD_API_BASE}/guilds/${GUILD_ID}/channels`, { headers }),
+          getRoomsCollection(),
         ]);
 
-        if (!rolesRes.ok || !membersRes.ok || !channelsRes.ok) {
+        if (!rolesRes.ok || !membersRes.ok) {
           throw new Error("Erro Discord API");
         }
 
+        await ensureDefaultRooms(roomsCollection);
+        const roomDocs = await roomsCollection.find({}).sort({ createdAt: 1 }).toArray();
+
         const roles = await rolesRes.json();
         const members = await membersRes.json();
-        const channels = await channelsRes.json();
 
         const basicoIds = new Set(
           Object.entries(COURSE_TYPE_OVERRIDES)
@@ -1192,17 +982,14 @@ export default async function handler(req, res) {
           }))
           .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
-        const callsPermitidas = new Set(parseIdList(env.CALLS_PERMITIDAS));
-        const calls = channels
-          .filter((channel) => channel.type === 2 || channel.type === 13)
-          .filter((channel) => !callsPermitidas.size || callsPermitidas.has(channel.id))
-          .map((channel) => ({ id: channel.id, name: channel.name }))
+        const salas = roomDocs
+          .map((room) => ({ slug: room.slug, name: room.name }))
           .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
         return res.status(200).json({
           cursos,
           membros,
-          calls,
+          salas,
           guildId: GUILD_ID,
         });
       } catch (error) {
@@ -1219,55 +1006,38 @@ export default async function handler(req, res) {
         if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
           return res.status(500).json({ error: "Configuração do Discord ausente." });
         }
+        if (!env.ABLY_API_KEY) {
+          return res.status(500).json({ error: "Configuração da call do site ausente." });
+        }
 
         if (!canUseTeachingTools(data, env)) {
           return res.status(403).json({ error: "Você não tem permissão para usar a leitura automática da call." });
         }
 
-        let callId = String(data.callId || "").trim();
-        if (!callId) {
+        let roomSlug = String(data.roomSlug || "").trim();
+        if (!roomSlug) {
           const mappedCall = await getAnnouncementMapping({
             announcementMessageId: data.announcementMessageId,
             courseId: data.courseId,
             horario: data.horario,
           });
 
-          if (mappedCall?.callId) {
+          if (mappedCall?.roomSlug) {
             console.log("[CALL MAP]", "resolved from stored mapping", {
               announcementMessageId: mappedCall.announcementMessageId,
               courseId: mappedCall.courseId,
               horario: mappedCall.horario,
-              callId: mappedCall.callId,
+              roomSlug: mappedCall.roomSlug,
             });
-            callId = mappedCall.callId;
+            roomSlug = mappedCall.roomSlug;
           }
         }
 
-        if (!callId) {
-          callId = await resolveCallIdFromRecentAnnouncements(
-            data.courseId,
-            data.horario,
-            env.CHANNEL_CURSOS_ANUNCIADOS,
-            DISCORD_BOT_TOKEN,
-            data.announcementMessageId,
-          );
-          if (callId) {
-            console.log("[CALL MAP]", "resolved from recent announcements", {
-              courseId: data.courseId,
-              horario: data.horario,
-              callId,
-            });
-          }
-        }
-        if (!callId) {
-          return res.status(400).json({ error: "Call não identificada para leitura automática." });
+        if (!roomSlug) {
+          return res.status(400).json({ error: "Sala não identificada para leitura automática. Faça o anúncio primeiro ou selecione a sala manualmente." });
         }
 
-        const attendees = await getVoiceChannelMembersFromGateway(
-          GUILD_ID,
-          callId,
-          DISCORD_BOT_TOKEN,
-        );
+        const attendees = await getSiteCallAttendees(roomSlug, env);
         const ignoredIds = new Set(
           Array.isArray(data.ignoredIds) ? data.ignoredIds.map((id) => String(id)) : [],
         );
@@ -1292,123 +1062,44 @@ export default async function handler(req, res) {
       }
 
       if (data.action === "lock-call" || data.action === "unlock-call") {
-        if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
-          return res.status(500).json({ error: "Configuração do Discord ausente." });
-        }
-
         if (!canUseTeachingTools(data, env)) {
           return res.status(403).json({ error: "Você não tem permissão para usar esta ação." });
         }
 
-        const action = data.action;
-        const isLock = action === "lock-call";
-        let callId = String(data.callId || "").trim();
+        const isLock = data.action === "lock-call";
+        let roomSlug = String(data.roomSlug || "").trim();
 
-        if (!callId) {
+        if (!roomSlug) {
           const mappedCall = await getAnnouncementMapping({
             announcementMessageId: data.announcementMessageId,
             courseId: data.courseId,
             horario: data.horario,
           });
 
-          if (mappedCall?.callId) {
-            callId = mappedCall.callId;
+          if (mappedCall?.roomSlug) {
+            roomSlug = mappedCall.roomSlug;
           }
         }
 
-        if (!callId) {
-          callId = await resolveCallIdFromRecentAnnouncements(
-            data.courseId,
-            data.horario,
-            env.CHANNEL_CURSOS_ANUNCIADOS,
-            DISCORD_BOT_TOKEN,
-            data.announcementMessageId,
-          );
+        if (!roomSlug) {
+          return res.status(400).json({ error: "Sala não identificada. Faça o anúncio primeiro ou selecione a sala manualmente." });
         }
 
-        if (!callId) {
-          return res.status(400).json({ error: "Call não identificada. Faça o anúncio primeiro ou informe a call manualmente." });
+        const collection = await getRoomsCollection();
+        await ensureDefaultRooms(collection);
+        const room = await collection.findOne({ slug: roomSlug });
+        if (!room) {
+          return res.status(404).json({ error: "Sala não encontrada." });
         }
 
-        const matrizesRoleIds = parseIdList(env.MATRIZES_ROLE_ID).filter(Boolean);
+        const lockedUntil = isLock ? new Date(Date.now() + ROOM_LOCK_DURATION_MS).toISOString() : null;
+        await collection.updateOne({ slug: roomSlug }, { $set: { lockedUntil, updatedAt: new Date() } });
 
-        if (!matrizesRoleIds.length) {
-          return res.status(500).json({ error: "MATRIZES_ROLE_ID não configurado no ambiente." });
-        }
-
-        const CONNECT_BIT = 1n << 20n;
-        const VIEW_CHANNEL_BIT = 1n << 10n; // Sempre permitir ver canal
-
-        const results = [];
-
-        for (const roleId of matrizesRoleIds) {
-          let existingAllow = "0";
-          let existingDeny = "0";
-
-          try {
-            const existingRes = await fetch(
-              `${DISCORD_API_BASE}/channels/${callId}/permissions/${roleId}`,
-              {
-                headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
-              },
-            );
-            if (existingRes.ok) {
-              const existing = await existingRes.json();
-              existingAllow = existing.allow || "0";
-              existingDeny = existing.deny || "0";
-            }
-          } catch {
-            /* sem overwrite existente — usa "0" */
-          }
-
-          const currentAllow = BigInt(typeof existingAllow === "string" ? existingAllow : "0");
-          const currentDeny = BigInt(typeof existingDeny === "string" ? existingDeny : "0");
-
-          // Sempre garantir VIEW_CHANNEL = true (permitir ver canal)
-          const finalAllow = (currentAllow | VIEW_CHANNEL_BIT);
-          const finalDeny = (currentDeny & ~VIEW_CHANNEL_BIT);
-
-          // Agora ajusta CONNECT conforme ação
-          const newAllow = isLock
-            ? (finalAllow & ~CONNECT_BIT).toString()
-            : (finalAllow | CONNECT_BIT).toString();
-          const newDeny = isLock
-            ? (finalDeny | CONNECT_BIT).toString()
-            : (finalDeny & ~CONNECT_BIT).toString();
-
-          const permissionPayload = {
-            type: 0,
-            id: roleId,
-            allow: newAllow,
-            deny: newDeny,
-          };
-
-          const response = await fetch(
-            `${DISCORD_API_BASE}/channels/${callId}/permissions/${roleId}`,
-            {
-              method: "PUT",
-              headers: {
-                Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(permissionPayload),
-            },
-          );
-
-          if (response.ok) {
-            results.push({ roleId, status: "ok" });
-          } else {
-            const text = await response.text();
-            results.push({ roleId, status: "error", error: text });
-          }
-        }
-
-        const hasErrors = results.some((r) => r.status === "error");
-        return res.status(hasErrors ? 207 : 200).json({
-          success: !hasErrors,
+        return res.status(200).json({
+          success: true,
           action: isLock ? "locked" : "unlocked",
-          callId,
-          results,
+          roomSlug,
+          roomName: room.name,
         });
       }
 
@@ -1442,16 +1133,17 @@ export default async function handler(req, res) {
           : data.curso_id
             ? [data.curso_id]
             : [];
-        const callId = String(data.callId || extractCallIdFromLink(data.call_link) || "").trim();
+        const roomSlug = String(data.roomSlug || "").trim();
 
-        if (sentMessage?.id && callId && courseIds.length) {
+        if (sentMessage?.id && roomSlug && courseIds.length) {
           let allMappingsSaved = true;
           for (const courseId of courseIds) {
             try {
               await saveAnnouncementMapping({
                 announcementMessageId: sentMessage.id,
                 courseId,
-                callId,
+                roomSlug,
+                roomName: data.roomName || "",
                 horario: data.horario,
               });
             } catch (error) {

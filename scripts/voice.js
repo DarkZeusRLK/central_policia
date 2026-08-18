@@ -160,6 +160,7 @@
       const isCurrent = room.slug === VoiceState.currentRoomSlug;
       const occupants = isCurrent ? VoiceState.presenceMembers.length : room.occupants;
       const full = Boolean(room.memberLimit) && occupants >= room.memberLimit;
+      const locked = Boolean(room.locked) && !isCurrent;
       const membersPreview = getRoomMembersPreviewList(room, isCurrent);
       const previewAvatars = membersPreview.slice(0, 5);
       const namesText = membersPreview.length
@@ -170,7 +171,7 @@
       card.className = `voice-room-card${isCurrent ? " current" : ""}`;
       card.dataset.slug = room.slug;
       card.innerHTML = `
-        <h3>${escapeHtml(room.name)}</h3>
+        <h3>${escapeHtml(room.name)}${room.locked ? ' <span class="voice-room-locked-badge" title="Trancada para novas entradas"><i class="fa-solid fa-lock"></i></span>' : ""}</h3>
         <span class="voice-room-status-line${isCurrent ? " is-connected" : ""}"><i class="fa-solid fa-circle"></i>${isCurrent ? "Conectada" : "Disponível"}</span>
         <span class="voice-room-occupants${full ? " full" : ""}">${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""} participante${occupants === 1 ? "" : "s"}</span>
         ${membersPreview.length ? `
@@ -180,9 +181,9 @@
           <span class="voice-room-members-names" title="${escapeHtml(namesText)}">${escapeHtml(namesText)}</span>
         ` : `<span class="voice-room-members-names">Sala vazia</span>`}
         <div class="voice-room-card-actions">
-          <button type="button" class="action-button voice-join-button"${full && !isCurrent ? " disabled" : ""} aria-label="${isCurrent ? "Sair da sala " : "Entrar na sala "}${escapeHtml(room.name)}">
-            <i class="fa-solid ${isCurrent ? "fa-phone-slash" : "fa-phone"}"></i>
-            <span>${isCurrent ? "Sair" : "Entrar"}</span>
+          <button type="button" class="action-button voice-join-button"${(full || locked) && !isCurrent ? " disabled" : ""} aria-label="${isCurrent ? "Sair da sala " : "Entrar na sala "}${escapeHtml(room.name)}">
+            <i class="fa-solid ${isCurrent ? "fa-phone-slash" : locked ? "fa-lock" : "fa-phone"}"></i>
+            <span>${isCurrent ? "Sair" : locked ? "Trancada" : "Entrar"}</span>
           </button>
           ${VoiceState.isAdmin ? `
             <div class="voice-room-admin-actions">
