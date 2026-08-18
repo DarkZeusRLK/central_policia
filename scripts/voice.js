@@ -692,11 +692,37 @@
     VoiceState.signalingChannel.publish(type, { from: myClientId(), to: String(to), ...data });
   }
 
+  // Junta as candidatas ICE de um peer por um instante curto antes de enviar, em vez de uma
+  // mensagem por candidata — numa malha com várias pessoas, cada conexão gera muitas candidatas
+  // de uma vez, e isso sozinho já estourava o limite de mensagens/segundo do canal no Ably.
+  const ICE_CANDIDATE_BATCH_MS = 250;
+
+  function flushIceCandidates(remoteClientId) {
+    const peer = VoiceState.peers.get(remoteClientId);
+    if (!peer) return;
+    if (peer.candidateFlushTimer) {
+      clearTimeout(peer.candidateFlushTimer);
+      peer.candidateFlushTimer = null;
+    }
+    if (!peer.pendingCandidates.length) return;
+    const candidates = peer.pendingCandidates.splice(0, peer.pendingCandidates.length);
+    publishSignal("ice-candidate", remoteClientId, { candidates });
+  }
+
   function createPeerConnection(remoteClientId) {
     if (VoiceState.peers.has(remoteClientId)) return VoiceState.peers.get(remoteClientId);
 
     const pc = new RTCPeerConnection({ iceServers: VoiceState.iceServers });
-    const peer = { pc, makingOffer: false, ignoreOffer: false, audioEl: null, videoStream: null, micStreamId: null };
+    const peer = {
+      pc,
+      makingOffer: false,
+      ignoreOffer: false,
+      audioEl: null,
+      videoStream: null,
+      micStreamId: null,
+      pendingCandidates: [],
+      candidateFlushTimer: null,
+    };
     VoiceState.peers.set(remoteClientId, peer);
 
     if (VoiceState.localStream) {
@@ -719,7 +745,15 @@
     };
 
     pc.onicecandidate = ({ candidate }) => {
-      if (candidate) publishSignal("ice-candidate", remoteClientId, { candidate });
+      if (!candidate) {
+        // Fim das candidatas — envia o que restou no lote sem esperar o atraso.
+        flushIceCandidates(remoteClientId);
+        return;
+      }
+      peer.pendingCandidates.push(candidate.toJSON ? candidate.toJSON() : candidate);
+      if (!peer.candidateFlushTimer) {
+        peer.candidateFlushTimer = setTimeout(() => flushIceCandidates(remoteClientId), ICE_CANDIDATE_BATCH_MS);
+      }
     };
 
     pc.ontrack = (event) => handleRemoteTrack(remoteClientId, event);
@@ -778,11 +812,14 @@
           await pc.setLocalDescription();
           publishSignal("answer", from, { sdp: pc.localDescription });
         }
-      } else if (message.name === "ice-candidate" && data.candidate) {
-        try {
-          await pc.addIceCandidate(data.candidate);
-        } catch (error) {
-          if (!peer.ignoreOffer) console.error("Falha ao aplicar ICE candidate:", error);
+      } else if (message.name === "ice-candidate") {
+        const candidates = Array.isArray(data.candidates) ? data.candidates : data.candidate ? [data.candidate] : [];
+        for (const candidate of candidates) {
+          try {
+            await pc.addIceCandidate(candidate);
+          } catch (error) {
+            if (!peer.ignoreOffer) console.error("Falha ao aplicar ICE candidate:", error);
+          }
         }
       }
     } catch (error) {
@@ -795,6 +832,7 @@
     if (!peer) return;
     try { peer.pc.close(); } catch { /* já fechado */ }
     if (peer.audioEl) peer.audioEl.remove();
+    if (peer.candidateFlushTimer) clearTimeout(peer.candidateFlushTimer);
     VoiceState.peers.delete(clientId);
     detachSpeakingDetector(clientId);
     VoiceState.presenterClientIds.delete(clientId);
