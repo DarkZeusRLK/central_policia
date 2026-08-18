@@ -486,10 +486,12 @@
       .voice-room-card.reordering { opacity: .4; }
       .voice-room-card-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
       .voice-room-card-header h3 { margin: 0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .voice-room-drag-handle { flex-shrink: 0; color: var(--muted-faint); cursor: grab; padding: 2px; }
+      .voice-room-drag-handle { display: none; flex-shrink: 0; color: var(--muted-faint); cursor: grab; padding: 2px; }
       .voice-room-drag-handle:active { cursor: grabbing; }
-      .voice-room-card-header .voice-room-admin-actions { flex-shrink: 0; }
+      .voice-room-card-header .voice-room-admin-actions { display: none; flex-shrink: 0; }
       .voice-room-card-header .voice-icon-button { width: 24px; height: 24px; border-radius: 7px; font-size: .78rem; }
+      .voice-room-card:hover .voice-room-drag-handle, .voice-room-card:focus-within .voice-room-drag-handle { display: inline-flex; }
+      .voice-room-card:hover .voice-room-card-header .voice-room-admin-actions, .voice-room-card:focus-within .voice-room-card-header .voice-room-admin-actions { display: flex; }
       .voice-room-card h3 { margin: 0 0 6px; font-size: .96rem; }
       .voice-room-locked-badge { display: inline-flex; align-items: center; color: var(--danger-text); font-size: .78rem; }
       .voice-room-status-line { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--muted-faint); }
