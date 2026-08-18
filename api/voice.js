@@ -1,6 +1,7 @@
 import {
   getRoomsCollection,
   ensureDefaultRooms,
+  ensureRoomOrder,
   isRoomLocked,
   getAblyRest,
   signalingChannelName,
@@ -188,7 +189,9 @@ export default async function handler(req, res) {
 
       const collection = await getRoomsCollection();
       await ensureDefaultRooms(collection);
-      const rooms = await collection.find({}).sort({ createdAt: 1 }).toArray();
+      const rooms = await collection.find({}).sort({ order: 1, createdAt: 1 }).toArray();
+      await ensureRoomOrder(collection, rooms);
+      rooms.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
       const membersBySlug = {};
       if (env.ABLY_API_KEY && rooms.length) {
@@ -299,6 +302,32 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    if (action === "reorder-rooms") {
+      if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido." });
+
+      const { userId, order } = req.body || {};
+      if (!userId) return res.status(400).json({ error: "userId é obrigatório." });
+      if (!Array.isArray(order) || !order.length) {
+        return res.status(400).json({ error: "order (lista de slugs) é obrigatório." });
+      }
+
+      const permissions = await resolveActingPermissions(userId, env);
+      if (!permissions.canModerate) {
+        return res.status(403).json({ error: "Você não tem permissão para reordenar as salas." });
+      }
+
+      const collection = await getRoomsCollection();
+      const now = new Date();
+      const bulkOps = order
+        .map(String)
+        .map((slug, index) => ({
+          updateOne: { filter: { slug }, update: { $set: { order: index, updatedAt: now } } },
+        }));
+      if (bulkOps.length) await collection.bulkWrite(bulkOps);
+
+      return res.status(200).json({ success: true });
+    }
+
     if (ROOM_ADMIN_ACTIONS.has(action)) {
       if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido." });
 
@@ -324,10 +353,14 @@ export default async function handler(req, res) {
           slug = `${slug}-${Date.now().toString(36)}`;
         }
 
+        const lastRoom = await collection.find({}).sort({ order: -1 }).limit(1).toArray();
+        const nextOrder = typeof lastRoom[0]?.order === "number" ? lastRoom[0].order + 1 : await collection.countDocuments({});
+
         const doc = {
           slug,
           name: trimmedName,
           memberLimit: memberLimit ? Math.max(2, Math.min(200, Number(memberLimit))) : null,
+          order: nextOrder,
           createdBy: String(userId),
           createdAt: now,
           updatedAt: now,

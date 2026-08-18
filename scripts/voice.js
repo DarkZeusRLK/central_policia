@@ -141,6 +141,7 @@
         id: String(member.clientId),
         displayName: member.data?.displayName || "Policial",
         avatarUrl: member.data?.avatarUrl || "",
+        factionLabel: member.data?.factionLabel || "",
       }));
     }
     return Array.isArray(room.members) ? room.members : [];
@@ -171,7 +172,10 @@
       card.className = `voice-room-card${isCurrent ? " current" : ""}`;
       card.dataset.slug = room.slug;
       card.innerHTML = `
-        <h3>${escapeHtml(room.name)}${room.locked ? ' <span class="voice-room-locked-badge" title="Trancada para novas entradas"><i class="fa-solid fa-lock"></i></span>' : ""}</h3>
+        <div class="voice-room-card-header">
+          ${VoiceState.canModerate ? '<span class="voice-room-drag-handle" title="Arraste para reordenar as salas" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>' : ""}
+          <h3>${escapeHtml(room.name)}${room.locked ? ' <span class="voice-room-locked-badge" title="Trancada para novas entradas"><i class="fa-solid fa-lock"></i></span>' : ""}</h3>
+        </div>
         <span class="voice-room-status-line${isCurrent ? " is-connected" : ""}"><i class="fa-solid fa-circle"></i>${isCurrent ? "Conectada" : "Disponível"}</span>
         <span class="voice-room-occupants${full ? " full" : ""}">${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""} participante${occupants === 1 ? "" : "s"}</span>
         ${membersPreview.length ? `
@@ -185,6 +189,7 @@
             <i class="fa-solid ${isCurrent ? "fa-phone-slash" : locked ? "fa-lock" : "fa-phone"}"></i>
             <span>${isCurrent ? "Sair" : locked ? "Trancada" : "Entrar"}</span>
           </button>
+          ${!isCurrent ? `<button type="button" class="voice-icon-button" data-view-members title="Ver participantes sem entrar" aria-label="Ver participantes da sala ${escapeHtml(room.name)} sem entrar"><i class="fa-solid fa-eye"></i></button>` : ""}
           ${VoiceState.isAdmin ? `
             <div class="voice-room-admin-actions">
               <button type="button" class="voice-icon-button" data-room-rename title="Renomear sala" aria-label="Renomear sala ${escapeHtml(room.name)}"><i class="fa-solid fa-pen"></i></button>
@@ -199,6 +204,8 @@
         else joinRoom(room.slug);
       });
 
+      card.querySelector("[data-view-members]")?.addEventListener("click", () => openRoomMembersModal(room));
+
       if (VoiceState.isAdmin) {
         card.querySelector("[data-room-rename]").addEventListener("click", () => renameRoomPrompt(room));
         card.querySelector("[data-room-limit]").addEventListener("click", () => setRoomLimitPrompt(room));
@@ -206,18 +213,21 @@
       }
 
       wireRoomCardDropTarget(card, room);
+      if (VoiceState.canModerate) wireRoomReorderHandle(card, room);
       list.appendChild(card);
     });
   }
 
   function wireRoomCardDropTarget(cardEl, room) {
     cardEl.addEventListener("dragover", (event) => {
+      if (!event.dataTransfer.types.includes("text/voice-participant")) return;
       if (!VoiceState.canModerate || room.slug === VoiceState.currentRoomSlug) return;
       event.preventDefault();
       cardEl.classList.add("drag-over");
     });
     cardEl.addEventListener("dragleave", () => cardEl.classList.remove("drag-over"));
     cardEl.addEventListener("drop", (event) => {
+      if (!event.dataTransfer.types.includes("text/voice-participant")) return;
       event.preventDefault();
       cardEl.classList.remove("drag-over");
       if (!VoiceState.canModerate || room.slug === VoiceState.currentRoomSlug) return;
@@ -225,6 +235,96 @@
       if (!targetClientId) return;
       moderate("move", targetClientId, { toRoomSlug: room.slug });
     });
+  }
+
+  // Arrastar as salas pelo "grip" reordena os cards na hora (como uma lista do Trello) — a nova
+  // ordem só é gravada no servidor quando o arraste termina (drop), não a cada passo.
+  function wireRoomReorderHandle(cardEl, room) {
+    const handle = cardEl.querySelector(".voice-room-drag-handle");
+    if (!handle) return;
+    handle.draggable = true;
+    handle.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/voice-room-reorder", room.slug);
+      event.dataTransfer.effectAllowed = "move";
+      cardEl.classList.add("reordering");
+    });
+    handle.addEventListener("dragend", () => cardEl.classList.remove("reordering"));
+
+    cardEl.addEventListener("dragover", (event) => {
+      if (!event.dataTransfer.types.includes("text/voice-room-reorder")) return;
+      event.preventDefault();
+      const draggingEl = document.querySelector(".voice-room-card.reordering");
+      if (!draggingEl || draggingEl === cardEl) return;
+      const rect = cardEl.getBoundingClientRect();
+      const isAfter = event.clientY - rect.top > rect.height / 2;
+      cardEl.parentNode.insertBefore(draggingEl, isAfter ? cardEl.nextSibling : cardEl);
+    });
+    cardEl.addEventListener("drop", (event) => {
+      if (!event.dataTransfer.types.includes("text/voice-room-reorder")) return;
+      event.preventDefault();
+      persistRoomOrder();
+    });
+  }
+
+  async function persistRoomOrder() {
+    const order = Array.from(document.querySelectorAll("#voice-room-list .voice-room-card")).map((el) => el.dataset.slug);
+    try {
+      const response = await fetch("/api/voice?action=reorder-rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: myClientId(), order }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Falha ao reordenar as salas.");
+    } catch (error) {
+      Notify.error(error.message || "Falha ao reordenar as salas.");
+    } finally {
+      await refreshRoomList();
+    }
+  }
+
+  // Mostra quem está numa sala sem precisar entrar nela — útil pra moderadores decidirem se
+  // querem mover alguém pra lá ou entrar, sem precisar sair de onde estão.
+  function openRoomMembersModal(room) {
+    closeModal();
+    const isCurrent = room.slug === VoiceState.currentRoomSlug;
+    const members = getRoomMembersPreviewList(room, isCurrent);
+
+    const overlay = document.createElement("div");
+    overlay.className = "voice-modal-overlay";
+    overlay.innerHTML = `
+      <div class="voice-modal-box voice-members-modal-box">
+        <h3>${escapeHtml(room.name)}</h3>
+        <p class="voice-modal-description">${members.length} participante${members.length === 1 ? "" : "s"} conectado${members.length === 1 ? "" : "s"}${room.memberLimit ? ` de ${room.memberLimit}` : ""}</p>
+        <div class="voice-members-modal-list">
+          ${members.length ? members.map((member) => `
+            <div class="voice-members-modal-row">
+              <img class="voice-participant-avatar" src="${member.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
+              <div class="voice-participant-info">
+                <span class="voice-participant-name">${escapeHtml(member.displayName)}</span>
+                ${member.factionLabel ? `<span class="voice-participant-org">${escapeHtml(member.factionLabel)}</span>` : ""}
+              </div>
+            </div>
+          `).join("") : '<div class="empty-state">Sala vazia no momento.</div>'}
+        </div>
+        <div class="voice-modal-actions">
+          <button type="button" class="ghost-button voice-modal-cancel">Fechar</button>
+          <button type="button" class="submit-button voice-members-modal-join">Entrar na sala</button>
+        </div>
+      </div>
+    `;
+
+    const close = () => { overlay.classList.remove("open"); setTimeout(() => overlay.remove(), 150); };
+    overlay.querySelector(".voice-modal-cancel").addEventListener("click", close);
+    overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
+    overlay.querySelector(".voice-members-modal-join").addEventListener("click", () => { close(); joinRoom(room.slug); });
+    document.addEventListener("keydown", function onKeydown(event) {
+      if (!document.body.contains(overlay)) { document.removeEventListener("keydown", onKeydown); return; }
+      if (event.key === "Escape") close();
+    });
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("open"));
   }
 
   // ---------------------------------------------------------------------
@@ -729,7 +829,10 @@
       VoiceState.localStream.getTracks().forEach((track) => pc.addTrack(track, VoiceState.localStream));
     }
     if (VoiceState.screenStream) {
-      VoiceState.screenStream.getTracks().forEach((track) => pc.addTrack(track, VoiceState.screenStream));
+      VoiceState.screenStream.getTracks().forEach((track) => {
+        const sender = pc.addTrack(track, VoiceState.screenStream);
+        if (track.kind === "video") applyShareQualityCapToSender(sender);
+      });
     }
 
     pc.onnegotiationneeded = async () => {
@@ -974,31 +1077,48 @@
   }
 
   // ---------------------------------------------------------------------
-  // Compartilhamento de tela (1 apresentador por sala, qualidade adaptativa)
+  // Compartilhamento de tela (1-2 apresentadores por sala, qualidade adaptativa)
   // ---------------------------------------------------------------------
+  // Em malha (cada participante conecta direto com todo mundo, sem servidor de mídia), quem
+  // apresenta precisa enviar a própria tela SEPARADAMENTE pra cada pessoa na sala — o upload dele
+  // cresce junto com o número de gente. Em vez de um limite de bitrate fixo por pessoa (que multiplica
+  // sem parar conforme a sala enche), miramos um orçamento de upload TOTAL quase constante e dividimos
+  // entre quem está assistindo, então a sala aguenta muito mais gente sem travar quem apresenta.
+  const SHARE_TOTAL_UPLOAD_BUDGET_BPS = 3200000; // ~3.2 Mbps de upload total mirados pra transmissão de tela
+  const SHARE_MIN_BITRATE_BPS = 150000;
+  const SHARE_MAX_BITRATE_BPS = 1500000;
+
+  // Fixo em 30fps independente do tamanho da sala — quem estiver assistindo precisa de movimento
+  // fluido. Quem escala com o número de pessoas é só o bitrate (abaixo), não o fps.
+  const SHARE_FRAME_RATE = 30;
+
   function computeShareFrameRate() {
-    const count = (VoiceState.presenceMembers || []).length;
-    if (count > 20) return 5;
-    if (count > 10) return 8;
-    return 15;
+    return SHARE_FRAME_RATE;
   }
 
   function computeShareMaxBitrate() {
-    const count = (VoiceState.presenceMembers || []).length;
-    if (count > 20) return 500000;
-    if (count > 10) return 900000;
-    return 2000000;
+    const viewers = Math.max(1, (VoiceState.presenceMembers || []).length - 1);
+    const perViewer = Math.floor(SHARE_TOTAL_UPLOAD_BUDGET_BPS / viewers);
+    return Math.max(SHARE_MIN_BITRATE_BPS, Math.min(SHARE_MAX_BITRATE_BPS, perViewer));
   }
 
+  // Aplica o limite de bitrate/fps num sender específico (usado quando um peer novo entra durante
+  // uma transmissão já ativa, pra ele nascer com o mesmo limite dos demais).
+  function applyShareQualityCapToSender(sender) {
+    if (!sender) return;
+    const params = sender.getParameters();
+    if (!params.encodings || !params.encodings.length) params.encodings = [{}];
+    params.encodings[0].maxBitrate = computeShareMaxBitrate();
+    params.encodings[0].maxFramerate = computeShareFrameRate();
+    sender.setParameters(params).catch(() => {});
+  }
+
+  // Reaplica o limite em todo mundo — chamado sempre que o número de gente na sala muda enquanto
+  // alguém está apresentando, já que o orçamento por pessoa depende de quantos estão na sala.
   function applyBitrateCapToScreenTrack() {
-    const maxBitrate = computeShareMaxBitrate();
+    if (!VoiceState.presenting) return;
     VoiceState.peers.forEach((peer) => {
-      const sender = peer.pc.getSenders().find((s) => s.track && s.track.kind === "video");
-      if (!sender) return;
-      const params = sender.getParameters();
-      if (!params.encodings || !params.encodings.length) params.encodings = [{}];
-      params.encodings[0].maxBitrate = maxBitrate;
-      sender.setParameters(params).catch(() => {});
+      applyShareQualityCapToSender(peer.pc.getSenders().find((s) => s.track && s.track.kind === "video"));
     });
   }
 
@@ -1011,14 +1131,18 @@
 
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: computeShareFrameRate() },
+        // Limitar a resolução capturada é o que mais pesa: uma tela 1440p/4K sem limite custa muito
+        // mais CPU pra codificar (e trava a transmissão) do que o ganho de nitidez vale a pena.
+        video: { frameRate: computeShareFrameRate(), width: { ideal: 1280, max: 1280 }, height: { ideal: 720, max: 720 } },
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
       });
       VoiceState.screenStream = stream;
       VoiceState.presenting = true;
       VoiceState.presenterClientIds.add(myClientId());
 
-      stream.getVideoTracks()[0].addEventListener("ended", stopScreenShare);
+      const videoTrack = stream.getVideoTracks()[0];
+      videoTrack.addEventListener("ended", stopScreenShare);
+      if ("contentHint" in videoTrack) videoTrack.contentHint = "detail"; // prioriza nitidez de texto/slide sobre movimento
       VoiceState.peers.forEach((peer) => {
         stream.getTracks().forEach((track) => peer.pc.addTrack(track, stream));
       });
@@ -1305,6 +1429,8 @@
       renderRoomGrid();
       renderWatchers();
       playVoiceSound("join");
+      // Mais gente na sala baixa o orçamento de banda por pessoa — reaplica em quem já estava.
+      applyBitrateCapToScreenTrack();
     });
 
     VoiceState.signalingChannel.presence.subscribe("leave", (member) => {
@@ -1315,6 +1441,7 @@
       renderRoomGrid();
       renderWatchers();
       playVoiceSound("leave");
+      applyBitrateCapToScreenTrack();
     });
 
     VoiceState.signalingChannel.presence.subscribe("update", (member) => {

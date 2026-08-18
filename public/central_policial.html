@@ -483,6 +483,11 @@
       .voice-room-card { position: relative; padding: 14px; border: 1px solid var(--line-soft); border-radius: 14px; background: var(--overlay-02); transition: border-color .2s ease, background .2s ease, transform .15s ease; }
       .voice-room-card.drag-over { border-color: rgba(59,130,246,.65); background: rgba(59,130,246,.1); transform: translateY(-2px); }
       .voice-room-card.current { border-color: rgba(59,130,246,.55); background: rgba(59,130,246,.08); }
+      .voice-room-card.reordering { opacity: .4; }
+      .voice-room-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+      .voice-room-card-header h3 { margin: 0; }
+      .voice-room-drag-handle { flex-shrink: 0; color: var(--muted-faint); cursor: grab; padding: 2px; }
+      .voice-room-drag-handle:active { cursor: grabbing; }
       .voice-room-card h3 { margin: 0 0 6px; font-size: .96rem; }
       .voice-room-locked-badge { display: inline-flex; align-items: center; color: var(--danger-text); font-size: .78rem; }
       .voice-room-status-line { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--muted-faint); }
@@ -625,6 +630,10 @@
       .voice-modal-field input { width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--line-soft); border-radius: 10px; background: var(--bg-soft); color: var(--text); }
       .voice-modal-field input:focus { outline: none; border-color: rgba(59,130,246,.6); }
       .voice-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+      .voice-members-modal-box { width: min(440px, 100%); }
+      .voice-members-modal-list { max-height: 320px; overflow-y: auto; margin-top: 14px; display: flex; flex-direction: column; gap: 4px; }
+      .voice-members-modal-row { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 10px; }
+      .voice-members-modal-row:hover { background: var(--overlay-03); }
       .submit-button.danger { background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%); color: #fff; }
 
       /* Foco visível (acessibilidade — navegação por teclado) */
