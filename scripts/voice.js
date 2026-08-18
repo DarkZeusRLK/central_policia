@@ -175,6 +175,12 @@
         <div class="voice-room-card-header">
           ${VoiceState.canModerate ? '<span class="voice-room-drag-handle" title="Arraste para reordenar as salas" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>' : ""}
           <h3>${escapeHtml(room.name)}${room.locked ? ' <span class="voice-room-locked-badge" title="Trancada para novas entradas"><i class="fa-solid fa-lock"></i></span>' : ""}</h3>
+          ${VoiceState.isAdmin ? `
+            <div class="voice-room-admin-actions">
+              <button type="button" class="voice-icon-button" data-room-rename title="Renomear sala" aria-label="Renomear sala ${escapeHtml(room.name)}"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" class="voice-icon-button" data-room-limit title="Definir limite de membros" aria-label="Definir limite de membros da sala ${escapeHtml(room.name)}"><i class="fa-solid fa-users-gear"></i></button>
+              <button type="button" class="voice-icon-button danger" data-room-delete title="Apagar sala" aria-label="Apagar sala ${escapeHtml(room.name)}"><i class="fa-solid fa-trash"></i></button>
+            </div>` : ""}
         </div>
         <span class="voice-room-status-line${isCurrent ? " is-connected" : ""}"><i class="fa-solid fa-circle"></i>${isCurrent ? "Conectada" : "Disponível"}</span>
         <span class="voice-room-occupants${full ? " full" : ""}">${occupants}${room.memberLimit ? ` / ${room.memberLimit}` : ""} participante${occupants === 1 ? "" : "s"}</span>
@@ -189,13 +195,6 @@
             <i class="fa-solid ${isCurrent ? "fa-phone-slash" : locked ? "fa-lock" : "fa-phone"}"></i>
             <span>${isCurrent ? "Sair" : locked ? "Trancada" : "Entrar"}</span>
           </button>
-          ${!isCurrent ? `<button type="button" class="voice-icon-button" data-view-members title="Ver participantes sem entrar" aria-label="Ver participantes da sala ${escapeHtml(room.name)} sem entrar"><i class="fa-solid fa-eye"></i></button>` : ""}
-          ${VoiceState.isAdmin ? `
-            <div class="voice-room-admin-actions">
-              <button type="button" class="voice-icon-button" data-room-rename title="Renomear sala" aria-label="Renomear sala ${escapeHtml(room.name)}"><i class="fa-solid fa-pen"></i></button>
-              <button type="button" class="voice-icon-button" data-room-limit title="Definir limite de membros" aria-label="Definir limite de membros da sala ${escapeHtml(room.name)}"><i class="fa-solid fa-users-gear"></i></button>
-              <button type="button" class="voice-icon-button danger" data-room-delete title="Apagar sala" aria-label="Apagar sala ${escapeHtml(room.name)}"><i class="fa-solid fa-trash"></i></button>
-            </div>` : ""}
         </div>
       `;
 
@@ -203,8 +202,6 @@
         if (isCurrent) leaveRoom();
         else joinRoom(room.slug);
       });
-
-      card.querySelector("[data-view-members]")?.addEventListener("click", () => openRoomMembersModal(room));
 
       if (VoiceState.isAdmin) {
         card.querySelector("[data-room-rename]").addEventListener("click", () => renameRoomPrompt(room));
@@ -281,50 +278,6 @@
     } finally {
       await refreshRoomList();
     }
-  }
-
-  // Mostra quem está numa sala sem precisar entrar nela — útil pra moderadores decidirem se
-  // querem mover alguém pra lá ou entrar, sem precisar sair de onde estão.
-  function openRoomMembersModal(room) {
-    closeModal();
-    const isCurrent = room.slug === VoiceState.currentRoomSlug;
-    const members = getRoomMembersPreviewList(room, isCurrent);
-
-    const overlay = document.createElement("div");
-    overlay.className = "voice-modal-overlay";
-    overlay.innerHTML = `
-      <div class="voice-modal-box voice-members-modal-box">
-        <h3>${escapeHtml(room.name)}</h3>
-        <p class="voice-modal-description">${members.length} participante${members.length === 1 ? "" : "s"} conectado${members.length === 1 ? "" : "s"}${room.memberLimit ? ` de ${room.memberLimit}` : ""}</p>
-        <div class="voice-members-modal-list">
-          ${members.length ? members.map((member) => `
-            <div class="voice-members-modal-row">
-              <img class="voice-participant-avatar" src="${member.avatarUrl || "images/Logo_policia.png"}" alt="" onerror="this.src='images/Logo_policia.png'" />
-              <div class="voice-participant-info">
-                <span class="voice-participant-name">${escapeHtml(member.displayName)}</span>
-                ${member.factionLabel ? `<span class="voice-participant-org">${escapeHtml(member.factionLabel)}</span>` : ""}
-              </div>
-            </div>
-          `).join("") : '<div class="empty-state">Sala vazia no momento.</div>'}
-        </div>
-        <div class="voice-modal-actions">
-          <button type="button" class="ghost-button voice-modal-cancel">Fechar</button>
-          <button type="button" class="submit-button voice-members-modal-join">Entrar na sala</button>
-        </div>
-      </div>
-    `;
-
-    const close = () => { overlay.classList.remove("open"); setTimeout(() => overlay.remove(), 150); };
-    overlay.querySelector(".voice-modal-cancel").addEventListener("click", close);
-    overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
-    overlay.querySelector(".voice-members-modal-join").addEventListener("click", () => { close(); joinRoom(room.slug); });
-    document.addEventListener("keydown", function onKeydown(event) {
-      if (!document.body.contains(overlay)) { document.removeEventListener("keydown", onKeydown); return; }
-      if (event.key === "Escape") close();
-    });
-
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => overlay.classList.add("open"));
   }
 
   // ---------------------------------------------------------------------
